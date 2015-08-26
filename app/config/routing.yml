@@ -1,0 +1,7 @@
+dwd_demo_admin:
+    resource: "@DWDCsAdminBundle/Controller/"
+    type:     annotation
+
+app:
+    resource: "@AppBundle/Controller/"
+    type:     annotation

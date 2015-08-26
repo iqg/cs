@@ -1,0 +1,62 @@
+{#
+   This is the base template used as the application layout which contains the
+   common elements and decorates all the other templates.
+   See http://symfony.com/doc/current/book/templating.html#template-inheritance-and-layouts
+#}
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8" />
+        <title>{% block title %}多维度客服后台系统{% endblock %}</title>
+
+        <link rel="stylesheet" href="{{ asset('css/bootstrap.min.css') }}" />
+        {% block stylesheets %}
+        {% endblock %}
+        <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}" />
+    </head>
+
+    <body>
+
+        {% block header %}
+            <header>
+                <div class="navbar navbar-default navbar-static-top" role="navigation">
+                    <div class="container">
+                        <div class="navbar-header">
+                            <a class="navbar-brand" href="{{ path('dwd_csadmin_dashboard') }}">
+                                多维度客服后台
+                            </a>
+
+                            <button type="button" class="navbar-toggle"
+                                    data-toggle="collapse"
+                                    data-target=".navbar-collapse">
+                                <span class="sr-only">Toggle navigation</span>
+                                <span class="icon-bar"></span>
+                                <span class="icon-bar"></span>
+                                <span class="icon-bar"></span>
+                            </button>
+                        </div>
+                        <div class="navbar-collapse collapse">
+                            <ul class="nav navbar-nav navbar-right">
+                                {% block header_navigation_links %}
+                                {% endblock %}
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </header>
+        {% endblock %}
+
+        <div class="container body-container">
+            {% block body %}
+            {% endblock %}
+        </div>
+
+        {% block footer %}
+        {% endblock %}
+
+    <script src="{{ asset('js/bootstrap.min.js') }}"></script>
+    {% block javascripts %}
+    {% endblock %}
+
+    </body>
+</html>
