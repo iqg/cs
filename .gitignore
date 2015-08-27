@@ -9,4 +9,7 @@
 /composer.phar
 /vendor/
 /web/bundles/
+
+.DS_Store
 .idea/*
+composer.lock
