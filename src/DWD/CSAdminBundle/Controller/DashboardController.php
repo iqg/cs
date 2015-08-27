@@ -21,10 +21,13 @@ class DashboardController extends Controller
      *
      * @Route("/",name="dwd_csadmin_dashboard")
      */
-    public function indexAction()
+    public function indexAction(Request $request)
     {
         $em = $this->getDoctrine()->getManager();
-        $products = $em->getRepository('DWDCsAdminBundle:Product')->findAll();
+        $qb = $em->getRepository('DWDCsAdminBundle:Product')->findAll();
+
+        $paginator = $this->get('knp_paginator');
+        $products = $paginator->paginate($qb, $request->query->getInt('page', 1));
 
         return $this->render('DWDCsAdminBundle:Dashboard:index.html.twig', array(
             'products'      => $products
