@@ -1,0 +1,229 @@
+<?xml version="1.0"?>
+<xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
+    <file source-language="en" target-language="en" datatype="plaintext" original="file.ext">
+        <body>
+            <trans-unit id="note">
+                <source>note</source>
+                <target>NOTE</target>
+            </trans-unit>
+            <trans-unit id="tip">
+                <source>tip</source>
+                <target>TIP</target>
+            </trans-unit>
+            <trans-unit id="not_available">
+                <source>not_available</source>
+                <target>Not available</target>
+            </trans-unit>
+            <trans-unit id="mit_license">
+                <source>mit_license</source>
+                <target>MIT License</target>
+            </trans-unit>
+
+
+            <trans-unit id="label.user_id">
+                <source>label.user_id</source>
+                <target>用户id</target>
+            </trans-unit>
+            <trans-unit id="label.coin_amount">
+                <source>label.coin_amount</source>
+                <target>金币数额</target>
+            </trans-unit>
+            <trans-unit id="label.balance_amount">
+                <source>label.balance_amount</source>
+                <target>余额数额</target>
+            </trans-unit>
+            <trans-unit id="label.current_coin">
+                <source>label.current_coin</source>
+                <target>剩余金币</target>
+            </trans-unit>
+            <trans-unit id="label.current_balance">
+                <source>label.current_balance</source>
+                <target>剩余余额</target>
+            </trans-unit>
+            <trans-unit id="label.record_type">
+                <source>label.record_type</source>
+                <target>记录类型</target>
+            </trans-unit>
+            <trans-unit id="label.title">
+                <source>label.title</source>
+                <target>标题</target>
+            </trans-unit>
+            <trans-unit id="label.name">
+                <source>label.name</source>
+                <target>名称</target>
+            </trans-unit>
+            <trans-unit id="label.price">
+                <source>label.price</source>
+                <target>价格</target>
+            </trans-unit>
+            <trans-unit id="label.description">
+                <source>label.description</source>
+                <target>描述</target>
+            </trans-unit>
+            <trans-unit id="label.author">
+                <source>label.author</source>
+                <target>作者</target>
+            </trans-unit>
+            <trans-unit id="label.author_email">
+                <source>label.author_email</source>
+                <target>邮箱</target>
+            </trans-unit>
+            <trans-unit id="label.username">
+                <source>label.username</source>
+                <target>用户名</target>
+            </trans-unit>
+            <trans-unit id="label.password">
+                <source>label.password</source>
+                <target>密码</target>
+            </trans-unit>
+            <trans-unit id="label.created_at">
+                <source>label.created_at</source>
+                <target>创建时间</target>
+            </trans-unit>
+            <trans-unit id="label.updated_at">
+                <source>label.updated_at</source>
+                <target>更新时间</target>
+            </trans-unit>
+            <trans-unit id="label.last_login">
+                <source>label.last_login</source>
+                <target>最后登录时间</target>
+            </trans-unit>
+            <trans-unit id="label.actions">
+                <source>label.actions</source>
+                <target>操作</target>
+            </trans-unit> 
+            <trans-unit id="label.campaign_branch_id">
+                <source>label.campaign_branch_id</source>
+                <target>门店id</target>
+            </trans-unit>
+            <trans-unit id="label.trade_number">
+                <source>label.trade_number</source>
+                <target>支付单号</target>
+            </trans-unit>
+            <trans-unit id="label.type">
+                <source>label.type</source>
+                <target>类型</target>
+            </trans-unit> 
+            <trans-unit id="label.status">
+                <source>label.status</source>
+                <target>状态</target>
+            </trans-unit>
+            <trans-unit id="label.locked">
+                <source>label.locked</source>
+                <target>封禁</target>
+            </trans-unit> 
+            <trans-unit id="label.balance">
+                <source>label.balance</source>
+                <target>余额</target>
+            </trans-unit> 
+            <trans-unit id="label.mobile">
+                <source>label.mobile</source>
+                <target>电话</target>
+            </trans-unit> 
+            <trans-unit id="label.coin">
+                <source>label.coin</source>
+                <target>金币</target>
+            </trans-unit> 
+            <trans-unit id="label.email">
+                <source>label.email</source>
+                <target>邮箱</target>
+            </trans-unit>   
+
+            <trans-unit id="title.coin_record_list">
+                <source>title.coin_record_list</source>
+                <target>金币记录列表</target>
+            </trans-unit>
+            <trans-unit id="title.balance_record_list">
+                <source>title.balance_record_list</source>
+                <target>余额记录列表</target>
+            </trans-unit> 
+            <trans-unit id="title.order_list">
+                <source>title.order_list</source>
+                <target>订单列表</target>
+            </trans-unit>
+            <trans-unit id="title.userinfo">
+                <source>title.userinfo</source>
+                <target>订单列表</target>
+            </trans-unit>
+
+            <trans-unit id="menu.post_list">
+                <source>menu.post_list</source>
+                <target>Post list</target>
+            </trans-unit>
+            <trans-unit id="menu.back_to_blog">
+                <source>menu.back_to_blog</source>
+                <target>Back to blog</target>
+            </trans-unit>
+            <trans-unit id="menu.homepage">
+                <source>menu.homepage</source>
+                <target>Homepage</target>
+            </trans-unit>
+            <trans-unit id="menu.admin">
+                <source>menu.admin</source>
+                <target>Backend</target>
+            </trans-unit>
+            <trans-unit id="menu.logout">
+                <source>menu.logout</source>
+                <target>Logout</target>
+            </trans-unit>
+
+            <trans-unit id="post.to_publish_a_comment">
+                <source>post.to_publish_a_comment</source>
+                <target>to publish a comment</target>
+            </trans-unit>
+            <trans-unit id="post.num_comments">
+                <source>post.num_comments</source>
+                <target>%count% comment|%count% comments</target>
+            </trans-unit>
+            <trans-unit id="post.commented_on">
+                <source>post.commented_on</source>
+                <target>commented on</target>
+            </trans-unit>
+            <trans-unit id="post.no_comments">
+                <source>post.no_comments</source>
+                <target>Be the first to comment on this post.</target>
+            </trans-unit>
+
+            <trans-unit id="help.app_description">
+                <source>help.app_description</source>
+                <target><![CDATA[This is a <strong>Admin application</strong> built in the Symfony Framework to illustrate the recommended way of developing Symfony applications.]]></target>
+            </trans-unit>
+            <trans-unit id="help.show_code">
+                <source>help.show_code</source>
+                <target><![CDATA[Click on this button to show the source code of the <strong>Controller</strong> and <strong>template</strong> used to render this page.]]></target>
+            </trans-unit>
+            <trans-unit id="help.browse_app">
+                <source>help.browse_app</source>
+                <target><![CDATA[Browse the <strong>public section</strong> of the Admin application.]]></target>
+            </trans-unit>
+            <trans-unit id="help.browse_admin">
+                <source>help.browse_admin</source>
+                <target><![CDATA[Browse the <strong>admin backend</strong> of the Admin application.]]></target>
+            </trans-unit>
+            <trans-unit id="help.login_users">
+                <source>help.login_users</source>
+                <target>Try either of the following users</target>
+            </trans-unit>
+            <trans-unit id="help.role_user">
+                <source>help.role_user</source>
+                <target>regular user</target>
+            </trans-unit>
+            <trans-unit id="help.role_admin">
+                <source>help.role_admin</source>
+                <target>administrator</target>
+            </trans-unit>
+            <trans-unit id="help.reload_fixtures">
+                <source>help.reload_fixtures</source>
+                <target>If these users don't work, reload application fixtures by running this command from the terminal:</target>
+            </trans-unit>
+            <trans-unit id="help.add_user">
+                <source>help.add_user</source>
+                <target>If you want to create new users, run this other command:</target>
+            </trans-unit>
+            <trans-unit id="help.more_information">
+                <source>help.more_information</source>
+                <target><![CDATA[For more information, check out the <a href="http://symfony.com/doc">Symfony doc</a>.]]></target>
+            </trans-unit>
+        </body>
+    </file>
+</xliff>

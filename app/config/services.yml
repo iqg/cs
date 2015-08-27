@@ -4,6 +4,6 @@ parameters:
 #    parameter_name: value
 
 services:
-#    service_name:
-#        class: AppBundle\Directory\ClassName
-#        arguments: ["@another_service_name", "plain_value", "%parameter_name%"]
+    dwd.data.http:
+        class: DWD\CSAdminBundle\Util\DWDData\DWDDataHttp
+        arguments: [@service_container]

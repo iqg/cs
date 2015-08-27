@@ -1,0 +1,135 @@
+{% extends "DWDCsAdminBundle:Layout:layout.html.twig" %}
+
+{% block body %}
+
+    <h1>{{ 'title.userinfo'|trans }}</h1>
+
+    <table class="table table-striped">
+        <thead>
+        <tr>
+            <th>{{ 'label.user_id'|trans }}</th>
+            <th>{{ 'label.username'|trans }}</th>
+            <th>{{ 'label.email'|trans }}</th> 
+            <th>{{ 'label.locked'|trans }}</th>
+            <th>{{ 'label.mobile'|trans }}</th>
+            <th>{{ 'label.balance'|trans }}</th>
+            <th>{{ 'label.coin'|trans }}</th> 
+            <th>{{ 'label.last_login'|trans }}</th>
+            <th>{{ 'label.created_at'|trans }}</th> 
+            <th>{{ 'label.updated_at'|trans }}</th>
+        </tr>
+        </thead>
+        <tbody>  
+            <tr>
+                <td>{{ userinfo['id'] }}</td>
+                <td>{{ userinfo['username'] }}</td>
+                <td>{{ userinfo['email'] }}</td> 
+                <td>{{ userinfo['locked'] }}</td>
+                <td>{{ userinfo['mobile'] }}</td>
+                <td>{{ userinfo['balance'] }}</td>
+                <td>{{ userinfo['coin'] }}</td>
+                <td>{{ userinfo['last_login'] }}</td>
+                <td>{{ userinfo['created_at'] }}</td>
+                <td>{{ userinfo['updated_at'] }}</td> 
+                <td>
+                    <div class="item-actions">
+                    </div>
+                </td>
+            </tr> 
+        </tbody>
+    </table>
+
+    <h1>{{ 'title.coin_record_list'|trans }}</h1>
+
+    <table class="table table-striped">
+        <thead>
+        <tr>
+            <th>{{ 'label.name'|trans }}</th>
+            <th>{{ 'label.record_type'|trans }}</th>
+            <th>{{ 'label.coin_amount'|trans }}</th>
+            <th>{{ 'label.current_coin'|trans }}</th>
+            <th>{{ 'label.created_at'|trans }}</th> 
+        </tr>
+        </thead>
+        <tbody> 
+        {% for coinrecord in coinrecords %}
+            <tr>
+                <td>{{ coinrecord['user_id'] }}</td>
+                <td>{{ coinrecord['type'] }}</td>
+                <td>{{ coinrecord['amount'] }}</td>
+                <td>{{ coinrecord['current_balance'] }}</td>
+                <td>{{ coinrecord['created_at'] }}</td>
+                <td>
+                    <div class="item-actions">
+                    </div>
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+
+    <h1>{{ 'title.balance_record_list'|trans }}</h1>
+
+    <table class="table table-striped">
+        <thead>
+        <tr>
+            <th>{{ 'label.name'|trans }}</th>
+            <th>{{ 'label.record_type'|trans }}</th>
+            <th>{{ 'label.balance_amount'|trans }}</th>
+            <th>{{ 'label.current_balance'|trans }}</th>
+            <th>{{ 'label.created_at'|trans }}</th> 
+        </tr>
+        </thead>
+        <tbody> 
+        {% for coinrecord in coinrecords %}
+            <tr>
+                <td>{{ coinrecord['user_id'] }}</td>
+                <td>{{ coinrecord['type'] }}</td>
+                <td>{{ coinrecord['amount'] }}</td>
+                <td>{{ coinrecord['current_balance'] }}</td>
+                <td>{{ coinrecord['created_at'] }}</td>
+                <td>
+                    <div class="item-actions">
+                    </div>
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <h1>{{ 'title.order_list'|trans }}</h1>
+
+    <table class="table table-striped">
+        <thead>
+        <tr>
+            <th>{{ 'label.campaign_branch_id'|trans }}</th>
+            <th>{{ 'label.user_id'|trans }}</th>
+            <th>{{ 'label.price'|trans }}</th>
+            <th>{{ 'label.status'|trans }}</th>
+            <th>{{ 'label.type'|trans }}</th>
+            <th>{{ 'label.trade_number'|trans }}</th>
+            <th>{{ 'label.created_at'|trans }}</th> 
+            <th>{{ 'label.updated_at'|trans }}</th>
+        </tr>
+        </thead>
+        <tbody> 
+        {% for order in orderlist %}
+            <tr>
+                <td>{{ order['campaign_branch_id'] }}</td>
+                <td>{{ order['user_id'] }}</td>
+                <td>{{ order['price'] }}元</td>
+                <td>{{ order['status'] }}</td>
+                <td>{{ order['type'] }}</td>
+                <td>{{ order['trade_number'] }}</td>
+                <td>{{ order['created_at'] }}</td>
+                <td>{{ order['updated_at'] }}</td> 
+                <td>
+                    <div class="item-actions">
+                    </div>
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}
