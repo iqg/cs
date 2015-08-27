@@ -32,5 +32,12 @@
             </tr>
         {% endfor %}
         </tbody>
+        <tfoot>
+        <tr>
+            <td colspan="4">
+                {{ knp_pagination_render(products) }}
+            </td>
+        </tr>
+        </tfoot>
     </table>
 {% endblock %}
