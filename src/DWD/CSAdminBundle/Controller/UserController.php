@@ -20,7 +20,7 @@ class UserController extends Controller
      */
     public function indexAction()
     { 
-        $internalApiHost = 'http://10.0.0.10:12306';
+        $internalApiHost = 'http://iqginternalapi.wx.jaeapp.com';//'http://10.0.0.10:12306';
         $userId          = 166036;
         $dataHttp        = $this->get('dwd.data.http');
 
@@ -68,10 +68,12 @@ class UserController extends Controller
             ), 
         );
 
-        $data = $dataHttp->MutliCall($data);
-         
+        $data         = $dataHttp->MutliCall($data);
+        $paginator    = $this->get('knp_paginator');
+        $coinrecords  = $paginator->paginate($data['coinrecords']['data']['list']);
+        
         return $this->render('DWDCsAdminBundle:User:index.html.twig', array(
-            'coinrecords'      => $data['coinrecords']['data']['list'],
+            'coinrecords'      => $coinrecords,
             'balancerecords'   => $data['coinrecords']['data']['list'],
             'orderlist'        => $data['orderlist']['data']['list'],
             'userinfo'         => $data['user']['data'],
@@ -79,63 +81,58 @@ class UserController extends Controller
     }
 
     /**
-     * @Route("/usershow", name="dwd_csadmin_product_show")
+     * @Route("/user/orderlist", name="dwd_csadmin_product_show")
      * @Method("GET")
      */
     public function showAction()
     {
-        $internalApiHost = 'http://10.0.0.10:12306';
+        $internalApiHost = 'http://iqginternalapi.wx.jaeapp.com';//'http://10.0.0.10:12306';
+        $iDisplayStart   = $this->getRequest()->get('iDisplayStart');
+        $iDisplayLength  = $this->getRequest()->get('iDisplayLength');
+        $sEcho           = $this->getRequest()->get('sEcho'); 
         $userId          = 166036;
         $dataHttp        = $this->get('dwd.data.http');
 
         $data            = array(
             array(
-                'url'    => $internalApiHost.'/user/userInfo',
-                'data'   => array(
-                    'userId'         => $userId,
-                ),
-                'method' => 'get',
-                'key'    => 'user',
-            ),
-            array(
                 'url'    => $internalApiHost.'/user/orderlist',
                 'data'   => array(
                     'userId'         => $userId,
-                    'needPagination' => 1,
-                    'type'           => 1,
-                    'pageLimit'      => 10,
+                    'needPagination' => 1, 
+                    'pageNum'        => $iDisplayStart / $iDisplayLength + 1,
+                    'pageLimit'      => $iDisplayLength,
                 ),
                 'method' => 'get',
-                'key' => 'orderlist',
-            ),
-            array(
-                'url'    => $internalApiHost.'/user/coinrecords',
-                'data'   => array(
-                    'userId'         => $userId,
-                    'type'           => 1,
-                    'needPagination' => 1,
-                    'pageLimit'      => 10,
-                ),
-                'method' => 'get',
-                'key'    => 'coinrecords',
-            ), 
-            array(
-                'url'    => $internalApiHost.'/user/balancerecords',
-                'data'   => array(
-                    'userId'         => $userId,
-                    'type'           => 1,
-                    'needPagination' => 1,
-                    'pageLimit'      => 10,
-                ),
-                'method' => 'get',
-                'key'    => 'balancerecords',
-            ), 
+                'key'    => 'orderlist',
+            )
         );
 
-        $data = $dataHttp->MutliCall2($data);
-        $res  = $dataHttp->getResponse(); 
-        var_dump( $res );
-        exit(1);
+       // $data = $dataHttp->MutliCall2($data);
+       // $res  = $dataHttp->getResponse(); 
+        $data           = $dataHttp->MutliCall($data);
+        $orderList      = array();
+        foreach( $data['orderlist']['data']['list'] as $orderInfo )
+        {
+
+            $orderList[] = array(
+                             $orderInfo['campaign_branch_id'],
+                             $orderInfo['user_id'],
+                             $orderInfo['price'],
+                             $orderInfo['status'],
+                             $orderInfo['type'],
+                             $orderInfo['trade_number'],
+                             $orderInfo['created_at'],
+                             $orderInfo['updated_at'],
+                           );  
+        } 
+        $res             = array
+                           (
+                                "sEcho"                => $sEcho, 
+                                "aaData"               => $orderList,
+                                "iTotalRecords"        => $data['orderlist']['data']['totalCnt'],
+                                "iTotalDisplayRecords" => $data['orderlist']['data']['totalCnt'],
+                           );
+        exit(json_encode( $res ));
         //return $this->render('DWDCsAdminBundle:Dashboard:show.html.twig', array(
          //   'product'      => $product,
       //  ));

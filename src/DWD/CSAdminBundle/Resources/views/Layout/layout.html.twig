@@ -9,7 +9,27 @@
         <meta charset="UTF-8" />
         <title>{% block title %}多维度客服后台系统{% endblock %}</title>
 
-        <link rel="stylesheet" href="{{ asset('css/bootstrap.min.css') }}" />
+        <link rel="stylesheet" href="{{ asset('css/bootstrap.min.css') }}" /> 
+         {# The styles #}
+        <link href="{{ asset('css/default/bootstrap-cerulean.min.css') }}" rel="stylesheet" />
+
+        <link href="{{ asset('css/default/charisma-app.css') }}" rel="stylesheet" />
+        <link href="{{ asset('bower_components/fullcalendar/dist/fullcalendar.css' ) }}" rel='stylesheet' />
+        <link href="{{ asset('bower_components/fullcalendar/dist/fullcalendar.print.css' ) }}" rel='stylesheet' media='print' />
+        <link href="{{ asset('bower_components/chosen/chosen.min.css') }}" rel='stylesheet' />
+        <link href="{{ asset('bower_components/colorbox/example3/colorbox.css' ) }}" rel='stylesheet' />
+        <link href="{{ asset('bower_components/responsive-tables/responsive-tables.css' ) }}" rel='stylesheet' />
+        <link href="{{ asset('bower_components/bootstrap-tour/build/css/bootstrap-tour.min.css') }}" rel='stylesheet' />
+        <link href="{{ asset('css/default/jquery.noty.css') }}" rel='stylesheet' />
+        <link href="{{ asset('css/default/noty_theme_default.css') }}" rel='stylesheet' />
+        <link href="{{ asset('css/default/elfinder.min.css') }}" rel='stylesheet' />
+        <link href="{{ asset('css/default/elfinder.theme.css') }}" rel='stylesheet' />
+        <link href="{{ asset('css/default/jquery.iphone.toggle.css') }}" rel='stylesheet' />
+        <link href="{{ asset('css/default/uploadify.css') }}" rel='stylesheet' />
+        <link href="{{ asset('css/default/animate.min.css') }}" rel='stylesheet' />
+ 
+        <script src="{{ asset('bower_components/jquery/jquery.min.js') }}" ></script>
+ 
         {% block stylesheets %}
         {% endblock %}
         <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}" />
@@ -54,7 +74,29 @@
         {% block footer %}
         {% endblock %}
 
-    <script src="{{ asset('js/bootstrap.min.js') }}"></script>
+    <script src="{{ asset('js/bootstrap.min.js') }}"></script> 
+   
+
+    <script src="{{ asset('bower_components/bootstrap/dist/js/bootstrap.min.js') }}"></script>
+ 
+    <script src="{{ asset('js/default/jquery.cookie.js') }}"></script>
+ 
+    <script src="{{ asset('bower_components/moment/min/moment.min.js') }}"></script>
+    <script src="{{ asset('bower_components/fullcalendar/dist/fullcalendar.min.js') }}"></script> 
+    <script src="{{ asset('js/default/jquery.dataTables.min.js') }}"></script>
+ 
+    <script src="{{ asset('bower_components/chosen/chosen.jquery.min.js') }}"></script> 
+    <script src="{{ asset('bower_components/colorbox/jquery.colorbox-min.js') }}"></script> 
+    <script src="{{ asset('js/default/jquery.noty.js') }}"></script> 
+    <script src="{{ asset('bower_components/responsive-tables/responsive-tables.js') }}"></script> 
+    <script src="{{ asset('bower_components/bootstrap-tour/build/js/bootstrap-tour.min.js') }}"></script> 
+    <script src="{{ asset('js/default/jquery.raty.min.js') }}"></script>
+    <script src="{{ asset('js/default/jquery.iphone.toggle.js') }}"></script>
+    <script src="{{ asset('js/default/jquery.autogrow-textarea.js') }}"></script>
+    <script src="{{ asset('js/default/jquery.uploadify-3.1.min.js') }}"></script>
+    <script src="{{ asset('js/default/jquery.history.js') }}"></script>
+    <script src="{{ asset('js/default/charisma.js') }}"></script>
+
     {% block javascripts %}
     {% endblock %}
 
