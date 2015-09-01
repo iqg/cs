@@ -71,10 +71,11 @@ doctrine:
         naming_strategy: doctrine.orm.naming_strategy.underscore
         auto_mapping: true
 
+# Doctrine MongoDB Configuration
 doctrine_mongodb:
     connections:
         default:
-            server: mongodb://localhost:27017
+            server: mongodb://10.0.0.10:27017
             options: {}
     default_database: iqianggou_search
     document_managers:
@@ -100,3 +101,9 @@ knp_paginator:
     template:
         pagination: KnpPaginatorBundle:Pagination:sliding.html.twig     # sliding pagination controls template
         sortable: KnpPaginatorBundle:Pagination:sortable_link.html.twig # sort link template
+
+# FOSUserBundle Configuration
+fos_user:
+    db_driver: orm # other valid values are 'mongodb', 'couchdb' and 'propel'
+    firewall_name: main
+    user_class: DWD\CSAdminBundle\Entity\User

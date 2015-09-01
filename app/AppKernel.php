@@ -20,6 +20,7 @@ class AppKernel extends Kernel
             new Knp\Bundle\PaginatorBundle\KnpPaginatorBundle(),
             new PUGX\AutocompleterBundle\PUGXAutocompleterBundle(),
             new Doctrine\Bundle\MongoDBBundle\DoctrineMongoDBBundle(),
+            new FOS\UserBundle\FOSUserBundle(),
             new DWD\CSAdminBundle\DWDCSAdminBundle(),
             new DWD\DataBundle\DWDDataBundle(),
             new AppBundle\AppBundle(),
