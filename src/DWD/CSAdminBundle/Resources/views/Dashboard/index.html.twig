@@ -1,43 +1,117 @@
 {% extends "DWDCsAdminBundle:Layout:layout.html.twig" %}
 
 {% block body %}
-    <h1>{{ 'title.product_list'|trans }}</h1>
+<div class="ch-container">
 
-    <table class="table table-striped">
-        <thead>
-        <tr>
-            <th>{{ 'label.name'|trans }}</th>
-            <th>{{ 'label.price'|trans }}</th>
-            <th>{{ 'label.description'|trans }}</th>
-            <th><i class="fa fa-cogs"></i> {{ 'label.actions'|trans }}</th>
-        </tr>
-        </thead>
-        <tbody>
-        {% for product in products %}
-            <tr>
-                <td>{{ product.name }}</td>
-                <td>{{ product.price }}</td>
-                <td>{{ product.description }}</td>
-                <td>
-                    <div class="item-actions">
-                        <a href="{{ path('dwd_csadmin_product_show', { id: product.id }) }}" class="btn btn-sm btn-default">
-                            {{ 'action.show'|trans }}
-                        </a>
+	{% if errMsg != '' %} 
+		 <div class="alert alert-danger">
+	        <button type="button" class="close" data-dismiss="alert">&times;</button>
+	        <strong>{{errMsg}}!</strong>
+	    </div>
+	{% endif %}
 
-                            <a href="{{ path('dwd_csadmin_product_edit', { id: product.id }) }}" class="btn btn-sm btn-primary">
-                                <i class="fa fa-edit"></i> {{ 'action.edit'|trans }}
-                            </a>
+     <div class="row">
+        <div class="row">
+	        <div class="box col-md-6">
+	            <div class="box-inner">
+	                <div class="box-header well" data-original-title="">
+	                    <h2><i class="glyphicon glyphicon-th"></i>用户投诉</h2>
+	                </div>
+	                <div class="box-content">
+	                    <div class="row">
+	                        <div class="col-md-4"><button id="usage" class="btn btn-default complaint-type">领用问题</button></div>
+	                        <div class="col-md-4"><button id="refund" class="btn btn-default complaint-type">订单退款</button></div>
+	                        <div class="col-md-4"><button id="correction" class="btn btn-default complaint-type">信息纠错</button></div>
+	                    </div>
+	                </div>
+	            </div>
+	        </div>
+	    <div>
+        <!--/span-->
+
+        <div class="box col-md-6">
+            <div class="box-inner">
+                <div class="box-header well" data-original-title="">
+                    <h2><i class="glyphicon glyphicon-th"></i>商户投诉</h2>
+                </div>
+                <div class="box-content">
+                    <div class="row">
+                        <div class="col-md-4"><button id="redeem" class="btn btn-default complaint-type">订单验证</button></div>
+                        <div class="col-md-4"><button id="offline" class="btn btn-default complaint-type">要求下线</button></div>
+                        <div class="col-md-4"><button id="modifyBranch" class="btn btn-default complaint-type">修改信息</button></div>
                     </div>
-                </td>
-            </tr>
-        {% endfor %}
-        </tbody>
-        <tfoot>
-        <tr>
-            <td colspan="4">
-                {{ knp_pagination_render(products) }}
-            </td>
-        </tr>
-        </tfoot>
-    </table>
+                </div>
+            </div>
+        </div>
+        <!--/span--> 
+
+        <div class="row">
+        	<div class="box col-md-12">
+        		<div class="box-inner">
+	                <div class="box-header well" data-original-title="">
+	                    <h2><i class="glyphicon glyphicon-th"></i>搜索</h2>
+	                </div>
+	                <div class="box-content">
+	                    <div class="row">
+	                        <div class="col-md-8">
+	                        	<input type="search" value="" name="search" class="form-control" placeholder="search" required>
+	                        </div>
+	                        <div class="col-md-4">
+	                        	<button id="search" class="btn btn-primary">搜索</button>
+	                        </div>
+	                    </div> 
+                    </div>
+                </div>
+        	</div>
+        </div>
+    </div>
+ 
+</div>
+<script type="text/javascript">
+	var     type    = '';
+	var     id      = 0;
+    $(document).ready(function() {
+		$(".complaint-type").click(function (e) { 
+            if( $(this).hasClass("btn-default") ){
+            	$(".complaint-type").addClass("btn-default");
+            	$(".complaint-type").removeClass("btn-primary");
+                $(this).removeClass("btn-default");
+                $(this).addClass("btn-primary"); 
+                type    = $(this).attr('id');
+            } else {
+            	$(this).removeClass("btn-primary");
+            	$(this).addClass("btn-default");
+            	type    = '';
+            }
+
+            return false;
+        });
+	});
+
+	$("#search").click(function(){
+	   if( type == '' ){
+	      alert('请选择投诉类型');
+	   	  return;
+	   }
+
+	   if( id == 1 ){
+	   	  alert('请选择对应门店或用户');
+	   	  return;
+	   }
+
+	   switch(type){ 
+		case 'usage':
+		case 'refund':
+		case 'correction': 
+		  location.href='/admin/user?userId=' + id + '&type=' + type;
+		  break; 
+		case 'redeem':
+		case 'offline':
+		case 'modifyBranch': 
+		  location.href='/admin/branch?branchId=' + id + '&type=' + type;
+		  break;  
+	   } 
+	});
+
+</script>
 {% endblock %}

@@ -24,6 +24,10 @@
                 <source>label.user_id</source>
                 <target>用户id</target>
             </trans-unit>
+            <trans-unit id="label.order_id">
+                <source>label.order_id</source>
+                <target>订单id</target>
+            </trans-unit> 
             <trans-unit id="label.coin_amount">
                 <source>label.coin_amount</source>
                 <target>金币数额</target>
@@ -94,7 +98,7 @@
             </trans-unit> 
             <trans-unit id="label.campaign_branch_id">
                 <source>label.campaign_branch_id</source>
-                <target>门店id</target>
+                <target>活动商品id</target>
             </trans-unit>
             <trans-unit id="label.trade_number">
                 <source>label.trade_number</source>
@@ -128,7 +132,104 @@
                 <source>label.email</source>
                 <target>邮箱</target>
             </trans-unit>   
+            <trans-unit id="label.operator_user_id">
+                <source>label.operator_user_id</source>
+                <target>操作人id</target>
+            </trans-unit>
+            <trans-unit id="label.lock_date">
+                <source>label.lock_date</source>
+                <target>封号时间</target>
+            </trans-unit>
+            <trans-unit id="label.note">
+                <source>label.note</source>
+                <target>备注</target>
+            </trans-unit>     
+            <trans-unit id="label.recommend_user_id">
+                <source>label.recommend_user_id</source>
+                <target>被推荐人id</target>
+            </trans-unit>
+            <trans-unit id="label.create_at">
+                <source>label.create_at</source>
+                <target>创建时间</target>
+            </trans-unit>
+            <trans-unit id="label.content">
+                <source>label.content</source>
+                <target>内容</target>
+            </trans-unit> 
+            <trans-unit id="label.item_id">
+                <source>label.item_id</source>
+                <target>商品id</target>
+            </trans-unit> 
+            <trans-unit id="label.saler_id">
+                <source>label.saler_id</source>
+                <target>销售id</target>
+            </trans-unit> 
+            <trans-unit id="label.type_id">
+                <source>label.type_id</source>
+                <target>类型</target>
+            </trans-unit> 
+            <trans-unit id="label.from_id">
+                <source>label.from_id</source>
+                <target>来源</target>
+            </trans-unit> 
+            <trans-unit id="label.category_id">
+                <source>label.category_id</source>
+                <target>分类id</target>
+            </trans-unit> 
+            <trans-unit id="label.resolved_at">
+                <source>label.resolved_at</source>
+                <target>解决时间</target>
+            </trans-unit>    
+            <trans-unit id="label.branch_name">
+                <source>label.branch_name</source>
+                <target>门店名称</target>
+            </trans-unit>   
+            <trans-unit id="label.city">
+                <source>label.city</source>
+                <target>城市</target>
+            </trans-unit>   
+            <trans-unit id="label.brand_name">
+                <source>label.brand_name</source>
+                <target>品牌名称</target>
+            </trans-unit>
+            <trans-unit id="label.branch_address">
+                <source>label.branch_address</source>
+                <target>门店地址</target>
+            </trans-unit>   
+            <trans-unit id="label.redeem_type">
+                <source>label.redeem_type</source>
+                <target>验证方式</target>
+            </trans-unit>   
+            <trans-unit id="label.redeem_tel">
+                <source>label.redeem_tel</source>
+                <target>验证电话</target>
+            </trans-unit>   
+            <trans-unit id="label.brand_contact_tel">
+                <source>label.brand_contact_tel</source>
+                <target>品牌联系人电话</target>
+            </trans-unit>   
+            <trans-unit id="label.branch_contact_tel">
+                <source>label.branch_contact_tel</source>
+                <target>门店联系人电话</target>
+            </trans-unit>   
+            <trans-unit id="label.branch_account">
+                <source>label.branch_account</source>
+                <target>门店帐号</target>
+            </trans-unit>   
+            <trans-unit id="label.follow_saler_id">
+                <source>label.follow_saler_id</source>
+                <target>跟进销售id</target>
+            </trans-unit>    
+            <trans-unit id="label.follow_saler">
+                <source>label.follow_saler</source>
+                <target>跟进销售</target>
+            </trans-unit>    
 
+ 
+            <trans-unit id="title.branchinfo">
+                <source>title.branchinfo</source>
+                <target>商户信息</target>
+            </trans-unit>
             <trans-unit id="title.coin_record_list">
                 <source>title.coin_record_list</source>
                 <target>金币记录列表</target>
@@ -145,7 +246,28 @@
                 <source>title.userinfo</source>
                 <target>用户信息</target>
             </trans-unit>
+            <trans-unit id="title.locked_record_list">
+                <source>title.locked_record_list</source>
+                <target>封号记录列表</target>
+            </trans-unit>  
+            <trans-unit id="title.recommend_record_list">
+                <source>title.recommend_record_list</source>
+                <target>推荐记录列表</target>
+            </trans-unit> 
+            <trans-unit id="title.sms_record_list">
+                <source>title.sms_record_list</source>
+                <target>短信记录列表</target>
+            </trans-unit> 
+            <trans-unit id="title.complaintrecords_list">
+                <source>title.complaintrecords_list</source>
+                <target>投诉记录列表</target>
+            </trans-unit>  
+            <trans-unit id="title.complaint_confirm">
+                <source>title.complaint_confirm</source>
+                <target>投诉确认</target>
+            </trans-unit>
 
+  
             <trans-unit id="menu.post_list">
                 <source>menu.post_list</source>
                 <target>Post list</target>

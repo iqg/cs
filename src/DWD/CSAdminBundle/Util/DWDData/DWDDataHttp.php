@@ -1,7 +1,7 @@
 <?php
 /**
  * Created by PhpStorm.
- * User: zhangchao
+ * User: caowei
  * Date: 8/24/15
  * Time: 17:48
  */
@@ -65,7 +65,8 @@ class DWDDataHttp
            $this->_responses[$key] = $instance->response;
         } );
 
-        foreach( $requests as $request ){
+        foreach( $requests as $request ){ 
+
             switch ( $request['method'] ) {
                 case 'get':
                     $multi_curl->addGet( $request['url'], $request['data'] );
@@ -83,11 +84,15 @@ class DWDDataHttp
 
     function MutliCall($requests, $delay = 0) {
 
-        $queue                 = curl_multi_init();
-        $map                   = array();
+        $queue                   = curl_multi_init();
+        $map                     = array();
 
         foreach ($requests as $reqId => $request) {
-            $ch                = curl_init();
+
+            if( false == isset( $request['data'] ) || false == is_array( $request['data'] ) ){
+                $request['data'] = array();
+            }
+            $ch                  = curl_init();
             switch ( $request['method'] ) {
                 case 'get':
                     self::PackageGetRequest( $ch, $request );

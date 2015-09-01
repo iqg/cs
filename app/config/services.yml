@@ -7,3 +7,6 @@ services:
     dwd.data.http:
         class: DWD\CSAdminBundle\Util\DWDData\DWDDataHttp
         arguments: [@service_container]
+    dwd.util:
+        class: DWD\CSAdminBundle\Util\Util
+        arguments: []
