@@ -54,10 +54,10 @@
 	                <div class="box-content">
 	                    <div class="row">
 	                        <div class="col-md-8">
-	                        	<input type="search" value="" name="search" class="form-control" placeholder="search" required>
+	                        	<input type="search" id="searchBox" value="" name="search" class="form-control" placeholder="search" required>
 	                        </div>
 	                        <div class="col-md-4">
-	                        	<button id="search" class="btn btn-primary">搜索</button>
+	                        	<button id="searchBtn" class="btn btn-primary">搜索</button>
 	                        </div>
 	                    </div> 
                     </div>
@@ -86,32 +86,52 @@
 
             return false;
         });
+
+        var availableTags = [
+			    "C#",
+			    "C++",
+			    "Java",
+			    "JavaScript",
+			    "ASP",
+                "ASP.NET",
+			    "JSP",
+			    "PHP",
+			    "Python",
+			    "Ruby"
+		    ];
+        $("#searchBox").autocomplete({
+                source: availableTags,
+                minLength:3,
+                select: function(e, ui) {
+			      alert(ui.item.value) 
+			    }
+        });
+
+        $("#search").click(function(){
+		   if( type == '' ){
+		      alert('请选择投诉类型');
+		   	  return;
+		   }
+
+		   if( id == 1 ){
+		   	  alert('请选择对应门店或用户');
+		   	  return;
+		   }
+
+		   switch(type){ 
+			case 'usage':
+			case 'refund':
+			case 'correction': 
+			  location.href='/admin/user?userId=' + id + '&type=' + type;
+			  break; 
+			case 'redeem':
+			case 'offline':
+			case 'modifyBranch': 
+			  location.href='/admin/branch?branchId=' + id + '&type=' + type;
+			  break;  
+		   } 
+		});
 	});
-
-	$("#search").click(function(){
-	   if( type == '' ){
-	      alert('请选择投诉类型');
-	   	  return;
-	   }
-
-	   if( id == 1 ){
-	   	  alert('请选择对应门店或用户');
-	   	  return;
-	   }
-
-	   switch(type){ 
-		case 'usage':
-		case 'refund':
-		case 'correction': 
-		  location.href='/admin/user?userId=' + id + '&type=' + type;
-		  break; 
-		case 'redeem':
-		case 'offline':
-		case 'modifyBranch': 
-		  location.href='/admin/branch?branchId=' + id + '&type=' + type;
-		  break;  
-	   } 
-	});
-
+ 
 </script>
 {% endblock %}
