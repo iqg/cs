@@ -1,7 +1,9 @@
-{% extends "DWDCsAdminBundle:Layout:layout.html.twig" %}
+{% extends "DWDCSAdminBundle:Layout:layout.html.twig" %}
 
 {% block body %}
     <h1>{{ 'title.product_list'|trans }}</h1>
+
+    <input type="text" id="autoText">
 
     <table class="table table-striped">
         <thead>
@@ -40,4 +42,10 @@
         </tr>
         </tfoot>
     </table>
+{% endblock %}
+
+{% block javascripts %}
+    <script type="text/javascript">
+        $('#autoText').autocompleter({url_list: '/admin/autocomplete-branch/search', url_get: '/admin/autocomplete-branch/'});
+    </script>
 {% endblock %}

@@ -1,6 +1,6 @@
 <?php
 
-namespace DWD\CsAdminBundle\Tests\Controller;
+namespace DWD\CSAdminBundle\Tests\Controller;
 
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 

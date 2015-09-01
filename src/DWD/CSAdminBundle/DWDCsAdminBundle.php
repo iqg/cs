@@ -1,9 +1,9 @@
 <?php
 
-namespace DWD\CsAdminBundle;
+namespace DWD\CSAdminBundle;
 
 use Symfony\Component\HttpKernel\Bundle\Bundle;
 
-class DWDCsAdminBundle extends Bundle
+class DWDCSAdminBundle extends Bundle
 {
 }
