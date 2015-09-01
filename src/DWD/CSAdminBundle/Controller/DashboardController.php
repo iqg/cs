@@ -145,8 +145,8 @@ class DashboardController extends Controller
     }
 
     /**
-     * 显示10条的话，有些重要的门店可能永远显示不出来了
-     * 如果是混合的关键字，全部转化成拼音
+     * autocomplete函数 门店名称的模糊查询
+     *
      * @Route("/autocomplete-branch/search", name="dwd_csadmin_autocomplete_branch_search")
      */
     public function autocompleteBranchSearchAction(Request $request)
@@ -161,7 +161,10 @@ class DashboardController extends Controller
 
         $dm = $this->get('doctrine_mongodb')->getManager();
         $resultByName = $dm->getRepository('DWDDataBundle:Store')->findByName(array('$regex' => $q));
-        $resultByPinyin = $dm->getRepository('DWDDataBundle:Store')->findByPinyin(array('$regex' => $q));
+        $resultByPinyin = array();
+        if ( !preg_match("/([\x81-\xfe][\x40-\xfe])/", $q) ) {
+            $resultByPinyin = $dm->getRepository('DWDDataBundle:Store')->findByPinyin(array('$regex' => $q));
+        }
         $result = array_merge($resultByName, $resultByPinyin);
 
         $resultHash = array();
@@ -184,6 +187,8 @@ class DashboardController extends Controller
     }
 
     /**
+     * autocomplete函数 根据门店ID获取门店名称
+     *
      * @Route("/autocomplete-branch/{branch_id}", name="dwd_csadmin_autocomplete_branch_get")
      * @Method("GET")
      */
