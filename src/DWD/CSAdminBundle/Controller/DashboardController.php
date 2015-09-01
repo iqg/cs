@@ -9,8 +9,6 @@ use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use DWD\CSAdminBundle\Entity\Product;
-use DWD\DataBundle\Document\Store;
-use Overtrue\Pinyin\Pinyin;
 
 /**
  * Class DashboardController
@@ -104,98 +102,5 @@ class DashboardController extends Controller
         $response = new Response();
         $response->setContent(json_encode($arrayProducts));
         return $response;
-    }
-
-    /**
-     * @Route("/autocomplete-product/search", name="dwd_csadmin_autocomplete_product_search")
-     */
-    public function autocompleteProductSearchAction(Request $request)
-    {
-        $q = $request->get('term');
-
-        $em = $this->getDoctrine()->getManager();
-        $qb = $em->createQueryBuilder();
-        $products = $qb->select('p')->from('DWD\CSAdminBundle\Entity\Product', 'p')
-            ->where(
-                $qb->expr()->like('p.name', $qb->expr()->literal('%' . $q . '%'))
-            )
-            ->getQuery()
-            ->getResult();
-
-        $arrayProducts = array();
-        foreach ($products as $product) {
-            $itemProduct['id'] = $product->getId();
-            $itemProduct['label'] = $product->getName();
-            $itemProduct['name'] = $product->getName();
-            $arrayProducts []= $itemProduct;
-        }
-
-        $response = new Response();
-        $response->setContent(json_encode($arrayProducts));
-        return $response;
-    }
-
-    /**
-     * @Route("/autocomplete-product/{id}", requirements={"id" = "\d+"}, name="dwd_csadmin_autocomplete_product_get")
-     * @Method("GET")
-     */
-    public function autocompleteProductGetAction(Product $product)
-    {
-        return new Response($product->getName());
-    }
-
-    /**
-     * autocomplete函数 门店名称的模糊查询
-     *
-     * @Route("/autocomplete-branch/search", name="dwd_csadmin_autocomplete_branch_search")
-     */
-    public function autocompleteBranchSearchAction(Request $request)
-    {
-        $q = $request->get('term');
-        $mb_size = mb_strlen($q, 'UTF-8');
-        if ( $mb_size < 3 ) {
-            $response = new Response();
-            $response->setContent(json_encode([]));
-            return $response;
-        }
-
-        $dm = $this->get('doctrine_mongodb')->getManager();
-        $resultByName = $dm->getRepository('DWDDataBundle:Store')->findByName(array('$regex' => $q));
-        $resultByPinyin = array();
-        if ( !preg_match("/([\x81-\xfe][\x40-\xfe])/", $q) ) {
-            $resultByPinyin = $dm->getRepository('DWDDataBundle:Store')->findByPinyin(array('$regex' => $q));
-        }
-        $result = array_merge($resultByName, $resultByPinyin);
-
-        $resultHash = array();
-        $arrayResult = array();
-        foreach ($result as $record) {
-            if (isset($resultHash[$record->getBranchId()])) {
-                continue;
-            }
-            $branchInfo['id'] = $record->getBranchId();
-            $branchInfo['label'] = $record->getName();
-            $branchInfo['name'] = $record->getName();
-            $branchInfo['pinyin'] = $record->getPinyin();
-            $arrayResult []= $branchInfo;
-            $resultHash[$record->getBranchId()] = True;
-        }
-
-        $response = new Response();
-        $response->setContent(json_encode($arrayResult));
-        return $response;
-    }
-
-    /**
-     * autocomplete函数 根据门店ID获取门店名称
-     *
-     * @Route("/autocomplete-branch/{branch_id}", name="dwd_csadmin_autocomplete_branch_get")
-     * @Method("GET")
-     */
-    public function autocompleteBranchGetAction($branch_id)
-    {
-        $dm = $this->get('doctrine_mongodb')->getManager();
-        $store = $dm->getRepository('DWDDataBundle:Store')->findOneBy( array('branch_id' => intval($branch_id)) );
-        return new Response($store->getName());
     }
 }

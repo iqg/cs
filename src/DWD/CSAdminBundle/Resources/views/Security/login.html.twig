@@ -11,6 +11,9 @@
         <div class="col-md-5 col-centered">
             <div class="well">
                 <form action="{{ path('security_login_check') }}" method="post">
+                    {% if error %}
+                        <div class='red'>{{ error.message }}</div><br>
+                    {% endif %}
                     <fieldset>
                         <legend><i class="fa fa-lock"></i> {{ 'title.login'|trans }}</legend>
                         <div class="form-group">

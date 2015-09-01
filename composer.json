@@ -25,7 +25,8 @@
         "overtrue/pinyin": "^2.6",
         "doctrine/doctrine-fixtures-bundle": "^2.2",
         "doctrine/mongodb-odm": "1.0.*@dev",
-        "doctrine/mongodb-odm-bundle": "3.0.*@dev"
+        "doctrine/mongodb-odm-bundle": "3.0.*@dev",
+        "friendsofsymfony/user-bundle": "^1.3"
     },
     "require-dev": {
         "sensio/generator-bundle": "~2.3"
