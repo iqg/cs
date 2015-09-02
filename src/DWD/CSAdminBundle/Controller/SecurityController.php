@@ -5,6 +5,7 @@ namespace DWD\CSAdminBundle\Controller;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 
 class SecurityController extends Controller
 {
@@ -47,5 +48,23 @@ class SecurityController extends Controller
     public function logoutAction()
     {
         throw new \Exception('This should never be reached!');
+    }
+
+    /**
+     * 通过/api/user/login来验证登录
+     *
+     * @Route("/login_check_api", name="dwd_csadmin_login_check_api")
+     * @Method({"POST"})
+     */
+    public function loginCheckApiAction(Request $request)
+    {
+        $username = $request->get('_username');
+        $password = $request->get('_password');
+        $uri = $this->host . 'api/user/login';
+        $params = array(
+            'mobile'    => $username,
+            'password'  => $password
+        );
+        // to do guzzle.client
     }
 }

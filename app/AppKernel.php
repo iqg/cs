@@ -21,6 +21,7 @@ class AppKernel extends Kernel
             new PUGX\AutocompleterBundle\PUGXAutocompleterBundle(),
             new Doctrine\Bundle\MongoDBBundle\DoctrineMongoDBBundle(),
             new FOS\UserBundle\FOSUserBundle(),
+            new Misd\GuzzleBundle\MisdGuzzleBundle(),
             new DWD\CSAdminBundle\DWDCSAdminBundle(),
             new DWD\DataBundle\DWDDataBundle(),
             new AppBundle\AppBundle(),
