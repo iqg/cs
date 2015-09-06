@@ -3,7 +3,7 @@
 {% block body %}
     <h1>{{ 'title.edit_product'|trans({'%id%': product.id}) }}</h1>
 
-    {{ include('DWDCSAdminBundle:Dashboard:_form.html.twig', {
+    {{ include('DWDCSAdminBundle:Product:_form.html.twig', {
     form: edit_form,
     button_label: 'action.save'|trans,
     }, with_context = false) }}

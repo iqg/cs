@@ -43,6 +43,7 @@ class SearchController extends Controller
             if (isset($resultHash[$record->getBranchId()])) {
                 continue;
             }
+            $branchInfo = array();
             $branchInfo['id'] = $record->getBranchId();
             $branchInfo['label'] = $record->getName();
             $branchInfo['name'] = $record->getName();

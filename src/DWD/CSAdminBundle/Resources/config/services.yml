@@ -1,4 +1,5 @@
 services:
-#    dwd_cs_admin.example:
-#        class: DWD\CSAdminBundle\Example
-#        arguments: [@service_id, "plain_value", %parameter%]
+
+    dwdapi:
+        class: DWD\CSAdminBundle\Utils\DwdAPI
+        arguments: [@guzzle.client]

@@ -18,11 +18,21 @@ use DWD\CSAdminBundle\Entity\Product;
 class DashboardController extends Controller
 {
     /**
-     * Lists all Product entities.
+     * Index of Dashboard
      *
      * @Route("/",name="dwd_csadmin_dashboard")
      */
-    public function indexAction(Request $request)
+    public function indexAction()
+    {
+        return $this->render('DWDCSAdminBundle:Dashboard:index.html.twig');
+    }
+
+    /**
+     * Lists all Product entities.
+     *
+     * @Route("/products",name="dwd_csadmin_product_list")
+     */
+    public function productListAction(Request $request)
     {
         $em = $this->getDoctrine()->getManager();
         $qb = $em->getRepository('DWDCSAdminBundle:Product')->findAll();
@@ -30,7 +40,7 @@ class DashboardController extends Controller
         $paginator = $this->get('knp_paginator');
         $products = $paginator->paginate($qb, $request->query->getInt('page', 1));
 
-        return $this->render('DWDCSAdminBundle:Dashboard:index.html.twig', array(
+        return $this->render('DWDCSAdminBundle:Dashboard:Product:index.html.twig', array(
             'products'      => $products
         ));
     }
@@ -38,12 +48,12 @@ class DashboardController extends Controller
     /**
      * Finds and displays a Product entity
      *
-     * @Route("/{id}", requirements={"id" = "\d+"}, name="dwd_csadmin_product_show")
+     * @Route("/product/{id}", requirements={"id" = "\d+"}, name="dwd_csadmin_product_show")
      * @Method("GET")
      */
-    public function showAction(Product $product)
+    public function productShowAction(Product $product)
     {
-        return $this->render('DWDCSAdminBundle:Dashboard:show.html.twig', array(
+        return $this->render('DWDCSAdminBundle:Dashboard:Prpshow.html.twig', array(
             'product'      => $product,
         ));
     }
@@ -51,10 +61,10 @@ class DashboardController extends Controller
     /**
      * Displays a form to edit an existing Product entity.
      *
-     * @Route("/{id}/edit", requirements={"id" = "\d+"}, name="dwd_csadmin_product_edit")
+     * @Route("/product/{id}/edit", requirements={"id" = "\d+"}, name="dwd_csadmin_product_edit")
      * @Method({"GET", "POST"})
      */
-    public function editAction(Product $product, Request $request)
+    public function productEditAction(Product $product, Request $request)
     {
         $em = $this->getDoctrine()->getManager();
 
@@ -77,10 +87,10 @@ class DashboardController extends Controller
     /**
      * List add Products entities by JSON
      *
-     * @Route("/products", name="dwd_csadmin_product_list_json")
+     * @Route("/products_json", name="dwd_csadmin_product_list_json")
      * @Method("GET")
      */
-    public function listAction(Request $request)
+    public function productListJsonAction(Request $request)
     {
         $page = $request->query->get('page') | 1;
 

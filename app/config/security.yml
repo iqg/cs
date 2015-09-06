@@ -4,7 +4,7 @@ security:
     encoders:
         # Our user class and the algorithm we'll use to encode passwords
         # http://symfony.com/doc/current/book/security.html#encoding-the-user-s-password
-        FOS\UserBundle\Model\UserInterface: bcrypt
+        FOS\UserBundle\Model\UserInterface: sha512
 
     role_hierarchy:
         ROLE_ADMIN:       ROLE_USER

@@ -32,8 +32,13 @@ class SecurityController extends Controller
      *
      * @Route("/login_check", name="dwd_csadmin_login_check")
      */
-    public function loginCheckAction()
+    public function loginCheckAction(Request $request)
     {
+//        $username =  $request->query->get('_username');
+//        $password = $request->query->get('_password');
+//        $dwdAPI = $this->container->get('dwdapi');
+//        $result = $dwdAPI->login_brandadmin( array( 'username' => $username, 'password' => $password ) );
+
         throw new \Exception('This should never be reached!');
     }
 
