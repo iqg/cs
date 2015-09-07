@@ -22,6 +22,7 @@ class AppKernel extends Kernel
             new Doctrine\Bundle\MongoDBBundle\DoctrineMongoDBBundle(),
             new FOS\UserBundle\FOSUserBundle(),
             new Misd\GuzzleBundle\MisdGuzzleBundle(),
+            new Snc\RedisBundle\SncRedisBundle(),
             new DWD\CSAdminBundle\DWDCSAdminBundle(),
             new DWD\DataBundle\DWDDataBundle(),
             new AppBundle\AppBundle(),

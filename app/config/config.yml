@@ -8,6 +8,8 @@ imports:
 # http://symfony.com/doc/current/best_practices/configuration.html#application-related-configuration
 parameters:
     locale: en
+    cookie_domain: .iqianggou.dev
+    redis_dsn: 'redis://127.0.0.1:6379'
 
 framework:
     #esi:             ~
@@ -27,9 +29,9 @@ framework:
     trusted_hosts:   ~
     trusted_proxies: ~
     session:
-        handler_id: session.handler.pdo
         cookie_domain: %cookie_domain%
         cookie_lifetime: 315360000 #10 years
+        handler_id: session.handler.pdo
     fragments:       ~
     http_method_override: true
 
@@ -108,4 +110,10 @@ knp_paginator:
 fos_user:
     db_driver: orm # other valid values are 'mongodb', 'couchdb' and 'propel'
     firewall_name: main
-    user_class: DWD\CSAdminBundle\Entity\User
+    user_class: DWD\DataBundle\Entity\User
+
+# SncRedis Configuration
+snc_redis:
+    session:
+        client: session
+        locking: false

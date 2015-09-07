@@ -46,3 +46,23 @@ assetic:
 
 #swiftmailer:
 #    delivery_address: me@example.com
+
+snc_redis:
+    clients:
+        default:
+            type: predis
+            alias: default
+            dsn: %redis_dsn%/1
+            logging: %kernel.debug%
+        cache:
+            type: predis
+            alias: cache
+            dsn: %redis_dsn%/2
+            options:
+                profile: 2.2
+                connection_timeout: 10
+                read_write_timeout: 30
+        session:
+            type: predis
+            alias: session
+            dsn: %redis_dsn%/3

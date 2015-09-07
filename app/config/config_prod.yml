@@ -25,3 +25,23 @@ monolog:
             level: debug
         console:
             type:  console
+
+snc_redis:
+    clients:
+        default:
+            type: predis
+            alias: default
+            dsn: %redis_dsn%/10
+            logging: %kernel.debug%
+        cache:
+            type: predis
+            alias: cache
+            dsn: %redis_dsn%/11
+            options:
+                profile: 2.2
+                connection_timeout: 10
+                read_write_timeout: 30
+        session:
+            type: predis
+            alias: session
+            dsn: %redis_dsn%/12
