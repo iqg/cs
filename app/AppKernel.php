@@ -23,6 +23,7 @@ class AppKernel extends Kernel
             new FOS\UserBundle\FOSUserBundle(),
             new Misd\GuzzleBundle\MisdGuzzleBundle(),
             new Snc\RedisBundle\SncRedisBundle(),
+            new Ob\HighchartsBundle\ObHighchartsBundle(),
             new DWD\CSAdminBundle\DWDCSAdminBundle(),
             new DWD\DataBundle\DWDDataBundle(),
             new AppBundle\AppBundle(),

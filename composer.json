@@ -29,7 +29,9 @@
         "friendsofsymfony/user-bundle": "^1.3",
         "misd/guzzle-bundle": "^1.1",
         "snc/redis-bundle": "1.1.8",
-        "predis/predis":"0.8.7"
+        "predis/predis":"0.8.7",
+        "iqg/utils-bundle": "^1.2",
+        "zendframework/zend-json": "2.3.0"
     },
     "require-dev": {
         "sensio/generator-bundle": "~2.3"
