@@ -39,4 +39,211 @@ class Util
                                );
         return $statusLabel[$statusId];
    }
+
+   public function getSMSTypeLabel( $typeId )
+   {
+        $typeLabel          =  array(
+                                 1    => '注册',
+                                 2    => '重置密码',
+                                 3    => '绑定手机',
+                                 4    => '推荐好友',
+                                 5    => '重要事项提醒',
+                                 6    => '后台操作退款提醒',
+                                 7    => '扫码活动注册成功短信',
+                                 8    => '发送品牌管理帐号和初始密码',
+                                 9    => '活动批准上线发送通知短信',
+                                 10   => '后台操作订单取消提醒',
+                                 11   => '订单相关反馈的短信提醒',
+                                 12   => '审核不通过提醒', 
+                                 13   => '审核通过提醒',
+                                 14   => '审核通过，活动上线提醒',
+                                 15   => '商户App绑定手机号码',
+                                 16   => '第三方帐号绑定手机号',
+                                 17   => '培训失败提醒',
+                               );
+        return $typeLabel[$typeId];
+   }
+
+   public function getCoinTypeLabel( $typeId )
+   {
+        $typeLabel          =  array(
+                                 0    => '所有记录',
+                                 1    => '每日签到',
+                                 2    => '推荐好友',
+                                 3    => '订单评论',
+                                 4    => '活动赠送',
+                                 5    => '余额兑换',
+                                 6    => '金币充值',
+                                 7    => '下单奖励',
+                                 8    => '取消订单补偿',
+                                 9    => '订单纠错通过奖励',
+                               );
+        return $typeLabel[$typeId];
+   }
+
+   public function getBalanceTypeLabel( $typeId )
+   {
+        $typeLabel          =  array( 
+                                 1    => '余额支付',
+                                 2    => '充值卡充值',
+                                 3    => '退款',
+                                 4    => '充值',
+                                 5    => '活动赠送',
+                                 6    => '金币兑换',
+                                 7    => '支付失败退款',
+                                 8    => '订单取消退款',
+                                 9    => '新用户赠送',
+                                 10   => '优质用户奖励',
+                                 11   => '退款补偿',
+                                 12   => '六一活动注册赠送', 
+                                 13   => '退款撤回',
+                               );
+        return $typeLabel[$typeId];
+   }
+
+   public function getLockReasonTypeLabel( $typeId )
+   {
+        $typeLabel          =  array( 
+                                 0    => '未知',
+                                 1    => '使用多个账号重复购买同一商品',
+                                 2    => '领用时使用截图或抄写验证码',
+                                 3    => '一天内在同一门店领用1份以上商品',
+                                 4    => '与商户发生纠纷，在门店内闹事',
+                                 5    => '转卖爱抢购订单进行牟利',
+                                 6    => '其他',
+                                 7    => '退款过多',
+                               );
+        return $typeLabel[$typeId];
+   }
+
+   public function getOrderTableInfo( $typeId )
+   {
+      $tableInfo            =  array(
+                                 2    => array(
+                                           'label'     => '未领用',
+                                           'code'      => 'wait-redeem',
+                                           'head'      => array(
+                                                             '商品',
+                                                             '门店',
+                                                             '兑换码',
+                                                          ),
+                                           'field'     => array(
+                                                             'itemName',
+                                                             'branchName',
+                                                             'redeemNumber',
+                                                          ),
+                                           'operation' => array(
+                                                            '退款',
+                                                            '纠错',
+                                                            '日志',
+                                                            '详情',
+                                                          ),
+                                         ),
+                                 3    => array(
+                                            'label'     => '已退款',
+                                            'code'      => 'refund',
+                                            'head'      => array(
+                                                             '商品',
+                                                             '门店',
+                                                             '退款时间',
+                                                           ),
+                                            'field'     => array(
+                                                             'itemName',
+                                                             'branchName',
+                                                             'refundTime',
+                                                           ),
+                                            'operation' => array( 
+                                                            '纠错',
+                                                            '日志',
+                                                            '详情',
+                                                          ),
+                                         ),
+                                 4    => array(
+                                            'label'     => '已过期',
+                                            'code'      => 'expired',
+                                            'head'      => array(
+                                                             '商品',
+                                                             '门店',
+                                                             '过期时间',
+                                                           ),
+                                            'field'     => array(
+                                                             'itemName',
+                                                             'branchName',
+                                                             'expiredTime',
+                                                           ),
+                                            'operation' => array(
+                                                            '退款',
+                                                            '纠错',
+                                                            '日志',
+                                                            '详情',
+                                                          ),
+                                         ),
+                                 5    => array(
+                                            'label'     => '已完成',
+                                            'code'      => 'finish',
+                                            'head'      => array(
+                                                             '商品',
+                                                             '门店',
+                                                             '领用时间',
+                                                           ),
+                                            'field'     => array(
+                                                             'itemName',
+                                                             'branchName',
+                                                             'redeemTime',
+                                                           ),
+                                            'operation' => array( 
+                                                            '纠错',
+                                                            '日志',
+                                                            '详情',
+                                                          ),
+                                         ),
+                                 6    => array(
+                                            'label'     => '待处理',
+                                            'code'      => 'processing',
+                                            'head'      => array(
+                                                             '商品',
+                                                             '门店',
+                                                             '状态',
+                                                           ),
+                                           'field'      => array(
+                                                             'itemName',
+                                                             'branchName',
+                                                             'status',
+                                                           ),
+                                            'operation' => array(
+                                                            '退款',
+                                                            '纠错',
+                                                            '日志',
+                                                            '详情',
+                                                          ),
+                                         ),
+                               );
+        return $typeId == 0 ? $tableInfo : $tableInfo[$typeId];
+   }
+
+   public function getComplaintStatusLabel( $statusId )
+   {
+        $statusLabel        =  array( 
+                                 0    => '未解决',
+                                 10   => '已解决（退款处理）',
+                                 11   => '已解决（延期处理）',
+                                 99   => '已解决（其它）', 
+                               );
+        return $statusLabel[$statusId];
+   }
+
+   public function getComplaintTypesLabel( $typeId )
+   {
+        $typeLabel          =  array( 
+                                 'usage'        => '领用问题',
+                                 'refund'       => '订单退款',
+                                 'correction'   => '信息纠错',
+                                 'redeem'       => '订单验证',
+                                 'offline'      => '要求下线',
+                                 'modifyBranch' => '修改信息',
+                                 'ask'          => '咨询',
+                                 'tech-error'   => '技术故障', 
+                               );
+        return $typeLabel[$typeId];
+   }
 }

@@ -1,4 +1,4 @@
-{% extends "DWDCsAdminBundle:Layout:layout.html.twig" %}
+{% extends "DWDCSAdminBundle:Layout:layout.html.twig" %}
 
 {% block body %}
 <div class="ch-container">
@@ -7,7 +7,7 @@
                 <div>
         <ul class="breadcrumb">
             <li>
-                <a href="/admin">首页</a>
+                <a href="/">首页</a>
             </li>
             <li>
                 用户投诉
@@ -25,10 +25,10 @@
                         <li> 
                             <img class="dashboard-avatar" src="{{ userinfo['avatar'] }}">
                             <strong>{{ 'label.user_id'|trans }}&nbsp;:&nbsp;</strong> {{ userinfo['id'] }}<br><br>
-                            <strong>{{ 'label.username'|trans }}&nbsp;:&nbsp;</strong> {{ userinfo['username'] }}&nbsp;&nbsp;&nbsp;<a href="#">[编辑帐号]</a><br><br>
+                            <strong>{{ 'label.username'|trans }}&nbsp;:&nbsp;</strong> {{ userinfo['username'] }}&nbsp;&nbsp;&nbsp;<a id="resetPwd-btn" href="#">[重置密码]</a><br><br>
                             <strong>{{ 'label.email'|trans }}&nbsp;:&nbsp;</strong> {{ userinfo['email'] }}<br><br>
-                            <strong>{{ 'label.locked'|trans }}&nbsp;:&nbsp;</strong> <span class="label-success label label-default">可用</span>&nbsp;&nbsp;&nbsp; <span class="label-success label label-default">未封号</span>&nbsp;&nbsp;&nbsp;<a href="#">[封号]</a>&nbsp;&nbsp;&nbsp;<a id='lockedrecords-btn' href="#">[封号记录]</a><br><br> 
-                            <strong>{{ 'label.mobile'|trans }}&nbsp;:&nbsp;</strong> {{ userinfo['mobile'] }}&nbsp;&nbsp;&nbsp;<a href="#">[解绑设备]</a>&nbsp;&nbsp;&nbsp;<br><br>
+                            <strong>{{ 'label.locked'|trans }}&nbsp;:&nbsp;</strong>{% if userinfo['enabled'] != 0 %} <span class="label-success label label-default">可用</span> {% else %}  <span class="label-important label label-default">禁用</span> {% endif %}&nbsp;&nbsp;&nbsp; {% if userinfo['locked'] == 0 %}<span class="label-success label label-default">未封号</span>&nbsp;&nbsp;&nbsp;<a id="lock-user-btn" href="#">[封号]</a>{% else %}<span class="label-important label label-default">已封号</span>{% endif %} &nbsp;&nbsp;&nbsp;<a id='lockedrecords-btn' href="#">[封号记录]</a><br><br> 
+                            <strong>{{ 'label.mobile'|trans }}&nbsp;:&nbsp;</strong> {{ userinfo['mobile'] }}&nbsp;&nbsp;&nbsp;<a id="unbind-device-btn" href="#">[解绑设备]</a>&nbsp;&nbsp;&nbsp;<br><br>
                             <strong>{{ 'label.balance'|trans }}&nbsp;:&nbsp;</strong> {{ userinfo['balance'] }}元&nbsp;&nbsp;&nbsp;<a id='balancerecords-btn' href="#">[余额记录]</a><br><br>
                             <strong>{{ 'label.coin'|trans }}&nbsp;:&nbsp;</strong> {{ userinfo['coin'] }}&nbsp;&nbsp;&nbsp;<a id='coinrecords-btn' href="#">[金币记录]</a>&nbsp;&nbsp;&nbsp;<a id='recommendrecords-btn' href="#">[推荐好友记录]</a><br><br>
                             <strong>{{ 'label.last_login'|trans }}&nbsp;:&nbsp;</strong> {{ userinfo['last_login'] }}<br><br>
@@ -54,25 +54,20 @@
                 <div class="box-content">
                     <br />
                     <ul class="nav nav-tabs" id="orderListTab">
-                        {% for type, typeLabel in orderlistTypes %}
-                            <li><a href="#{{type}}">{{typeLabel}}</a></li>
+                        {% for typeLabel in orderlistTypes %}
+                            <li><a href="#{{typeLabel['code']}}">{{typeLabel['label']}}</a></li>
                         {% endfor %}
                     </ul><br />
                     <div id="orderListTabContent" class="tab-content">
-                    {% for type, typeLabel in orderlistTypes %}
-                        <div class="tab-pane active" id="{{type}}">
-                            <table id="{{ type }}-orderlist-table" class="table table-striped table-bordered bootstrap-datatable responsive">
+                    {% for typeLabel in orderlistTypes %}
+                        <div class="tab-pane active" id="{{typeLabel['code']}}">
+                            <table id="{{typeLabel['code']}}-orderlist-table" class="table table-striped table-bordered bootstrap-datatable responsive">
                             <thead>
-                            <tr>
-                                <th>{{ 'label.order_id'|trans }}</th>
-                                <th>{{ 'label.campaign_branch_id'|trans }}</th>
-                                <th>{{ 'label.user_id'|trans }}</th>
-                                <th>{{ 'label.price'|trans }}</th>
-                                <th>{{ 'label.status'|trans }}</th>
-                                <th>{{ 'label.type'|trans }}</th>
-                                <th>{{ 'label.trade_number'|trans }}</th>
-                                <th>{{ 'label.created_at'|trans }}</th> 
-                                <th>{{ 'label.updated_at'|trans }}</th>
+                            <tr> 
+                                {% for thInfo in typeLabel['head'] %}
+                                    <th>{{ thInfo }}</th>
+                                {% endfor %}
+                                <th>操作</th>
                             </tr>
                             </thead>
                             <tbody>
@@ -100,30 +95,22 @@
                     <table id="complaintrecords-table" class="table table-striped table-bordered bootstrap-datatable responsive">
                     <thead>
                     <tr>
-                        <th>{{ 'label.item_id'|trans }}</th>
-                        <th>{{ 'label.order_id'|trans }}</th>
-                        <th>{{ 'label.user_id'|trans }}</th>
-                        <th>{{ 'label.saler_id'|trans }}</th>
-                        <th>{{ 'label.type_id'|trans }}</th>
-                        <th>{{ 'label.status'|trans }}</th>
-                        <th>{{ 'label.description'|trans }}</th>
-                        <th>{{ 'label.from_id'|trans }}</th> 
-                        <th>{{ 'label.category_id'|trans }}</th>
-                        <th>{{ 'label.mobile'|trans }}</th> 
-                        <th>{{ 'label.created_at'|trans }}</th>
-                        <th>{{ 'label.updated_at'|trans }}</th> 
-                        <th>{{ 'label.resolved_at'|trans }}</th>
+                        <th>分类</th>
+                        <th>标签</th>
+                        <th>商品</th>
+                        <th>门店</th>
+                        <th>时间</th> 
+                        <th>操作</th>  
                     </tr>
                     </thead>
                     <tbody>
                     </tbody>
                     </table>
-            </div>
+             </div>
         </div>
     </div>
 
-    <div class="modal fade" id="coinRecordsModal" tabindex="-1" role="dialog" aria-labelledby="coinRecordsModal"
-         aria-hidden="true">
+    <div class="modal fade" id="coinRecordsModal" tabindex="-1" role="dialog" aria-labelledby="coinRecordsModal"  aria-hidden="true">
 
         <div class="modal-dialog">
             <div class="modal-content">
@@ -135,11 +122,10 @@
                     <table class="table table-striped table-bordered bootstrap-datatable responsive" id="coinrecords-table">
                     <thead>
                     <tr>
-                        <th>{{ 'label.name'|trans }}</th>
-                        <th>{{ 'label.record_type'|trans }}</th>
-                        <th>{{ 'label.coin_amount'|trans }}</th>
-                        <th>{{ 'label.current_coin'|trans }}</th>
-                        <th>{{ 'label.created_at'|trans }}</th>
+                        <th>金币数</th>
+                        <th>类型</th>
+                        <th>备注</th>
+                        <th>时间</th> 
                     </tr>
                     </thead>
                     <tbody>  
@@ -153,8 +139,7 @@
         </div>
     </div>
 
-    <div class="modal fade" id="balanceRecordsModal" tabindex="-1" role="dialog" aria-labelledby="balanceRecordsModal"
-         aria-hidden="true">
+    <div class="modal fade" id="balanceRecordsModal" tabindex="-1" role="dialog" aria-labelledby="balanceRecordsModal"  aria-hidden="true">
 
         <div class="modal-dialog">
             <div class="modal-content">
@@ -197,11 +182,10 @@
                     <table class="table table-striped table-bordered bootstrap-datatable responsive" id="lockedrecords-table">
                     <thead>
                     <tr>
-                        <th>{{ 'label.user_id'|trans }}</th>
-                        <th>{{ 'label.operator_user_id'|trans }}</th>
-                        <th>{{ 'label.type'|trans }}</th>
-                        <th>{{ 'label.lock_date'|trans }}</th>
-                        <th>{{ 'label.note'|trans }}</th> 
+                        <th>封号时间</th>
+                        <th>解封时间</th>
+                        <th>封号原因</th>
+                        <th>备注</th> 
                     </tr>
                     </thead>
                     <tbody>
@@ -215,8 +199,7 @@
         </div>
     </div>
 
-    <div class="modal fade" id="recommendRecordsModal" tabindex="-1" role="dialog" aria-labelledby="recommendRecordsModal"
-         aria-hidden="true">
+    <div class="modal fade" id="recommendRecordsModal" tabindex="-1" role="dialog" aria-labelledby="recommendRecordsModal"  aria-hidden="true">
 
         <div class="modal-dialog">
             <div class="modal-content">
@@ -227,8 +210,7 @@
                 <div class="modal-body">
                     <table class="table table-striped table-bordered bootstrap-datatable responsive" id="recommendrecords-table">
                     <thead>
-                    <tr>
-                        <th>{{ 'label.user_id'|trans }}</th>
+                    <tr> 
                         <th>{{ 'label.recommend_user_id'|trans }}</th>
                         <th>{{ 'label.created_at'|trans }}</th> 
                     </tr>
@@ -244,8 +226,7 @@
         </div>
     </div>
 
-    <div class="modal fade" id="smsRecordsModal" tabindex="-1" role="dialog" aria-labelledby="smsRecordsModal"
-         aria-hidden="true">
+    <div class="modal fade" id="smsRecordsModal" tabindex="-1" role="dialog" aria-labelledby="smsRecordsModal"  aria-hidden="true">
 
         <div class="modal-dialog">
             <div class="modal-content">
@@ -256,10 +237,9 @@
                 <div class="modal-body">
                     <table class="table table-striped table-bordered bootstrap-datatable responsive" id="smsrecords-table">
                     <thead>
-                    <tr>
-                        <th>{{ 'label.content'|trans }}</th>
+                    <tr> 
                         <th>{{ 'label.type'|trans }}</th>
-                        <th>{{ 'label.mobile'|trans }}</th> 
+                        <th>{{ 'label.content'|trans }}</th>
                         <th>{{ 'label.create_at'|trans }}</th> 
                     </tr>
                     </thead>
@@ -274,15 +254,173 @@
         </div>
     </div>
 
+    <div class="modal fade" id="resetPwdModal" tabindex="-1" role="dialog" aria-labelledby="resetPwdModal" aria-hidden="true">
+
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">×</button>
+                    <h3>重置密码</h3>
+                </div>
+                <div class="modal-body"> 
+                    <span>重置密码, 并发送新密码至手机号: {{ userinfo['mobile'] }}?</span>
+                </div>
+                <div class="modal-footer">
+                    <a href="#" id="resetPwd-submit-btn" class="btn btn-default">确认</a>
+                    <a href="#" class="btn btn-default" data-dismiss="modal">关闭</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="modal fade" id="deviceUnbindModal" tabindex="-1" role="dialog" aria-labelledby="deviceUnbindModal" aria-hidden="true">
+
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">×</button>
+                    <h3>设备解绑</h3>
+                </div>
+                <div class="modal-body">  
+                     <div class="control-group">
+                        <label class="control-label" for="selectError">解绑原因:</label>
+                        <div class="controls">
+                            <select id="selectUnbiundReason" >
+                                <option value=1>别人帐号在我手机上登录了</option>
+                                <option value=2>原来的手机号不用了</option>
+                                <option value=3>一个帐号在好几个设备上登录了</option>
+                                <option value=4>其他原因</option> 
+                            </select>
+                        </div>
+                     </div><br /> 
+                </div>
+                <div class="modal-footer">
+                    <a href="#" id="deviceUnbind-submit-btn" class="btn btn-default">解绑</a>
+                    <a href="#" class="btn btn-default" data-dismiss="modal">关闭</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="lockUserModal" tabindex="-1" role="dialog" aria-labelledby="lockUserModal" aria-hidden="true">
+
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">×</button>
+                    <h3>封号</h3>
+                </div>
+                <div class="modal-body">  
+                     <div class="control-group"> 
+                         <div class="input-group col-md-4">
+                            <span class="input-group-addon">封号原因</span>
+                            <select id="selectlockReason" >
+                                <option value=1>使用多个帐号重复购买同一商品</option>
+                                <option value=2>领用时使用截图或抄写验证码</option>
+                                <option value=3>一天内在同一门店零用一份以上商品</option>
+                                <option value=4>与商户发生纠纷,在门店内闹事</option>
+                                <option value=5>转卖爱抢购订单进行牟利</option>
+                                <option value=6>其他</option>
+                                <option value=7>退款过多</option> 
+                            </select>
+                         </div><br />
+                         <div class="input-group col-md-4">
+                            <span class="input-group-addon">备注</span>
+                            <textarea id="lockNote"></textarea>
+                         </div><br />
+                     </div><br /> 
+                </div>
+                <div class="modal-footer">
+                    <a href="#" id="lockUser-submit-btn" class="btn btn-default">封号</a>
+                    <a href="#" class="btn btn-default" data-dismiss="modal">关闭</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="correctModal" tabindex="-1" role="dialog" aria-labelledby="correctModal" aria-hidden="true">
+
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">×</button>
+                    <h3>纠错</h3>
+                </div>
+                <div class="modal-body">  
+                     <div class="control-group"> 
+                         <div class="input-group col-md-4">
+                            <span class="input-group-addon">纠错内容</span>
+                            <select id="correctContent" >
+                                <option value='商家地址有误'>商家地址有误</option>
+                                <option value='地图位置有误'>地图位置有误</option>
+                                <option value='商家兑换时间有误'>商家兑换时间有误</option>
+                                <option value='商品信息有误'>商品信息有误</option>
+                                <option value='其他信息有误'>其他信息有误</option> 
+                            </select>
+                         </div><br />
+                         <div class="input-group col-md-4">
+                            <span class="input-group-addon">备注</span>
+                            <textarea id="correctNote"></textarea>
+                            <input id="correctOrderId" type="hidden" />
+                         </div><br /> 
+                     </div><br /> 
+                </div>
+                <div class="modal-footer">
+                    <a href="#" id="correct-submit-btn" class="btn btn-default">保存</a>
+                    <a href="#" class="btn btn-default" data-dismiss="modal">关闭</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="orderDetailModal" tabindex="-1" role="dialog" aria-labelledby="orderDetailModal" aria-hidden="true">
+
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">×</button>
+                    <h3>订单详情</h3>
+                </div>
+                <div id="orderDetailTable" class="modal-body">
+                </div>
+                <div class="modal-footer"> 
+                    <a href="#" class="btn btn-default" data-dismiss="modal">关闭</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="orderLogModal" tabindex="-1" role="dialog" aria-labelledby="orderLogModal" aria-hidden="true">
+
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">×</button>
+                    <h3>订单日志记录</h3>
+                </div>
+                <div id="orderLogTable" class="modal-body">
+                </div>
+                <div class="modal-footer"> 
+                    <a href="#" class="btn btn-default" data-dismiss="modal">关闭</a>
+                </div>
+            </div>
+        </div>
+    </div> 
+
+    <div align="center">
+        <input type="button" id="process-submit-btn" class="btn-primary" value="下一步"/>
+    </div> 
 </div>
 <script type="text/javascript" >
+    operator    = new Array();
     $(document).ready(function() {
-        {% for type, typeLabel in orderlistTypes %}
-            $('#{{type}}-orderlist-table').dataTable({
+        {% for typeLabel in orderlistTypes %}
+            $('#{{typeLabel['code']}}-orderlist-table').dataTable({
                 "bProcessing": true,
                 "bStateSave": true,
                 "bServerSide":  true,
-                "sAjaxSource": "user/orderlist?userId={{userId}}&type={{type}}",
+                "sAjaxSource": "/user/orderlist?userId={{userId}}&type={{typeLabel['code']}}",
                 "sDom": "<'row'<'col-md-6'l><'col-md-6'f>r>t<'row'<'col-md-12'i><'col-md-12 center-block'p>>",
                 "sPaginationType": "bootstrap",
                 "oLanguage": { //国际化配置  
@@ -302,19 +440,8 @@
                         "sLast" : "最后一页"    
                     }
                 },
-                "aoColumns": [
-                        {"mData": 'order_id'},
-                        {"mData": 'campaign_branch_id'},
-                        {"mData": 'user_id'},
-                        {"mData": 'price'},
-                        {"mData": 'status'},
-                        {"mData": 'type'},
-                        {"mData": 'trade_number'},
-                        {"mData": 'created_at'},
-                        {"mData": 'updated_at'},
-                    ],
                 "aoColumnDefs": [
-                        {"bSortable": false, "aTargets": [1, 2, 3, 4, 5, 7]},
+                        {"bSortable": false, "aTargets": [1, 2]},
                     ],
             });
         {% endfor %}
@@ -324,7 +451,7 @@
                 "bStateSave": true,
                 "bFilter": false,
                 "bServerSide":  true,
-                "sAjaxSource": "user/complaintrecords?userId={{userId}}",
+                "sAjaxSource": "/user/complaintrecords?userId={{userId}}",
                 "sDom": "<'row'<'col-md-6'l><'col-md-6'f>r>t<'row'<'col-md-12'i><'col-md-12 center-block'p>>",
                 "sPaginationType": "bootstrap",
                 "oLanguage": { //国际化配置  
@@ -343,24 +470,9 @@
                         "sNext" : "下一页",    
                         "sLast" : "最后一页"    
                     }
-                },
-                "aoColumns": [
-                        {"mData": 'item_id'},
-                        {"mData": 'order_id'},
-                        {"mData": 'user_id'},
-                        {"mData": 'saler_id'},
-                        {"mData": 'type_id'}, 
-                        {"mData": 'status'},
-                        {"mData": 'description'},
-                        {"mData": 'from_id'},
-                        {"mData": 'category_id'},
-                        {"mData": 'mobile'}, 
-                        {"mData": 'created_at'}, 
-                        {"mData": 'updated_at'}, 
-                        {"mData": 'resolved_at'}, 
-                    ],
+                }, 
                 "aoColumnDefs": [
-                        {"bSortable": false, "aTargets": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]},
+                        {"bSortable": false, "aTargets": [1, 2, 3, 4, 5]},
                     ],
         }); 
 
@@ -369,7 +481,7 @@
                 "bStateSave": true,
                 "bFilter": false, 
                 "bServerSide":  true,
-                "sAjaxSource": "user/coinrecords?userId={{userId}}",
+                "sAjaxSource": "/user/coinrecords?userId={{userId}}",
                 "sDom": "<'row'<'col-md-6'l><'col-md-6'f>r>t<'row'<'col-md-12'i><'col-md-12 center-block'p>>",
                 "sPaginationType": "bootstrap",
                 "oLanguage": { //国际化配置  
@@ -389,15 +501,8 @@
                         "sLast" : "最后一页"    
                     }
                 },
-                "aoColumns": [
-                        {"mData": 'user_id'},
-                        {"mData": 'type'},
-                        {"mData": 'amount'},
-                        {"mData": 'current_balance'},
-                        {"mData": 'created_at'}, 
-                    ],
                 "aoColumnDefs": [
-                        {"bSortable": false, "aTargets": [1, 2, 3, 4]},
+                        {"bSortable": false, "aTargets": [1, 2]},
                     ],
         });
 
@@ -406,7 +511,7 @@
                 "bStateSave": true,
                 "bFilter": false,
                 "bServerSide":  true,
-                "sAjaxSource": "user/balancerecords?userId={{userId}}",
+                "sAjaxSource": "/user/balancerecords?userId={{userId}}",
                 "sDom": "<'row'<'col-md-6'l><'col-md-6'f>r>t<'row'<'col-md-12'i><'col-md-12 center-block'p>>",
                 "sPaginationType": "bootstrap",
                 "oLanguage": { //国际化配置  
@@ -421,7 +526,7 @@
                     "sUrl" : "", 
                     "oPaginate": {    
                         "sFirst" : "第一页",    
-                        "sPrevious" : "上一页",    
+                        "sPrevious" : "上一页",
                         "sNext" : "下一页",    
                         "sLast" : "最后一页"    
                     }
@@ -443,7 +548,7 @@
                 "bStateSave": true,
                 "bFilter": false,
                 "bServerSide":  true,
-                "sAjaxSource": "user/lockedrecords?userId={{userId}}",
+                "sAjaxSource": "/user/lockedrecords?userId={{userId}}",
                 "sDom": "<'row'<'col-md-6'l><'col-md-6'f>r>t<'row'<'col-md-12'i><'col-md-12 center-block'p>>",
                 "sPaginationType": "bootstrap",
                 "oLanguage": { //国际化配置  
@@ -462,16 +567,9 @@
                         "sNext" : "下一页",    
                         "sLast" : "最后一页"    
                     }
-                },
-                "aoColumns": [
-                        {"mData": 'user_id'},
-                        {"mData": 'operator_user_id'},
-                        {"mData": 'type'},
-                        {"mData": 'lock_date'},
-                        {"mData": 'note'},
-                    ],
+                }, 
                 "aoColumnDefs": [
-                        {"bSortable": false, "aTargets": [1, 2, 3, 4]},
+                        {"bSortable": false, "aTargets": [1, 2, 3]},
                     ],
         });
 
@@ -481,7 +579,7 @@
                 "bServerSide":  true,
                 "bFilter": false,
                 "bSortable": false, 
-                "sAjaxSource": "user/recommendrecords?userId={{userId}}",
+                "sAjaxSource": "/user/recommendrecords?userId={{userId}}",
                 "sDom": "<'row'<'col-md-6'l><'col-md-6'f>r>t<'row'<'col-md-12'i><'col-md-12 center-block'p>>",
                 "sPaginationType": "bootstrap",
                 "oLanguage": { //国际化配置  
@@ -501,8 +599,7 @@
                         "sLast" : "最后一页"    
                     }
                 },
-                "aoColumns": [
-                        {"mData": 'user_id'},
+                "aoColumns": [ 
                         {"mData": 'recommend_user_id'}, 
                         {"mData": 'created_at'}, 
                     ], 
@@ -514,7 +611,7 @@
                 "bServerSide":  true,
                 "bFilter": false,
                 "bSortable": false, 
-                "sAjaxSource": "user/smsrecords?userId={{userId}}",
+                "sAjaxSource": "/user/smsrecords?userId={{userId}}",
                 "sDom": "<'row'<'col-md-6'l><'col-md-6'f>r>t<'row'<'col-md-12'i><'col-md-12 center-block'p>>",
                 "sPaginationType": "bootstrap",
                 "oLanguage": { //国际化配置  
@@ -534,14 +631,150 @@
                         "sLast" : "最后一页"    
                     }
                 },
-                "aoColumns": [
-                        {"mData": 'content'},
+                "aoColumns": [ 
                         {"mData": 'type'}, 
-                        {"mData": 'mobile'}, 
+                        {"mData": 'content'},
                         {"mData": 'create_at'}, 
                     ], 
         });
 
+        $("#resetPwd-submit-btn").click(function(e){
+
+            if(!confirm("确认重置?")){
+                return ;
+            }
+ 
+            var record       = new Object();
+            record.type      = "重置密码";
+            record.userId    = {{userId}};
+
+            $.ajax({    
+                type:'post',        
+                url:'/user/modify2',    
+                data:{userId:{{userId}}},
+                dataType:'json',    
+                success:function(data){
+                   if( true == data.result ){ 
+                       alert('重置成功')
+                      record.res = true;
+                   } else {
+                      alert( '重置失败');
+                      record.res = false;
+                   }
+                },
+                error:function (req,err) {
+                   record.res = false;
+                   record.err = err;  
+                   alert( '重置失败' ); 
+                }     
+            });
+            operator.push(record);    
+        });
+
+        $("#lockUser-submit-btn").click(function(e){
+            if(!confirm("确认封号?")){
+                return ;
+            }
+            selectlockReason = $("#selectlockReason").val();
+            lockNote         = $("#lockNote").val();
+
+            var record       = new Object();
+            record.type      = "封号";
+            record.reason    = selectlockReason;
+            record.userId    = {{userId}};  
+            record.note      = lockNote;
+
+            $.ajax({    
+                type:'post',        
+                url:'/user/lock',    
+                data:{userId:{{userId}},selectlockReason:selectlockReason,lockNote:lockNote},
+                dataType:'json',    
+                success:function(data){
+                   if( true == data.result ){
+                      location.href = location.href;
+                      record.res    = true;
+                   } else {
+                      record.res    = false;
+                      alert( '封号失败');
+                   }
+                },
+                error:function (req,err) {
+                   record.res = false;
+                   record.err = err;  
+                   alert( '封号失败' ); 
+                } 
+            });
+            operator.push(record);    
+        }); 
+
+        $("#deviceUnbind-submit-btn").click(function(e){
+            if(!confirm("确认解绑?")){
+                return ;
+            }
+            reason           = $("#selectUnbiundReason").val();
+            var record       = new Object();
+            record.type      = "解绑设备";
+            record.reason    = reason;
+            record.userId    = {{userId}};   
+
+            $.ajax({    
+                type:'post',        
+                url:'/user/unbinddevice',    
+                data:{userId:{{userId}},reason:reason},
+                dataType:'json',    
+                success:function(data){
+                   if( true == data.result ){
+                      record.res  = true;
+                      alert( '解绑成功' );
+                   } else {
+                      record.res  = false;
+                      alert( '解绑失败' );
+                   }
+                },
+                error:function (req,err) {
+                   record.res = false;
+                   record.err = err;  
+                   alert( '解绑失败' ); 
+                }    
+            });
+            operator.push(record);    
+        });
+
+        $("#correct-submit-btn").click(function(e){
+             
+            correctContent   = $("#correctContent").val();
+            correctNote      = $("#correctNote").val();
+            correctOrderId   = $("#correctOrderId").val();
+            var record       = new Object();
+            record.type      = "纠错";
+            record.content   = correctContent;
+            record.orderId   = correctOrderId;
+            record.note      = correctNote; 
+
+            $.ajax({    
+                type:'post',        
+                url:'/order/feedback',    
+                data:{type:1,orderId:correctOrderId,feedback:correctContent,status:0},
+                dataType:'json',    
+                success:function(data){
+                   if( true == data.result ){
+                      record.res = true;
+                      alert( '提交成功' );
+                   } else {
+                      record.res = false;
+                      alert( '提交失败' );
+                   }
+                },
+                error:function (req,err) {
+                   record.res = false;
+                   record.err = err;  
+                   alert( '提交失败' ); 
+                }
+            });
+            operator.push(record);
+        }); 
+         
+ 
         $('#orderListTab a:first').tab('show');
         $('#orderListTab a').click(function (e) {
             e.preventDefault();
@@ -572,6 +805,70 @@
             e.preventDefault();
             $('#smsRecordsModal').modal('show');
         });
+
+        $('#resetPwd-btn').click(function (e) {
+            e.preventDefault();
+            $('#resetPwdModal').modal('show');
+        }); 
+
+        $("#unbind-device-btn").click(function (e) {
+            e.preventDefault();
+            $('#deviceUnbindModal').modal('show');
+        }); 
+
+        $("#lock-user-btn").click(function (e) {
+            e.preventDefault();
+            $('#lockUserModal').modal('show');
+        });
+
+        $("#orderListTabContent").on("click", ".order-correct-btn", function (e) {
+            e.preventDefault();
+            $('#correctModal').modal('show');
+            $("#correctOrderId").val( $(this).attr("data-rel") );
+        });
+
+        $("#orderListTabContent").on("click", ".order-log-btn", function (e) {
+            e.preventDefault();
+            $('#orderLogModal').modal('show'); 
+            orderId  =  $(this).attr("data-rel");
+            $.ajax({    
+                type:'post',        
+                url:'/order/orderlog',    
+                data:{orderId:orderId},
+                dataType:'json',    
+                success:function(data){
+                  if( data.result ){
+                     $("#orderLogTable").html(data.content);
+                  } 
+                },    
+            }); 
+        });
+
+
+        $("#orderListTabContent").on("click", ".order-detail-btn", function (e) {
+            e.preventDefault();
+            $('#orderDetailModal').modal('show'); 
+            orderId  =  $(this).attr("data-rel");
+            $.ajax({    
+                type:'post',        
+                url:'/order/orderdetail',    
+                data:{orderId:orderId},
+                dataType:'json',    
+                success:function(data){
+                  if( data.result ){
+                     $("#orderDetailTable").html(data.content);
+                  } 
+                },    
+            }); 
+        }); 
+
+        $("#process-submit-btn").click(function (e) {
+            $.post("/complaint/save", {type:'{{type}}', operators: JSON.stringify(operator)}, function( data ) {
+
+                
+            }, "json");
+        });  
     });
+ 
  </script>
 {% endblock %}

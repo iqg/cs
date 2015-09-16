@@ -15,7 +15,9 @@ use \Curl\MultiCurl;
 class DWDDataHttp
 {
 
-    private $_responses = array();
+    private $_responses  = array();
+
+    const  API_SERVER    = 'http://127.0.0.1/';
 
     public function __construct(Container $container)
     { 
@@ -29,7 +31,7 @@ class DWDDataHttp
     static function PackageGetRequest( &$ch, $request ){
         $path            =  http_build_query( $request['data'] );
         $request['url'] .= '?' . $path;
-        curl_setopt($ch, CURLOPT_URL, $request['url']);
+        curl_setopt($ch, CURLOPT_URL, SELF::API_SERVER . $request['url']);
         curl_setopt($ch, CURLOPT_TIMEOUT, 10);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
         curl_setopt($ch, CURLOPT_HEADER, 0);
@@ -37,7 +39,7 @@ class DWDDataHttp
     }
 
     static function PackagePostRequest( &$ch, $request ){
-        curl_setopt($ch, CURLOPT_URL, $request['url']);
+        curl_setopt($ch, CURLOPT_URL, SELF::API_SERVER . $request['url']);
         curl_setopt($ch, CURLOPT_TIMEOUT, 10);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
         curl_setopt($ch, CURLOPT_HEADER, 0);

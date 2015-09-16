@@ -1,6 +1,6 @@
 <?php
 
-namespace DWD\CsAdminBundle\Form;
+namespace DWD\CSAdminBundle\Form;
 
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -43,7 +43,7 @@ class ProductType extends AbstractType
     public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults(array(
-            'data_class' => 'DWD\CsAdminBundle\Entity\Product',
+            'data_class' => 'DWD\CSAdminBundle\Entity\Product',
         ));
     }
 

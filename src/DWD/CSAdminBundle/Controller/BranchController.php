@@ -6,11 +6,12 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 
 /**
  * Class BranchController
  * @package DWD\CsAdminBundle\Controller
- * @Route("/admin")
+ * @Route("/")
  */
 class BranchController extends Controller
 {
@@ -23,24 +24,55 @@ class BranchController extends Controller
     private function _getRedeemTypes( $redeemType )
     {
         $redeemTypes    = array();
+        $redeemTypeIds  = array();
 
         if( $redeemType & self::WEB_VERIFY  ){
-          $redeemTypes[] = 'web验证';
+          $redeemTypes[]   = 'web验证';
+          $redeemTypeIds[] = self::WEB_VERIFY;
         }
 
         if( $redeemType & self::TEL_VERIFY  ){
-          $redeemTypes[] = '电话验证';
+          $redeemTypes[]   = '电话验证';
+          $redeemTypeIds[] = self::WEB_VERIFY;
         }
 
         if( $redeemType & self::PAPER_VERIFY  ){
-          $redeemTypes[] = '纸质验证';
+          $redeemTypes[]   = '纸质验证';
+          $redeemTypeIds[] = self::WEB_VERIFY;
         }
 
         if( $redeemType & self::SECRET_VERIFY  ){
-          $redeemTypes[] = '密码验证';
+          $redeemTypes[]   = '密码验证';
+          $redeemTypeIds[] = self::WEB_VERIFY;
         }
 
-        return implode( ", ", $redeemTypes);
+        return  array(
+                  $redeemTypes,
+                  $redeemTypeIds,
+                );
+    }
+
+    private function _getOperation( $operation, $orderId )
+    {
+        $opStr               = '';
+        foreach ($operation as $operator) {
+          switch ( $operator ) {
+            /*  case '退款':
+                    $opStr  .= "&nbsp;&nbsp;&nbsp;<a href='#' class='order-refund-btn' data-rel='$orderId'>[退款]</a>";
+                    break; */
+             case '纠错':
+                    $opStr  .= "&nbsp;&nbsp;&nbsp;<a href='#' class='order-correct-btn' data-rel='$orderId'>[纠错]</a>";
+                    break;
+             case '日志': 
+                    $opStr  .= "&nbsp;&nbsp;&nbsp;<a href='#' class='order-log-btn' data-rel='$orderId'>[日志]</a>";
+                    break;
+             case '详情': 
+                   $opStr   .= "&nbsp;&nbsp;&nbsp;<a href='#' class='order-detail-btn' data-rel='$orderId'>[详情]</a>";
+                   break;
+          }
+        }
+
+        return $opStr;
     }
 
     /** 
@@ -49,13 +81,12 @@ class BranchController extends Controller
      */
     public function indexAction()
     { 
-        $internalApiHost = 'http://127.0.0.1';//'http://10.0.0.10:12306';
         $branchId        = $this->getRequest()->get("branchId");
         $dataHttp        = $this->get('dwd.data.http');
 
         $requests        = array(
             array(
-                'url'    => $internalApiHost.'/branch/branchinfo',
+                'url'    => '/branch/branchinfo',
                 'data'   => array(
                     'branchId'      => $branchId,
                 ),
@@ -66,10 +97,15 @@ class BranchController extends Controller
 
         $data           = $dataHttp->MutliCall($requests);
         $branchInfo     = $data['branch']['data'];
+        if( empty( $branchInfo ) ){
+            return $this->render('DWDCSAdminBundle:Dashboard:index.html.twig', array(
+             'errMsg'    => '商户不存在'
+          ));
+        }
         
         $requests        = array(
             array(
-                'url'    => $internalApiHost.'/brand/brandinfo',
+                'url'    => '/brand/brandinfo',
                 'data'   => array(
                     'brandId'      => $branchInfo['brand_id'],
                 ),
@@ -77,7 +113,7 @@ class BranchController extends Controller
                 'key'    => 'brand',
             ), 
             array(
-                'url'    => $internalApiHost.'/zone/zoneinfo',
+                'url'    => '/zone/zoneinfo',
                 'data'   => array(
                     'zoneId'       => $branchInfo['zone_id'],
                 ),
@@ -85,44 +121,33 @@ class BranchController extends Controller
                 'key'    => 'zone',
             ), 
             array(
-                'url'    => $internalApiHost.'/saler/salerinfo',
+                'url'    => '/saler/salerinfo',
                 'data'   => array(
                     'salerId'      => $branchInfo['saler_id'],
                 ),
                 'method' => 'get',
                 'key'    => 'saler',
             ),
-        );
+        ); 
 
-        $orderListTypes = array(
-                            'wait-redeem' => '未领用',
-                            'refund'      => '退款',
-                            'expired'     => '过期',
-                            'finish'      => '完成',
-                            'processing'  => '需处理',
-                          );
-        
-
-        $data                      = $dataHttp->MutliCall($requests);
-        $brandInfo                 = $data['brand']['data'];
-        if( empty( $brandInfo ) ){
-            return $this->render('DWDCsAdminBundle:Dashboard:index.html.twig', array(
-             'errMsg'    => '商户不存在'
-          ));
-        }
-
-        $zoneInfo                  = $data['zone']['data'];
-        $salerInfo                 = $data['saler']['data'];
+        $data                        = $dataHttp->MutliCall($requests);
+        $brandInfo                   = $data['brand']['data'];
+        $zoneInfo                    = $data['zone']['data'];
+        $salerInfo                   = $data['saler']['data'];
  
-        $branchInfo['brandName']   = $brandInfo['name'];
-        $branchInfo['brandTel']    = $brandInfo['tel'];
-        $branchInfo['zoneName']    = $zoneInfo['name'];
-        $branchInfo['salerName']   = $salerInfo['name'];
-        $branchInfo['redeemTypes'] = self::_getRedeemTypes( $branchInfo['redeem_type'] );
-        return $this->render('DWDCsAdminBundle:Branch:index.html.twig', array( 
-            'branchinfo'           => $branchInfo, 
-            'orderlistTypes'       => $orderListTypes,
-            'branchId'             => $branchId,
+        $branchInfo['brandName']     = $brandInfo['name'];
+        $branchInfo['brandTel']      = $brandInfo['tel'];
+        $branchInfo['zoneName']      = $zoneInfo['name'];
+        $branchInfo['salerName']     = $salerInfo['name'];
+        $redeemTypes                 = self::_getRedeemTypes( $branchInfo['redeem_type'] );
+        $branchInfo['redeemTypes']   = implode( ", ", $redeemTypes[0]); //self::_getRedeemTypes( $branchInfo['redeem_type'] );
+        $branchInfo['redeemTypeIds'] = $redeemTypes[1];
+        $orderListTypes              =  $this->get('dwd.util')->getOrderTableInfo( 0 );
+
+        return $this->render('DWDCSAdminBundle:Branch:index.html.twig', array( 
+            'branchinfo'             => $branchInfo, 
+            'orderlistTypes'         => $orderListTypes,
+            'branchId'               => $branchId,
         ));
     } 
 
@@ -153,10 +178,9 @@ class BranchController extends Controller
                 break;
         }
 
-        $internalApiHost = 'http://127.0.0.1';//'http://10.0.0.10:12306';
         $data            = array(
             array(
-                'url'    => $internalApiHost.'/branch/orderlist',
+                'url'    => '/branch/orderlist',
                 'data'   => array(
                     'branchId'       => $branchId,
                     'needPagination' => 1, 
@@ -169,53 +193,117 @@ class BranchController extends Controller
             )
         );
     
-        $data             = $dataHttp->MutliCall($data);
-        $orderList        = array(
+        $data              = $dataHttp->MutliCall($data);
+        $orderList         = array(
                                 'list'         => array(),
                                 'total'        => $data['orderlist']['data']['totalCnt'], 
-                            );
+                             );
         
+        $campaignBranchIds = array();
+        $ordersInfo        = array();
+         
         foreach( $data['orderlist']['data']['list'] as $orderInfo )
         {
+            $ordersInfo[]        = $orderInfo;
+            $campaignBranchIds[] = $orderInfo['campaign_branch_id'];
+        }
 
-            $orderList['list'][] = array(
-                                       $orderInfo['id'],
-                                       $orderInfo['campaign_branch_id'],
-                                       $orderInfo['user_id'],
-                                       $orderInfo['price'],
-                                       $this->get('dwd.util')->getOrderStatusLabel($orderInfo['status'] ),
-                                       $this->get('dwd.util')->getOrderTypeLabel($orderInfo['type'] ),
-                                       $orderInfo['trade_number'],
-                                       $orderInfo['created_at'],
-                                       $orderInfo['updated_at'],
-                                    );  
+        $data                    = array(
+                                      array(
+                                          'url'    => '/campaignbranch/campaignbranchlist',
+                                          'data'   => array(
+                                              'campaignBranchIds' => implode(',', $campaignBranchIds),
+                                          ),
+                                          'method' => 'get',
+                                          'key'    => 'campaignbranchlist',
+                                      ),
+                                      array(
+                                          'url'    => '/campaignbranch/branchlist',
+                                          'data'   => array(
+                                              'campaignBranchIds' => implode(',', $campaignBranchIds),
+                                          ),
+                                          'method' => 'get',
+                                          'key'    => 'branchs',
+                                      ),
+                                  );
+        $data                    = $dataHttp->MutliCall($data);
+        $tableInfo               =  $this->get('dwd.util')->getOrderTableInfo( $orderTypeId );
+
+        foreach( $ordersInfo as $key => $orderInfo ){
+           $branchInfo           = $data['branchs']['data']['list'][$orderInfo['campaign_branch_id']];
+           $campaignBranchInfo   = $data['campaignbranchlist']['data']['list'][$orderInfo['campaign_branch_id']];
+           $tdValues             = array();
+           foreach ($tableInfo['field'] as $field) 
+           {  
+              $tdValue           = '';
+              switch ( $field ) {
+                case 'itemName':
+                  $tdValue       = $campaignBranchInfo['campaign_id'];
+                  break;
+                case 'branchName':
+                  $tdValue       = $branchInfo['name'];
+                  break;
+                case 'redeemNumber':
+                  $tdValue       = $orderInfo['redeem_number'];
+                  break;
+                case 'refundTime':
+                  $tdValue       = $orderInfo['refunded_at'];
+                  break;
+                case 'expiredTime':
+                  $tdValue       = $orderInfo['expire_time'];
+                  break;
+                case 'redeemTime':
+                  $tdValue       = $orderInfo['redeem_time'];
+                  break;
+                case 'status':
+                  $tdValue       = $this->get('dwd.util')->getOrderStatusLabel($orderInfo['status']);
+                  break;
+                default:
+                  break;
+              }
+              if( empty( $tdValue ) ){
+                $tdValue         = '';
+              }
+              $tdValues[]        = $tdValue;
+           }
+           $tdValues[]           = $this->_getOperation( $tableInfo['operation'], $orderInfo['id'] );
+           $orderList['list'][]  = $tdValues; 
         }
 
         return $orderList;
     }
 
     //获取订单信息
-    private function _getOrderInfo( $orderId )
+    private function _getOrderInfo( $redeemNumber, $branchId )
     { 
         $dataHttp        = $this->get('dwd.data.http');
-        $internalApiHost =  'http://127.0.0.1';//'http://10.0.0.10:12306';
         $data            =  array(
-            array(
-                'url'    => $internalApiHost.'/order/orderinfo',
-                'data'   => array(
-                    'orderId'      => $orderId, 
-                ),
-                'method' => 'get',
-                'key'    => 'orderinfo',
-            )
-        );
+                                array(
+                                    'url'    => '/order/orderinfo',
+                                    'data'   => array(
+                                        'redeemNumber'      => $redeemNumber, 
+                                    ),
+                                    'method' => 'get',
+                                    'key'    => 'orderinfo',
+                                ),
+                                array(
+                                    'url'    => '/branch/branchinfo',
+                                    'data'   => array(
+                                        'redeemNumber'      => $redeemNumber, 
+                                    ),
+                                    'method' => 'get',
+                                    'key'    => 'branchinfo',
+                                )
+                            );
         $data            =  $dataHttp->MutliCall($data);
         $orderInfo       =  $data['orderinfo']['data'];
+        $branchInfo      =  $data['branchinfo']['data']; 
         $orderList       =  array(
                                 'list'  => array(),
                                 'total' => 0,
                             );
-        if( !empty( $orderInfo )  ){ 
+       
+        if( !empty( $orderInfo ) &&  $branchInfo['id'] ==  $branchId ){ 
             $orderList       =  array(
                                 'list' => 
                                     array(
@@ -255,7 +343,7 @@ class BranchController extends Controller
         if( empty( $sSearch ) ){
             $orderList   = self::_getOrderList( $branchId, $orderType, $iDisplayStart, $iDisplayLength);
         } else {
-            $orderList   = self::_getOrderInfo( $sSearch );
+            $orderList   = self::_getOrderInfo( $sSearch, $branchId );
         }
         $res             = array
                            (
@@ -265,7 +353,7 @@ class BranchController extends Controller
                                 "iTotalDisplayRecords" => $orderList['total'],
                            );
         exit(json_encode( $res ));
-        //return $this->render('DWDCsAdminBundle:Dashboard:show.html.twig', array(
+        //return $this->render('DWDCSAdminBundle:Dashboard:show.html.twig', array(
          //   'product'      => $product,
       //  ));
     }
@@ -277,7 +365,6 @@ class BranchController extends Controller
     public function ComplaintRecordsDataAction()
     {
         $dataHttp        = $this->get('dwd.data.http');
-        $internalApiHost = 'http://127.0.0.1';
         $iDisplayStart   = $this->getRequest()->get('iDisplayStart');
         $iDisplayLength  = $this->getRequest()->get('iDisplayLength'); 
         $sEcho           = $this->getRequest()->get('sEcho');
@@ -287,7 +374,7 @@ class BranchController extends Controller
         $orderList       = array();
         $data            = array( 
                                 array(
-                                    'url'    => $internalApiHost.'/branch/complaints',
+                                    'url'    => '/branch/complaints',
                                     'data'   => array(
                                         'branchId'       => $branchId,
                                         'needPagination' => 1,

@@ -3,7 +3,7 @@
 // src/AppBundle/Entity/Category.php
 
 // ...
-namespace DWD\CsAdminBundle\Entity;
+namespace DWD\CSAdminBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -40,10 +40,10 @@ class Category
     /**
      * Add products
      *
-     * @param \AppBundle\Entity\Product $products
+     * @param \DWD\CSAdminBundle\Entity\Product $products
      * @return Category
      */
-    public function addProduct(\AppBundle\Entity\Product $products)
+    public function addProduct(\DWD\CSAdminBundle\Entity\Product $products)
     {
         $this->products[] = $products;
 
@@ -53,9 +53,9 @@ class Category
     /**
      * Remove products
      *
-     * @param \AppBundle\Entity\Product $products
+     * @param \DWD\CSAdminBundle\Entity\Product $products
      */
-    public function removeProduct(\AppBundle\Entity\Product $products)
+    public function removeProduct(\DWD\CSAdminBundle\Entity\Product $products)
     {
         $this->products->removeElement($products);
     }

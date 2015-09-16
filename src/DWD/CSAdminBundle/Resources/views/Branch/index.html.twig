@@ -1,4 +1,4 @@
-{% extends "DWDCsAdminBundle:Layout:layout.html.twig" %}
+{% extends "DWDCSAdminBundle:Layout:layout.html.twig" %}
 
 {% block body %}
 <div class="ch-container">
@@ -7,7 +7,7 @@
                 <div>
         <ul class="breadcrumb">
             <li>
-                <a href="/admin">首页</a>
+                <a href="/">首页</a>
             </li>
             <li>
                 商户投诉
@@ -23,14 +23,13 @@
                 <div class="box-content">
                     <ul class="dashboard-list">
                         <li>  
-                            <strong>{{ 'label.branch_name'|trans }}&nbsp;:&nbsp;</strong> {{ branchinfo['name'] }}&nbsp;&nbsp;&nbsp;<a id='editbranch-btn' href="#">[编辑名称]</a><br><br>
+                            <strong>{{ 'label.branch_name'|trans }}&nbsp;:&nbsp;</strong> {{ branchinfo['name'] }}&nbsp;&nbsp;&nbsp;<a id='modifyBranch-btn' href="#">[编辑名称]</a><br><br>
                             <strong>{{ 'label.city'|trans }}&nbsp;:&nbsp;</strong> {{ branchinfo['zoneName'] }}<br><br>
                             <strong>{{ 'label.brand_name'|trans }}&nbsp;:&nbsp;</strong> {{ branchinfo['brandName'] }}<br><br>
                             <strong>{{ 'label.branch_address'|trans }}&nbsp;:&nbsp;</strong> {{ branchinfo['address'] }}&nbsp;&nbsp;<a href="http://map.baidu.com/?content={{branchinfo['address']}}&latlng={{branchinfo['lat']}},{{branchinfo['lng']}}&title={{ branchinfo['name'] }}&autoOpen=true" target="_blank">[<i class="glyphicon glyphicon-screenshot"></i>查看位置]</a><br><br>
                             <strong>{{ 'label.redeem_type'|trans }}&nbsp;:&nbsp;</strong> {{branchinfo['redeemTypes']}}<br><br>
                             <strong>{{ 'label.redeem_tel'|trans }}&nbsp;:&nbsp;</strong> {{ branchinfo['tel'] }}<br><br>
                             <strong>{{ 'label.brand_contact_tel'|trans }}&nbsp;:&nbsp;</strong> {{branchinfo['brandTel']}}<br><br>
-                            <strong>{{ 'label.branch_contact_tel'|trans }}&nbsp;:&nbsp;</strong> 110<br><br>
                             <strong>{{ 'label.branch_account'|trans }}&nbsp;:&nbsp;</strong> {{branchinfo['id']}}<br><br>
                             <strong>{{ 'label.created_at'|trans }}&nbsp;:&nbsp;</strong> {{branchinfo['created_at']}}<br><br>
                             <strong>{{ 'label.follow_saler'|trans }}&nbsp;:&nbsp;</strong> {{branchinfo['salerName']}}<br><br>
@@ -56,25 +55,20 @@
                 <div class="box-content">
                     <br />
                     <ul class="nav nav-tabs" id="orderListTab">
-                        {% for type, typeLabel in orderlistTypes %}
-                            <li><a href="#{{type}}">{{typeLabel}}</a></li>
+                        {% for typeLabel in orderlistTypes %}
+                            <li><a href="#{{typeLabel['code']}}">{{typeLabel['label']}}</a></li>
                         {% endfor %}
                     </ul><br />
                     <div id="orderListTabContent" class="tab-content">
-                    {% for type, typeLabel in orderlistTypes %}
-                        <div class="tab-pane active" id="{{type}}">
-                            <table id="{{ type }}-orderlist-table" class="table table-striped table-bordered bootstrap-datatable responsive">
+                    {% for typeLabel in orderlistTypes %}
+                        <div class="tab-pane active" id="{{typeLabel['code']}}">
+                            <table id="{{typeLabel['code']}}-orderlist-table" class="table table-striped table-bordered bootstrap-datatable responsive">
                             <thead>
                             <tr>
-                                <th>{{ 'label.order_id'|trans }}</th>
-                                <th>{{ 'label.campaign_branch_id'|trans }}</th>
-                                <th>{{ 'label.user_id'|trans }}</th>
-                                <th>{{ 'label.price'|trans }}</th>
-                                <th>{{ 'label.status'|trans }}</th>
-                                <th>{{ 'label.type'|trans }}</th>
-                                <th>{{ 'label.trade_number'|trans }}</th>
-                                <th>{{ 'label.created_at'|trans }}</th> 
-                                <th>{{ 'label.updated_at'|trans }}</th>
+                                {% for thInfo in typeLabel['head'] %}
+                                    <th>{{ thInfo }}</th>
+                                {% endfor %}
+                                <th>操作</th>
                             </tr>
                             </thead>
                             <tbody>
@@ -124,16 +118,73 @@
         </div>
     </div>
 
+    <div class="modal fade" id="modifyBranchModal" tabindex="-1" role="dialog" aria-labelledby="modifyBranchModal" aria-hidden="true">
+
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">×</button>
+                    <h3>商户信息</h3>
+                </div>
+                <div class="modal-body"> 
+                     <div class="input-group col-md-12">
+                        <span class="input-group-addon">门店名称</span>
+                        <input type="text" id="modify-name" class="form-control"  value="{{ branchinfo['name'] }}" placeholder="id">
+                     </div><br />
+                     <div class="input-group col-md-12">
+                        <span class="input-group-addon">帐号</span>
+                        <input type="text"  class="form-control" value="{{ branchinfo['id'] }}" readonly=readonly placeholder="Username">
+                    </div><br />
+                    <div class="input-group col-md-12">
+                        <span class="input-group-addon">密码</span>
+                        <input type="text" id="modify-password" class="form-control" placeholder="Password">
+                    </div><br />
+                    <div class="input-group col-md-12">
+                        <span class="input-group-addon">门店地址</span>
+                        <input type="text" id="modify-address" value="{{ branchinfo['address'] }}" class="form-control" placeholder="Address">
+                    </div><br />
+                    <div class="input-group col-md-12">
+                        <span class="input-group-addon">兑换时间</span>
+                        <input type="text" id="modify-redeemTime" value="{{ branchinfo['redeem_time'] }}" class="form-control" placeholder="RedeemTime">
+                    </div><br />
+                    <div class="input-group col-md-12">
+                        <span class="input-group-addon">验证方式</span>
+                        <label class="checkbox-inline">
+                            <input type="checkbox" {% if 1 in branchinfo['redeemTypeIds'] %} checked=checked  {% endif %} id="is_web_redeem" value="1"> 网络 
+                        </label>
+                        <label class="checkbox-inline">
+                            <input type="checkbox" {% if 2 in branchinfo['redeemTypeIds'] %} checked=checked  {% endif %} id="is_mobile_redeem" value="2"> 电话 
+                        </label>
+                        <label class="checkbox-inline">
+                            <input type="checkbox" {% if 4 in branchinfo['redeemTypeIds'] %} checked=checked {% endif %} id="is_paper_redeem" value="4"> 纸质 
+                        </label> 
+                        <label class="checkbox-inline">
+                            <input type="checkbox" {% if 8 in branchinfo['redeemTypeIds'] %} checked=checked  {% endif %} id="is_secret_redeem" value="8"> 密码 
+                        </label> 
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <a href="#" id="modifyBranch-submit-btn" class="btn btn-default">保存</a>
+                    <a href="#" class="btn btn-default" data-dismiss="modal">关闭</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <br />
+    <div class="form-group has-feedback" style="margin-left: 50%">
+      
+    </div>
+
 </div>
 
 <script type="text/javascript" >
     $(document).ready(function() {
-        {% for type, typeLabel in orderlistTypes %}
-            $('#{{type}}-orderlist-table').dataTable({
+        {% for  typeLabel in orderlistTypes %}
+            $('#{{typeLabel['code']}}-orderlist-table').dataTable({
                 "bProcessing": true,
                 "bStateSave": true,
                 "bServerSide":  true,
-                "sAjaxSource": "branch/orderlist?branchId={{branchId}}&type={{type}}",
+                "sAjaxSource": "/branch/orderlist?branchId={{branchId}}&type={{typeLabel['code']}}",
                 "sDom": "<'row'<'col-md-6'l><'col-md-6'f>r>t<'row'<'col-md-12'i><'col-md-12 center-block'p>>",
                 "sPaginationType": "bootstrap",
                 "oLanguage": { //国际化配置  
@@ -153,19 +204,8 @@
                         "sLast" : "最后一页"    
                     }
                 },
-                "aoColumns": [
-                        {"mData": 'order_id'},
-                        {"mData": 'campaign_branch_id'},
-                        {"mData": 'user_id'},
-                        {"mData": 'price'},
-                        {"mData": 'status'},
-                        {"mData": 'type'},
-                        {"mData": 'trade_number'},
-                        {"mData": 'created_at'},
-                        {"mData": 'updated_at'},
-                    ],
                 "aoColumnDefs": [
-                        {"bSortable": false, "aTargets": [1, 2, 3, 4, 5, 7]},
+                        {"bSortable": false, "aTargets": [1, 2, 3]},
                     ],
             });
         {% endfor %}
@@ -175,7 +215,7 @@
                 "bStateSave": true,
                 "bFilter": false,
                 "bServerSide":  true,
-                "sAjaxSource": "branch/complaintrecords?branchId={{branchId}}",
+                "sAjaxSource": "/branch/complaintrecords?branchId={{branchId}}",
                 "sDom": "<'row'<'col-md-6'l><'col-md-6'f>r>t<'row'<'col-md-12'i><'col-md-12 center-block'p>>",
                 "sPaginationType": "bootstrap",
                 "oLanguage": { //国际化配置  
@@ -215,10 +255,34 @@
                     ],
         });
 
+        $("#modifyBranch-submit-btn").click(function(e){
+
+            var name         = $("#modify-name").val();
+            var address      = $("#modify-address").val();
+            var password     = $("#modify-password").val();
+            var redeemTime   = $("#modify-redeemTime").val();
+
+            var webRedeem    = $("#is_web_redeem").attr('checked');
+            var mobileRedeem = $("#is_mobile_redeem").attr('checked');
+            var paperRedeem  = $("#is_paper_redeem").attr('checked');
+            var secretRedeem = $("#is_secret_redeem").attr('checked');
+
+            alert( address ); 
+        });
+
         $('#orderListTab a:first').tab('show');
         $('#orderListTab a').click(function (e) {
             e.preventDefault();
             $(this).tab('show');
+        });
+
+        $('#modifyBranch-btn').click(function (e) {
+            e.preventDefault();
+            $('#modifyBranchModal').modal('show');
+        });
+
+        $("#process-submit-btn").click(function (e) {
+            location.href   = '/complaint/confirm';
         });
     });
 </script>

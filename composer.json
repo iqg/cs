@@ -21,7 +21,10 @@
         "sensio/framework-extra-bundle": "~3.0,>=3.0.2",
         "incenteev/composer-parameter-handler": "~2.0",
         "php-curl-class/php-curl-class": "^4.6",
-        "knplabs/knp-paginator-bundle": "^2.4"
+        "overtrue/pinyin": "^2.6",
+        "doctrine/doctrine-fixtures-bundle": "^2.2",
+        "doctrine/mongodb-odm": "1.0.*@dev",
+        "doctrine/mongodb-odm-bundle": "3.0.*@dev"
     },
     "require-dev": {
         "sensio/generator-bundle": "~2.3"

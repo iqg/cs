@@ -1,4 +1,4 @@
-{% extends "DWDCsAdminBundle:Layout:layout.html.twig" %}
+{% extends "DWDCSAdminBundle:Layout:layout.html.twig" %}
 
 {% block body %}
 <div class="ch-container">
@@ -12,7 +12,7 @@
 
      <div class="row">
         <div class="row">
-	        <div class="box col-md-6">
+	        <div class="box col-md-4">
 	            <div class="box-inner">
 	                <div class="box-header well" data-original-title="">
 	                    <h2><i class="glyphicon glyphicon-th"></i>用户投诉</h2>
@@ -29,7 +29,7 @@
 	    <div>
         <!--/span-->
 
-        <div class="box col-md-6">
+        <div class="box col-md-4">
             <div class="box-inner">
                 <div class="box-header well" data-original-title="">
                     <h2><i class="glyphicon glyphicon-th"></i>商户投诉</h2>
@@ -45,6 +45,22 @@
         </div>
         <!--/span--> 
 
+
+        <div class="box col-md-4">
+            <div class="box-inner">
+                <div class="box-header well" data-original-title="">
+                    <h2><i class="glyphicon glyphicon-th"></i>其他投诉</h2>
+                </div>
+                <div class="box-content">
+                    <div class="row">
+                        <div class="col-md-4"><button id="ask" class="btn btn-default complaint-type">咨询</button></div>
+                        <div class="col-md-4"><button id="tech-error" class="btn btn-default complaint-type">技术故障</button></div> 
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!--/span--> 
+
         <div class="row">
         	<div class="box col-md-12">
         		<div class="box-inner">
@@ -54,15 +70,76 @@
 	                <div class="box-content">
 	                    <div class="row">
 	                        <div class="col-md-8">
-	                        	<input type="search" id="searchBox" value="" name="search" class="form-control" placeholder="search" required>
+	                        	<input type="searchBranch" id="searchBranchBox" value="" name="search" class="form-control hide searchBox" placeholder="请输入名称,拼音缩写,验证码" required>
+	                        	<input type="searchUser" id="searchUserBox" value="" name="search" class="form-control searchBox hide" placeholder="请输入手机号,验证码,用户id" required>
+	                        	<input type="searchOther" id="searchOtherBox" value="" name="search" class="form-control searchBox hide" placeholder="请输入手机号,用户id,商户名称" required> 
 	                        </div>
 	                        <div class="col-md-4">
-	                        	<button id="searchBtn" class="btn btn-primary">搜索</button>
+	                        	<button id="processBtn" class="btn btn-primary">处理</button>
 	                        </div>
 	                    </div> 
                     </div>
                 </div>
         	</div>
+        </div> 
+
+
+    <div class="row">
+        <div class="box col-md-12">
+            <div class="box-inner">
+                <div class="box-header well" data-original-title="">
+                    <h2>投诉列表</h2>
+
+                    <div class="box-icon"> 
+                        <a href="#" class="btn btn-minimize btn-round btn-default"><i
+                                class="glyphicon glyphicon-chevron-up"></i></a> 
+                    </div>
+                </div>
+                <div class="box-content">
+                	<div class="form-group has-feedback">
+                			<div class="col-md-5">
+                			</div>
+                			<div class="col-md-4">
+	                            <label class="control-label">城市</label>&nbsp;&nbsp;
+	                            <select id="city" data-rel="chosen">
+			                		<option value=0>全部城市</option>
+			                		{% for zoneInfo in zoneList %}
+				                		<option value='{{zoneInfo['id']}}' >{{zoneInfo['name']}}</option>  
+				                	{% endfor %}
+			                	</select>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+			                	<label class="control-label">销售</label>&nbsp;&nbsp;
+	                            <select id="saler" data-rel="chosen">
+	                            	<option value=0>所有销售</option>
+	                            	{% for salerInfo in salerlist %}
+				                		<option value='{{salerInfo['id']}}' >{{salerInfo['name']}}</option>  
+				                	{% endfor %} 
+			                	</select>  
+			                </div>
+		                	<div class="col-md-2"> 
+		                		<input type="searchBranchName" id="searchBranchNameBox" value="" name="search" class="form-control searchBox" placeholder="商户名称" required>
+		                	</div>
+		                	<div class="col-md-1">
+	                        	<button id="processBtn" class="btn btn-primary">查询</button>
+	                        </div>
+                    </div> 
+                    <table id="complaintrecords-table" class="table table-striped table-bordered bootstrap-datatable responsive">
+                    <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>来源</th>
+                        <th>来电电话</th>
+                        <th>投诉分类</th>
+                        <th>创建时间</th> 
+                        <th>解决时间</th>
+                        <th>状态</th>
+                        <th>操作</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                    </table>
+                </div>
+             </div>
         </div>
     </div>
  
@@ -78,6 +155,28 @@
                 $(this).removeClass("btn-default");
                 $(this).addClass("btn-primary"); 
                 type    = $(this).attr('id');
+                switch(type){ 
+					case 'usage':
+					case 'refund':
+					case 'correction': 
+					  $("#searchBranchBox").addClass('hide');
+					  $("#searchOtherBox").addClass('hide');
+					  $("#searchUserBox").removeClass('hide');
+					  break; 
+					case 'redeem':
+					case 'offline':
+					case 'modifyBranch': 
+					  $("#searchUserBox").addClass('hide');
+					  $("#searchOtherBox").addClass('hide');
+					  $("#searchBranchBox").removeClass('hide');
+					  break;
+					case 'ask':
+					case 'tech-error':
+					  $("#searchUserBox").addClass('hide');
+					  $("#searchBranchBox").addClass('hide');
+					  $("#searchOtherBox").removeClass('hide');
+					  break;
+				} 
             } else {
             	$(this).removeClass("btn-primary");
             	$(this).addClass("btn-default");
@@ -87,34 +186,29 @@
             return false;
         });
 
-        var availableTags = [
-			    "C#",
-			    "C++",
-			    "Java",
-			    "JavaScript",
-			    "ASP",
-                "ASP.NET",
-			    "JSP",
-			    "PHP",
-			    "Python",
-			    "Ruby"
-		    ];
-        $("#searchBox").autocomplete({
-                source: availableTags,
-                minLength:3,
-                select: function(e, ui) {
-			      alert(ui.item.value) 
-			    }
-        });
+        $("#searchBranchBox").autocomplete({
+	                source: "/autocomplete-branch/search",
+	                minLength:3,
+	                select: function(e, ui) {
+				     id = ui.item.id;
+				    }
+		});
 
-        $("#search").click(function(){
+		$("#searchUserBox").autocomplete({
+	                source: "/autocomplete-user/search",
+	                select: function(e, ui) {
+				      id = ui.item.id;
+				    } 
+		});        
+
+        $("#processBtn").click(function(){
 		   if( type == '' ){
 		      alert('请选择投诉类型');
 		   	  return;
 		   }
 
-		   if( id == 1 ){
-		   	  alert('请选择对应门店或用户');
+		   if( id == 0 ){
+		   	  alert('请选择对应门店,用户或订单');
 		   	  return;
 		   }
 
@@ -122,15 +216,17 @@
 			case 'usage':
 			case 'refund':
 			case 'correction': 
-			  location.href='/admin/user?userId=' + id + '&type=' + type;
+			  location.href='/user?userId=' + id + '&type=' + type;
 			  break; 
 			case 'redeem':
 			case 'offline':
 			case 'modifyBranch': 
-			  location.href='/admin/branch?branchId=' + id + '&type=' + type;
+			  location.href='/branch?branchId=' + id + '&type=' + type;
 			  break;  
 		   } 
 		});
+
+		$("#usage").click();
 	});
  
 </script>

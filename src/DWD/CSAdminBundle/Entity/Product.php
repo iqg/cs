@@ -1,7 +1,6 @@
 <?php
 
-// src/AppBundle/Entity/Product.php
-namespace DWD\CsAdminBundle\Entity;
+namespace DWD\CSAdminBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 
@@ -42,7 +41,7 @@ class Product
     /**
      * Get id
      *
-     * @return integer 
+     * @return integer
      */
     public function getId()
     {
@@ -65,7 +64,7 @@ class Product
     /**
      * Get name
      *
-     * @return string 
+     * @return string
      */
     public function getName()
     {
@@ -88,7 +87,7 @@ class Product
     /**
      * Get price
      *
-     * @return string 
+     * @return string
      */
     public function getPrice()
     {
@@ -111,7 +110,7 @@ class Product
     /**
      * Get description
      *
-     * @return string 
+     * @return string
      */
     public function getDescription()
     {
@@ -121,10 +120,10 @@ class Product
     /**
      * Set category
      *
-     * @param \AppBundle\Entity\Category $category
+     * @param \DWD\CSAdminBundle\Entity\Category $category
      * @return Product
      */
-    public function setCategory(\AppBundle\Entity\Category $category = null)
+    public function setCategory(\DWD\CSAdminBundle\Entity\Category $category = null)
     {
         $this->category = $category;
 
@@ -134,7 +133,7 @@ class Product
     /**
      * Get category
      *
-     * @return \AppBundle\Entity\Category 
+     * @return \DWD\CSAdminBundle\Entity\Category
      */
     public function getCategory()
     {

@@ -1,5 +1,10 @@
+dwd_data:
+    resource: "@DWDDataBundle/Controller/"
+    type:     annotation
+    prefix:   /
+
 dwd_demo_admin:
-    resource: "@DWDCsAdminBundle/Controller/"
+    resource: "@DWDCSAdminBundle/Controller/"
     type:     annotation
 
 app:

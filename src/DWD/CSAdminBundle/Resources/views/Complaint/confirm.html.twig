@@ -1,7 +1,19 @@
-{% extends "DWDCsAdminBundle:Layout:layout.html.twig" %}
+{% extends "DWDCSAdminBundle:Layout:layout.html.twig" %}
 
 {% block body %}
 <div class="ch-container">
+    <div id="content" class="col-lg-10 col-sm-10">
+            <!-- content starts -->
+                <div>
+        <ul class="breadcrumb">
+            <li>
+                <a href="/">首页</a>
+            </li>
+            <li>
+                投诉确认
+            </li>
+        </ul>
+    </div>
 
     <div class="row">
         <div class="box col-md-15">
@@ -13,7 +25,7 @@
                     <form class="form-inline" role="form">
 
                         <div class="form-group has-feedback">
-                            <label class="control-label" for="inputSuccess4">来源</label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 用户投诉-领用问题
+                            <label class="control-label" for="inputSuccess4">来源</label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 用户投诉-{{complaintType}}
                         </div> <br /><br />
                     
                         <div class="form-group has-feedback">
@@ -26,83 +38,86 @@
  
                         <div class="form-group has-feedback">
                             <label class="control-label">电话号码</label>&nbsp;&nbsp;
-                            <input type="text" class="form-control">
+                            <input type="text" id="mobile" class="form-control">
                         </div> <br /><br />
 
                         <div class="form-group has-feedback">
                             <label class="control-label">投诉方式</label>&nbsp;&nbsp;
                             <label class="checkbox-inline">
-                                <input type="checkbox" id="inlineCheckbox1" value="option1"> 客服电话 
+                                <input type="radio" name="complaintWay" id="complaintWay" value="1"> 客服电话 
                             </label>
                             <label class="checkbox-inline">
-                                <input type="checkbox" id="inlineCheckbox1" value="option1"> 在线客服 
+                                <input type="radio" name="complaintWay" id="complaintWay" value="2"> 在线客服 
                             </label>
                             <label class="checkbox-inline">
-                                <input type="checkbox" id="inlineCheckbox1" value="option1"> 其他 
+                                <input type="radio" name="complaintWay" id="complaintWay" value="3"> 其他 
                             </label> 
                         </div>  <br /><br />
  
                         <div class="form-group has-feedback">
                             <label class="control-label">平台</label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                             <select id="selectPlatform" data-rel="chosen">
-                                <option>IOS客户端</option>
-                                <option>安卓客户端</option>
-                                <option>h5客户端</option> 
+                                <option value=1>IOS客户端</option>
+                                <option value=2>安卓客户端</option>
+                                <option value=3>h5客户端</option> 
                             </select>
                         </div> <br /><br />
 
                         <div class="form-group has-feedback">
                             <label class="control-label">活动</label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                            <input type="text" class="form-control">
+                            <input readonly=readonly value="{{param['item']}}" type="text" class="form-control">
                         </div> <br /><br />
 
                         <div class="form-group has-feedback">
                             <label class="control-label">门店</label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                            <input type="text" class="form-control">
+                            <input readonly=readonly value="{{param['branch']}}" type="text" class="form-control">
                         </div> <br /><br />
 
                         <div class="form-group has-feedback">
                             <label class="control-label">跟进销售</label>&nbsp;&nbsp;
-                            <input type="text" class="form-control">
+                            <input readonly=readonly value="{{param['saler']}}"  type="text" class="form-control">
                         </div> <br /><br />
 
                         <div class="form-group has-feedback">
                             <label class="control-label">备注</label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                            <textarea class="autogrow"></textarea>
+                            <textarea id="note" class="autogrow"></textarea>
                         </div> <br /><br />
 
                         <div class="form-group has-feedback">
                             <label class="control-label">投诉状态</label>&nbsp;&nbsp;
                             <label class="checkbox-inline">
-                                <input type="checkbox" id="inlineCheckbox1" value="option1"> 待跟进 
+                                <input type="radio" id="status" name="status" value="1"> 待跟进 
                             </label>
                             <label class="checkbox-inline">
-                                <input type="checkbox" id="inlineCheckbox1" value="option1"> 已解决 
+                                <input type="radio" id="status" name="status" value="0"> 已解决 
                             </label> 
                         </div>  <br /><br /><br /><br /><br />
                         <div class="form-group has-feedback" style="margin-left: 39%">
-                            <button type="submit" id="confirm-btn" class="btn btn-primary">确认提交</button>
+                            <button type="button" id="confirm-btn" class="btn btn-primary">确认提交</button>
                         </div>
                     </form>
                 </div>
             </div>
         </div>
     </div>  
-
 </div>
 
 <script type="text/javascript" >
     var complaint           = new Object();
-    complaint.from          = '';
+    complaint.from          = 1;
     complaint.tags          = [];
-    complaint.tel           = '';
-    complaint.complaint_way = 2;
+    complaint.mobile        = '';
+    complaint.complaintWay  = 1;
     complaint.platform      = 0;
-    complaint.activity      = '';
-    complaint.branch        = '';
-    complaint.saler_id      = '';
+    complaint.item_id       = {{param['item_id']}};
+    complaint.item          = {{param['item']}};
+    complaint.branch        = {{param['branch']}};
+    complaint.branch_id     = {{param['branch_id']}};
+    complaint.saler_id      = {{param['saler_id']}};
+    complaint.saler         = {{param['saler']}};
     complaint.note          = '';
     complaint.status        = 0;
+    complaint.order_id      = {{param['orderId']}};
 
     var tags = [];
     $(document).ready(function() {
@@ -130,7 +145,25 @@
 
 
         $("#confirm-btn").click(function (e) {
-            
+
+            if(!confirm("确认提交?")){
+                return ;
+            }
+            complaint.platform       = $("#selectPlatform option:selected").val();
+            complaint.complaintWay   = $("#complaintWay:checked").val();
+            complaint.status         = $("#status:checked").val();
+            complaint.mobile         = $("#mobile").val();
+            complaint.note           = $("#note").val();
+            complaint.tags           = tags.join(",");
+
+            $.ajax({    
+                type:'post',        
+                url:'/complaint/processSubmit',    
+                data: complaint,
+                dataType:'json',    
+                success:function(data){ 
+                        }  
+            });
         });
     });
 </script>

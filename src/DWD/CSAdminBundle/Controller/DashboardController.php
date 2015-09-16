@@ -1,18 +1,19 @@
 <?php
 
-namespace DWD\CsAdminBundle\Controller;
+namespace DWD\CSAdminBundle\Controller;
 
-use DWD\CsAdminBundle\Form\ProductType;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
-use DWD\CsAdminBundle\Entity\Product;
+use Symfony\Component\HttpFoundation\Response;
+use DWD\DataBundle\Document\Store;
+use Overtrue\Pinyin\Pinyin;
 
 /**
  * Class DashboardController
- * @package DWD\CsAdminBundle\Controller
- * @Route("/admin")
+ * @package DWD\CSAdminBundle\Controller
+ * @Route("/")
  */
 class DashboardController extends Controller
 {
@@ -23,8 +24,34 @@ class DashboardController extends Controller
     public function indexAction(Request $request)
     { 
     	$errMsg          = $this->getRequest()->get('errMsg', "");
-        return $this->render('DWDCsAdminBundle:Dashboard:index.html.twig', array(
-        	'errMsg'     => $errMsg
+
+        $dataHttp        = $this->get('dwd.data.http');  
+        $data            = array(
+                               array(
+                                   'url'    => '/zone/zonelist',
+                                   'data'   => array(
+                                       'active'    => 1,
+                                   ),
+                                   'method' => 'get',
+                                   'key'    => 'zonelist',
+                               ),
+                               array(
+                                   'url'    => '/saler/salerlist',
+                                   'data'   => array(
+                                       'active'    => 1,
+                                   ),
+                                   'method' => 'get',
+                                   'key'    => 'salerlist',
+                               ),  
+                           );
+      
+        $response        = $dataHttp->MutliCall( $data );   
+
+        return $this->render('DWDCSAdminBundle:Dashboard:index.html.twig', array(
+        	'errMsg'     => $errMsg,
+            'zoneList'   => $response['zonelist']['data']['list'],
+            'salerlist'  => $response['salerlist']['data']['list'],
         ));
     }
+ 
 }
