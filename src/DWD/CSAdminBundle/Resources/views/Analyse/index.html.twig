@@ -1,10 +1,18 @@
-<!-- Load jQuery from Google's CDN if needed -->
-<script src="http://cdn.hcharts.cn/jquery/jquery-2.1.4.min.js" type="text/javascript"></script>
 
-<script src="http://cdn.hcharts.cn/highcharts/highcharts.js"></script>
-<script src="//code.highcharts.com/4.1.8/modules/exporting.js"></script>
+{% block body %}
+    <div id="container" style="min-width: 400px; height: 400px; margin: 0 auto"></div>
+{% endblock %}
+
+{% block javascripts %}
+    {% javascripts
+    'js/jquery-1.11.3.min.js'
+    'js/highcharts.js'
+    'js/exporting.js'
+    %}
+    <script src="{{ asset_url }}"></script>
+    {% endjavascripts %}
 <script type="text/javascript">
     {{ chart(chart) }}
 </script>
 
-<div id="container" style="min-width: 400px; height: 400px; margin: 0 auto"></div>
+{% endblock %}

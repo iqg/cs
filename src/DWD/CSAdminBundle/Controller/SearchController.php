@@ -28,7 +28,6 @@ class SearchController extends Controller
             $response->setContent(json_encode([]));
             return $response;
         }
-
         $dm = $this->get('doctrine_mongodb')->getManager();
         $resultByName = $dm->getRepository('DWDDataBundle:Store')->findByName(array('$regex' => $q));
         $resultByPinyin = array();
