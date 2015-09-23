@@ -18,49 +18,103 @@ use Zend\Json\Expr;
 class AnalyseController extends Controller
 {
     /**
-     * Index of Analyse statistics
+     * Uri list of Analyse statistics
      *
      * @Route("/",name="dwd_csadmin_analyse_dashboard")
      */
     public function indexAction(Request $request)
     {
-        $uri = $request->get('uri');
-        $startTime = $request->get('startTime');
-        $duration = $request->get('duration');
+        $date = $request->get('date');
 
         $dm = $this->get('doctrine_mongodb')->getManager();
         $mongoConn = $dm->getConnection()->getMongo()->selectDB('iqianggou_analyse');
-        $oal = $mongoConn->selectCollection('openapi_access_logs');
+        $oal = $mongoConn->selectCollection('openapi_access_data');
 
-        $startTimestamp = intval($startTime);
+        if (isset($date) && !empty($date)) {
+            $startTimestamp = strtotime($date);
+        } else {
+            $lastRecord = $oal->find()->sort(['startTimestamp' => -1])->limit(1)->getNext();
+            $startTimestamp = $lastRecord['startTimestamp'];
+        }
+
+        $apiDataCursor = $oal->find([
+            'startTimestamp' => $startTimestamp,
+        ])->sort(['called' => -1]);
+        $apiList = iterator_to_array($apiDataCursor);
+
+//        $response = new Response();
+//        $response->setContent(json_encode($apiList));
+//        return $response;
+
+        return $this->render('DWDCSAdminBundle:Analyse:api_list.html.twig', array(
+            'apiList'       => $apiList,
+            'title'         => date('Y-m-d', $startTimestamp) . ' API访问'
+        ));
+    }
+
+    /**
+     * Uri chart of Analyse statistics
+     *
+     * @Route("/urichart",name="dwd_csadmin_analyse_dashboard_urichart")
+     */
+    public function showUriChartAction(Request $request)
+    {
+        $uri = $request->get('uri');
+        $startTime = $request->get('startTime');
+        $duration = $request->get('duration');
+        $type = $request->get('type');
+
+        $dm = $this->get('doctrine_mongodb')->getManager();
+        $mongoConn = $dm->getConnection()->getMongo()->selectDB('iqianggou_analyse');
+
         $calledArray = array();
         $costArray = array();
+        $categories = array();
 
-        for ( $i = 0; $i < 12; $i ++ ) {
-            $requestCursor = $oal->find([
-               'request_time' => [
-                   '$gte' => $startTimestamp,
-                   '$lt' => $startTimestamp + $duration
-               ],
+        if ($type == 'day') {
+            $oal = $mongoConn->selectCollection('openapi_access_data');
+            $apiCursor = $oal->find([
                'path' => $uri
-            ]);
-            $startTimestamp += $duration;
-
-            $called = 0;
-            $totalCost = 0;
-            foreach ($requestCursor as $doc) {
-                if( $doc['cost'] < 0 ) {
+            ])->sort(['startTimestamp' => 1]);
+            foreach ($apiCursor as $doc) {
+                if ($doc['totalCost'] < 0) {
                     continue;
                 }
-                $called ++;
-                $totalCost += $doc['cost'];
+                $calledArray []= $doc['called'];
+                $costArray []= round($doc['totalCost'] / $doc['called'], 2);
+                $categories []= date("Y-m-d", $doc['startTimestamp']);
             }
-            $calledArray []= $called;
-            if( $called ) {
-                $costArray []= $totalCost / $called;
-            } else {
-                $calledArray []= 0;
+        } else {
+            $oal = $mongoConn->selectCollection('openapi_access_logs');
+            $startTimestamp = intval($startTime);
+
+            for ( $i = 0; $i < 12; $i ++ ) {
+                $requestCursor = $oal->find([
+                    'request_time' => [
+                        '$gte' => $startTimestamp,
+                        '$lt' => $startTimestamp + $duration
+                    ],
+                    'path' => $uri
+                ]);
+                $startTimestamp += $duration;
+
+                $called = 0;
+                $totalCost = 0;
+                foreach ($requestCursor as $doc) {
+                    if( $doc['cost'] < 0 ) {
+                        continue;
+                    }
+                    $called ++;
+                    $totalCost += $doc['cost'];
+                }
+                $calledArray []= $called;
+                if( $called ) {
+                    $costArray []= $totalCost / $called;
+                } else {
+                    $calledArray []= 0;
+                }
             }
+            $categories = array('0-5', '5-10', '10-15', '15-20', '20-25', '25-30', '30-35', '35-40', '40-45', '45-50', '50-55', '55-60');
         }
 
         $series = array(
@@ -102,7 +156,6 @@ class AnalyseController extends Controller
                 ),
             ),
         );
-        $categories = array('0-5', '5-10', '10-15', '15-20', '20-25', '25-30', '30-35', '35-40', '40-45', '45-50', '50-55', '55-60');
 
         $ob = new Highchart();
         $ob->chart->renderTo('container'); // The #id of the div where to render the chart
@@ -121,7 +174,7 @@ class AnalyseController extends Controller
         $ob->tooltip->formatter($formatter);
         $ob->series($series);
 
-        return $this->render('DWDCSAdminBundle:Analyse:index.html.twig', array(
+        return $this->render('DWDCSAdminBundle:Analyse:url_chart.html.twig', array(
             'chart'        => $ob
         ));
     }
