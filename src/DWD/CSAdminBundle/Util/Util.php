@@ -229,7 +229,17 @@ class Util
                                  11   => '已解决（延期处理）',
                                  99   => '已解决（其它）', 
                                );
-        return $statusLabel[$statusId];
+        return  isset( $statusLabel[$statusId] ) ?  $statusLabel[$statusId] : '' ;
+   }
+
+   public function getComplaintSourceLabel( $sourceId )
+   {
+        $sourceLabel        =  array( 
+                                 1    => '用户投诉',
+                                 2    => '商户投诉',
+                                 3    => '其他',
+                               );
+        return isset( $sourceLabel[$sourceId] ) ?  $sourceLabel[$sourceId] : '' ;
    }
 
    public function getComplaintTypesLabel( $typeId )
@@ -244,6 +254,20 @@ class Util
                                  'ask'          => '咨询',
                                  'tech-error'   => '技术故障', 
                                );
-        return $typeLabel[$typeId];
+        return isset( $typeLabel[$typeId] ) ?  $typeLabel[$typeId] : '' ;
+   }
+
+   public function getCampaignBranchTypeLabel( $typeId )
+   {
+        $typeLabel          =  array( 
+                                  1        => '往下拍',
+                                  2        => '预售',
+                                  3        => '倒计时',
+                                  4        => '回头客',
+                                  5        => '品牌门店限制商品',
+                                  6        => '睡前摇活动',
+                                  7        => '市场活动奖励活动', 
+                               );
+        return isset( $typeLabel[$typeId] ) ?  $typeLabel[$typeId] : '' ;
    }
 }

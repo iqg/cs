@@ -7,6 +7,8 @@ imports:
 # http://symfony.com/doc/current/best_practices/configuration.html#application-related-configuration
 parameters:
     locale: zh_CN
+    cookie_domain: .iqianggou.dev
+    redis_dsn: 'redis://127.0.0.1:6379'
 
 framework:
     #esi:             ~
@@ -74,7 +76,7 @@ doctrine:
 doctrine_mongodb:
     connections:
         default:
-            server: mongodb://10.0.0.10:27017
+            server: mongodb://iqg_search:6yhn$RFV@10.0.0.10:27017/iqianggou_search
             options: {}
     default_database: iqianggou_search
     document_managers:
@@ -88,3 +90,15 @@ swiftmailer:
     username:  "%mailer_user%"
     password:  "%mailer_password%"
     spool:     { type: memory }
+
+# FOSUserBundle Configuration
+fos_user:
+    db_driver: orm # other valid values are 'mongodb', 'couchdb' and 'propel'
+    firewall_name: main
+    user_class: DWD\DataBundle\Entity\User
+
+# SncRedis Configuration
+snc_redis:
+    session:
+        client: session
+        locking: false

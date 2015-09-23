@@ -30,8 +30,9 @@ class DWDDataHttp
 
     static function PackageGetRequest( &$ch, $request ){
         $path            =  http_build_query( $request['data'] );
+        $url             =  isset( $request['host'] ) ? $request['host'] : SELF::API_SERVER;
         $request['url'] .= '?' . $path;
-        curl_setopt($ch, CURLOPT_URL, SELF::API_SERVER . $request['url']);
+        curl_setopt($ch, CURLOPT_URL, $url . $request['url']);
         curl_setopt($ch, CURLOPT_TIMEOUT, 10);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
         curl_setopt($ch, CURLOPT_HEADER, 0);
@@ -39,7 +40,8 @@ class DWDDataHttp
     }
 
     static function PackagePostRequest( &$ch, $request ){
-        curl_setopt($ch, CURLOPT_URL, SELF::API_SERVER . $request['url']);
+        $url             =  isset( $request['host'] ) ? $request['host'] : SELF::API_SERVER;
+        curl_setopt($ch, CURLOPT_URL, $url . $request['url']);
         curl_setopt($ch, CURLOPT_TIMEOUT, 10);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
         curl_setopt($ch, CURLOPT_HEADER, 0);

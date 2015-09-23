@@ -10,3 +10,6 @@ services:
     dwd.util:
         class: DWD\CSAdminBundle\Util\Util
         arguments: []
+    dwd.oplogger:
+        class: DWD\CSAdminBundle\Util\OpLogger
+        arguments: [@service_container]

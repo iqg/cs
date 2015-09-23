@@ -1,6 +1,6 @@
 <?php
 
-namespace DWD\CsAdminBundle\Controller;
+namespace DWD\CSAdminBundle\Controller;
  
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
@@ -10,7 +10,7 @@ use Symfony\Component\HttpFoundation\Response;
 
 /**
  * Class BranchController
- * @package DWD\CsAdminBundle\Controller
+ * @package DWD\CSAdminBundle\Controller
  * @Route("/")
  */
 class BranchController extends Controller
@@ -33,17 +33,17 @@ class BranchController extends Controller
 
         if( $redeemType & self::TEL_VERIFY  ){
           $redeemTypes[]   = '电话验证';
-          $redeemTypeIds[] = self::WEB_VERIFY;
+          $redeemTypeIds[] = self::TEL_VERIFY;
         }
 
         if( $redeemType & self::PAPER_VERIFY  ){
           $redeemTypes[]   = '纸质验证';
-          $redeemTypeIds[] = self::WEB_VERIFY;
+          $redeemTypeIds[] = self::PAPER_VERIFY;
         }
 
         if( $redeemType & self::SECRET_VERIFY  ){
           $redeemTypes[]   = '密码验证';
-          $redeemTypeIds[] = self::WEB_VERIFY;
+          $redeemTypeIds[] = self::SECRET_VERIFY;
         }
 
         return  array(
@@ -59,16 +59,16 @@ class BranchController extends Controller
           switch ( $operator ) {
             /*  case '退款':
                     $opStr  .= "&nbsp;&nbsp;&nbsp;<a href='#' class='order-refund-btn' data-rel='$orderId'>[退款]</a>";
-                    break; */
+                    break;  
              case '纠错':
                     $opStr  .= "&nbsp;&nbsp;&nbsp;<a href='#' class='order-correct-btn' data-rel='$orderId'>[纠错]</a>";
-                    break;
+                    break;*/
              case '日志': 
                     $opStr  .= "&nbsp;&nbsp;&nbsp;<a href='#' class='order-log-btn' data-rel='$orderId'>[日志]</a>";
                     break;
              case '详情': 
-                   $opStr   .= "&nbsp;&nbsp;&nbsp;<a href='#' class='order-detail-btn' data-rel='$orderId'>[详情]</a>";
-                   break;
+                    $opStr   .= "&nbsp;&nbsp;&nbsp;<a href='#' class='order-detail-btn' data-rel='$orderId'>[详情]</a>";
+                    break;
           }
         }
 
@@ -80,9 +80,12 @@ class BranchController extends Controller
      * @Route("/branch",name="dwd_csadmin_branch")
      */
     public function indexAction()
-    { 
+    {    
+
         $branchId        = $this->getRequest()->get("branchId");
         $dataHttp        = $this->get('dwd.data.http');
+        $source          = $this->getRequest()->get('source');
+        $type            = $this->getRequest()->get('type');
 
         $requests        = array(
             array(
@@ -104,50 +107,90 @@ class BranchController extends Controller
         }
         
         $requests        = array(
-            array(
-                'url'    => '/brand/brandinfo',
-                'data'   => array(
-                    'brandId'      => $branchInfo['brand_id'],
-                ),
-                'method' => 'get',
-                'key'    => 'brand',
-            ), 
-            array(
-                'url'    => '/zone/zoneinfo',
-                'data'   => array(
-                    'zoneId'       => $branchInfo['zone_id'],
-                ),
-                'method' => 'get',
-                'key'    => 'zone',
-            ), 
-            array(
-                'url'    => '/saler/salerinfo',
-                'data'   => array(
-                    'salerId'      => $branchInfo['saler_id'],
-                ),
-                'method' => 'get',
-                'key'    => 'saler',
-            ),
-        ); 
+                              array(
+                                  'url'    => '/brand/brandinfo',
+                                  'data'   => array(
+                                                  'brandId'      => $branchInfo['brand_id'],
+                                              ),
+                                  'method' => 'get',
+                                  'key'    => 'brand',
+                              ), 
+                              array(
+                                  'url'    => '/zone/zoneinfo',
+                                  'data'   => array(
+                                                  'zoneId'       => $branchInfo['zone_id'],
+                                              ),
+                                  'method' => 'get',
+                                  'key'    => 'zone',
+                              ), 
+                              array(
+                                  'url'    => '/saler/salerinfo',
+                                  'data'   => array(
+                                                  'salerId'      => $branchInfo['saler_id'],
+                                              ),
+                                  'method' => 'get',
+                                  'key'    => 'saler',
+                              ),
+                              array(
+                                  'url'    => '/branch/campaignbranchlist',
+                                  'data'   => array(
+                                                  'branchId'     => $branchId,
+                                              ),
+                                  'method' => 'get',
+                                  'key'    => 'campaignbranchlist',
+                              ),
+                              array(
+                                  'url'    => '/branch/redeemtel',
+                                  'data'   => array(
+                                                'branchId'       => $branchId,
+                                              ),
+                                  'method' => 'get',
+                                  'key'    => 'redeemtel',
+                              ),
+                              array(
+                                  'url'    => '/branch/accountinfo',
+                                  'data'   => array(
+                                                'branchId'       => $branchId,
+                                              ),
+                                  'method' => 'get',
+                                  'key'    => 'accountinfo',
+                              )
+                          ); 
 
-        $data                        = $dataHttp->MutliCall($requests);
-        $brandInfo                   = $data['brand']['data'];
-        $zoneInfo                    = $data['zone']['data'];
-        $salerInfo                   = $data['saler']['data'];
+        $data                        =  $dataHttp->MutliCall($requests);
+        $brandInfo                   =  $data['brand']['data'];
+        $zoneInfo                    =  $data['zone']['data'];
+        $salerInfo                   =  $data['saler']['data'];
+        $campaignbranchlist          =  $data['campaignbranchlist']['data'];
+        $accountInfo                 =  $data['accountinfo']['data'];
+
+        if( empty( $accountInfo ) ){
+           $accountInfo['username']  = '该门店不存在帐号';
+        }
  
-        $branchInfo['brandName']     = $brandInfo['name'];
-        $branchInfo['brandTel']      = $brandInfo['tel'];
-        $branchInfo['zoneName']      = $zoneInfo['name'];
-        $branchInfo['salerName']     = $salerInfo['name'];
-        $redeemTypes                 = self::_getRedeemTypes( $branchInfo['redeem_type'] );
-        $branchInfo['redeemTypes']   = implode( ", ", $redeemTypes[0]); //self::_getRedeemTypes( $branchInfo['redeem_type'] );
-        $branchInfo['redeemTypeIds'] = $redeemTypes[1];
+        $branchInfo['brandName']     =  $brandInfo['name'];
+        $branchInfo['brandTel']      =  $brandInfo['tel'];
+        $branchInfo['zoneName']      =  $zoneInfo['name'];
+        $branchInfo['salerName']     =  $salerInfo['name'];
+        $redeemTypes                 =  self::_getRedeemTypes( $branchInfo['redeem_type'] );
+        $branchInfo['redeemTypes']   =  implode( ", ", $redeemTypes[0]); //self::_getRedeemTypes( $branchInfo['redeem_type'] );
+        $branchInfo['redeemTypeIds'] =  $redeemTypes[1];
         $orderListTypes              =  $this->get('dwd.util')->getOrderTableInfo( 0 );
+        $redeemTels                  =  array();
+
+        foreach( $data['redeemtel']['data']['list'] as $redeemTel ){
+                      $redeemTels[]  =  $redeemTel['tel'];
+        } 
 
         return $this->render('DWDCSAdminBundle:Branch:index.html.twig', array( 
-            'branchinfo'             => $branchInfo, 
+            'branchinfo'             => $branchInfo,
             'orderlistTypes'         => $orderListTypes,
             'branchId'               => $branchId,
+            'type'                   => $type,
+            'source'                 => $source,
+            'campaignbranchlist'     => $campaignbranchlist,
+            'accountInfo'            => $accountInfo,
+            'redeemTels'             => implode(',', $redeemTels),
         ));
     } 
 
@@ -308,15 +351,15 @@ class BranchController extends Controller
                                 'list' => 
                                     array(
                                         array(
-                                         $orderInfo['id'],
-                                         $orderInfo['campaign_branch_id'],
-                                         $orderInfo['user_id'],
-                                         $orderInfo['price'],
-                                         $this->get('dwd.util')->getOrderStatusLabel( $orderInfo['status'] ),
-                                         $this->get('dwd.util')->getOrderTypeLabel($orderInfo['type']),
-                                         $orderInfo['trade_number'],
-                                         $orderInfo['created_at'],
-                                         $orderInfo['updated_at'],
+                                           $orderInfo['id'],
+                                           $orderInfo['campaign_branch_id'],
+                                           $orderInfo['user_id'],
+                                           $orderInfo['price'],
+                                           $this->get('dwd.util')->getOrderStatusLabel( $orderInfo['status'] ),
+                                           $this->get('dwd.util')->getOrderTypeLabel($orderInfo['type']),
+                                           $orderInfo['trade_number'],
+                                           $orderInfo['created_at'],
+                                           $orderInfo['updated_at'],
                                        ),    
                                     ), 
                                 "total" => 1,
@@ -395,20 +438,20 @@ class BranchController extends Controller
         foreach( $data['complaintrecords']['data']['list'] as $complaintrecord )
         { 
             $complaintrecords['list'][] = array(
-                                         $complaintrecord['item_id'],
-                                         $complaintrecord['order_id'],
-                                         $complaintrecord['user_id'], 
-                                         $complaintrecord['saler_id'],
-                                         $complaintrecord['type_id'], 
-                                         $complaintrecord['status'],
-                                         $complaintrecord['description'], 
-                                         $complaintrecord['from_id'],
-                                         $complaintrecord['category_id'],
-                                         $complaintrecord['mobile'],
-                                         $complaintrecord['created_at'],
-                                         $complaintrecord['updated_at'],
-                                         $complaintrecord['resolved_at'],
-                                    );
+                                             $complaintrecord['item_id'],
+                                             $complaintrecord['order_id'],
+                                             $complaintrecord['user_id'], 
+                                             $complaintrecord['saler_id'],
+                                             $complaintrecord['type_id'], 
+                                             $complaintrecord['status'],
+                                             $complaintrecord['description'], 
+                                             $complaintrecord['from_id'],
+                                             $complaintrecord['category_id'],
+                                             $complaintrecord['mobile'],
+                                             $complaintrecord['created_at'],
+                                             $complaintrecord['updated_at'],
+                                             $complaintrecord['resolved_at'],
+                                          );
         }
  
         $res             = array
@@ -420,4 +463,181 @@ class BranchController extends Controller
                            );
         exit(json_encode( $res )); 
     }
+
+    /**
+     * @Route("/branch/update", name="dwd_csadmin_branch_update")
+     * @Method("POST")
+     */
+    public function UpdateAction()
+    {
+        $dataHttp        = $this->get('dwd.data.http');
+        $branchId        = $this->getRequest()->get('branchId');
+        $address         = $this->getRequest()->get('address');
+        $redeemTel       = $this->getRequest()->get('redeemTel');
+        $redeemTime      = $this->getRequest()->get('redeemTime');
+        $webRedeem       = $this->getRequest()->get('webRedeem');
+        $mobileRedeem    = $this->getRequest()->get('mobileRedeem');
+        $paperRedeem     = $this->getRequest()->get('paperRedeem');
+        $secretRedeem    = $this->getRequest()->get('secretRedeem');
+ 
+        $redeemType      = 0;
+
+        if( $webRedeem ) {
+          $redeemType   += self::WEB_VERIFY;
+        }
+
+        if( $webRedeem ) {
+          $redeemType   += self::TEL_VERIFY;
+        }
+
+        if( $webRedeem ) {
+          $redeemType   += self::PAPER_VERIFY;
+        }
+
+        if( $webRedeem ) {
+          $redeemType   += self::SECRET_VERIFY;
+        } 
+
+        $data            = array( 
+                                array(
+                                    'url'    => '/branch/update',
+                                    'data'   => array(
+                                        'branchId'       => $branchId,
+                                        'address'        => $address, 
+                                        'redeem_time'    => $redeemTime,
+                                        'redeem_type'    => $redeemType,
+                                        'tel'            => $redeemTel,
+                                    ), 
+                                    'method' => 'post',
+                                    'key'    => 'update',
+                                ),
+                            ); 
+
+        $data            = $dataHttp->MutliCall($data);
+        $res             = false;
+        if( $data['update']['errno'] == 0 && $data['update']['data'] == true ){
+          $res           = true;
+        }
+
+        $logRecord       = array(
+                              'route'    => $this->getRequest()->get('_route'),
+                              'res'      => $res,
+                              'adminId'  => $this->getUser()->getId(),
+                              'ext'      => array( 
+                                              'branchId'      => $branchId,
+                                              'address'       => $address,
+                                              'redeemTime'    => $redeemTime,
+                                              'redeemType'    => $redeemType,
+                                              'tel'           => $redeemTel,
+                                            ),
+                           );
+        $this->get('dwd.oplogger')->addCommonLog( $logRecord );
+
+        $response        = new Response();
+        $response->setContent( json_encode( $res ) );
+        return $response; 
+    }
+
+    /**
+     * @Route("/branch/campaignbranchs", name="dwd_csadmin_branch_campaignbranchs")
+     * @Method("GET")
+     */
+    public function CampaignBranchsAction()
+    {
+        $dataHttp        = $this->get('dwd.data.http');
+        $iDisplayStart   = $this->getRequest()->get('iDisplayStart');
+        $iDisplayLength  = $this->getRequest()->get('iDisplayLength'); 
+        $sEcho           = $this->getRequest()->get('sEcho');
+        $sSearch         = $this->getRequest()->get('sSearch', null);
+        $branchId        = $this->getRequest()->get('branchId'); 
+        $orderList       = array();
+        $data            = array( 
+                                array(
+                                    'url'    => '/branch/campaignbranchlist',
+                                    'data'   => array(
+                                        'branchId'       => $branchId,
+                                        'needPagination' => 1,
+                                        'pageLimit'      => $iDisplayLength,
+                                        'pageNum'        => $iDisplayStart / $iDisplayLength + 1,
+                                    ), 
+                                    'method' => 'get',
+                                    'key'    => 'campaignbranchs',
+                                ),
+                            ); 
+
+        $data              = $dataHttp->MutliCall($data);
+ 
+        $campaignbranchs   = array(
+                               'list'         => array(),
+                               'total'        => $data['campaignbranchs']['data']['totalCnt'], 
+                             );
+        foreach( $data['campaignbranchs']['data']['list'] as $campaignbranch )
+        {  
+            $campaignbranchs['list'][] = array(
+                                         $campaignbranch['campaign_id'],
+                                         $campaignbranch['start_time'],
+                                         $campaignbranch['end_time'], 
+                                         $this->get('dwd.util')->getCampaignBranchTypeLabel( $campaignbranch['type'] ), 
+                                         '<a href="#" id="campaignbranch-detail">[详情]</a>'
+                                    );
+        }
+ 
+        $res             = array
+                           (
+                                "sEcho"                => $sEcho, 
+                                "aaData"               => $campaignbranchs['list'],
+                                "iTotalRecords"        => $data['campaignbranchs']['data']['totalCnt'],
+                                "iTotalDisplayRecords" => $data['campaignbranchs']['data']['totalCnt'],
+                           );
+        exit(json_encode( $res )); 
+
+    }
+
+    /**
+     * @Route("/branch/offline", name="dwd_csadmin_branch_offline")
+     * @Method("POST")
+     */
+    public function OfflineAction()
+    {
+        $dataHttp        = $this->get('dwd.data.http');
+        $branchId        = $this->getRequest()->get('branchId');
+        $offlineReason   = $this->getRequest()->get('offlineReason'); 
+        $offlineNote     = $this->getRequest()->get('offlineNote');
+
+        $data            = array( 
+                                array(
+                                    'url'    => '/branch/update',
+                                    'data'   => array(
+                                        'branchId'       => $branchId,
+                                        'enabled'        => 0, 
+                                    ), 
+                                    'method' => 'post',
+                                    'key'    => 'update',
+                                ),
+                            ); 
+
+        $data            = $dataHttp->MutliCall($data);  
+
+        $res             = false;
+        if( $data['update']['errno'] == 0 && $data['update']['data'] == true ){
+          $res           = true;
+        }
+
+        $logRecord       = array(
+                              'route'    => $this->getRequest()->get('_route'),
+                              'res'      => $res,
+                              'adminId'  => $this->getUser()->getId(),
+                              'ext'      => array( 
+                                              'branchId'      => $branchId,
+                                              'offlineReason' => $offlineReason,
+                                              'offlineNote'   => $offlineNote,
+                                            ),
+                           );
+        $this->get('dwd.oplogger')->addCommonLog( $logRecord );
+
+        $response        = new Response();
+        $response->setContent( json_encode( $res ) );
+        return $response;
+    }
+
 }

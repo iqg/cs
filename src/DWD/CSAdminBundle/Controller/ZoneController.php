@@ -7,7 +7,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use DWD\DataBundle\Document\Store; 
+use DWD\DataBundle\Document\Store;
 /**
  * Class ZoneController
  * @package DWD\CSAdminBundle\Controller

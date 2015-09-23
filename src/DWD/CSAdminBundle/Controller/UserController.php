@@ -1,6 +1,6 @@
 <?php
 
-namespace DWD\CsAdminBundle\Controller;
+namespace DWD\CSAdminBundle\Controller;
  
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
@@ -10,7 +10,7 @@ use Symfony\Component\HttpFoundation\Response;
 
 /**
  * Class UserController
- * @package DWD\CsAdminBundle\Controller
+ * @package DWD\CSAdminBundle\Controller
  * @Route("/")
  */
 class UserController extends Controller
@@ -23,6 +23,7 @@ class UserController extends Controller
     { 
         $userId          = $this->getRequest()->get('userId');
         $type            = $this->getRequest()->get('type');
+        $source          = $this->getRequest()->get('source');
         $dataHttp        = $this->get('dwd.data.http');
 
         if( false == is_numeric( $userId ) ){
@@ -69,6 +70,7 @@ class UserController extends Controller
             'orderlistTypes'   => $orderListTypes,
             'userId'           => $userId,
             'type'             => $type,
+            'source'           => $source,
         ));
     }
 
@@ -672,8 +674,8 @@ class UserController extends Controller
     }
 
     /**
-     * @Route("/user/modify", name="dwd_csadmin_user_modify_show")
-     *
+     * @Route("/user/modify", name="dwd_csadmin_user_modify")
+     * @Method("POST")
      */
     public function modifyUser()
     {
@@ -709,6 +711,18 @@ class UserController extends Controller
         if( $data['update']['errno'] == 0 ){
             $res['result'] = true;
         } 
+
+        $logRecord         = array(
+                                'route'    => $this->getRequest()->get('_route'),
+                                'res'      => $res['result'],
+                                'adminId'  => $this->getUser()->getId(),
+                                'ext'      => array( 
+                                                'username'      => $userName,
+                                                'mobile'        => $mobile,
+                                                'userId'        => $userId, 
+                                              ),
+                             );
+        $this->get('dwd.oplogger')->addCommonLog( $logRecord );
  
         $response          = new Response();
         $response->setContent( json_encode( $res ) );
@@ -716,7 +730,56 @@ class UserController extends Controller
     }
 
     /**
-     * @Route("/user/lock", name="dwd_csadmin_user_lock_show")
+     * @Route("/user/resetPwd", name="dwd_csadmin_user_resetPwd")
+     * @Method("POST")
+     */
+    public function resetPwd()
+    {
+        $dataHttp       = $this->get('dwd.data.http'); 
+        $userId         = $this->getRequest()->get('userId');
+
+        $params         = array( 
+                              'user_id'          => $userId,
+                              'password'         => rand(100000, 999999),
+                          );
+
+        $data           = array( 
+                              array(
+                                  'host'   => 'http://staging.iqianggou.com',
+                                  'url'    => '/api/user/update_password',
+                                  'data'   =>  $params,
+                                  'method' => 'post',
+                                  'key'    => 'resetPwd',
+                              ),
+                          ); 
+
+        $data              = $dataHttp->MutliCall($data);
+     
+        $res               = array();
+        $res['result']     = false;
+        if( $data['resetPwd']['status']["code"] == 10000 ){
+            $res['result'] = true;
+        } 
+
+        $logRecord         = array(
+                                'route'    => $this->getRequest()->get('_route'),
+                                'res'      => $res['result'],
+                                'adminId'  => $this->getUser()->getId(),
+                                'ext'      => array( 
+                                                'userId'        => $userId,
+                                                'password'      => substr_replace( strval( $params['password'] ), '***', 2, 3 ),
+                                              ),
+                             );
+
+        $this->get('dwd.oplogger')->addCommonLog( $logRecord );
+ 
+        $response          = new Response();
+        $response->setContent( json_encode( $res ) );
+        return $response;
+    }
+
+    /**
+     * @Route("/user/lock", name="dwd_csadmin_user_lock")
      *
      */
     public function lockUser()
@@ -728,19 +791,23 @@ class UserController extends Controller
           $params['password'] = $userPassword;
         }
 
+        $reasonType           = 2;
+        $type                 = 1;
+        $unlcokDate           = date( 'Y-m-d H:i:s',  3600 * 24 * 30 + time() );
+
         $data                 = array( 
                                     array(
                                         'url'    => '/user/locked',
                                         'data'   =>  array( 
                                                         'userId'     => $userId,
-                                                        'opUserId'   => 1,
-                                                        'reasonType' => 2,
-                                                        'unlcokDate' => date( 'Y-m-d H:i:s',  3600 * 24 * 30 + time() ),
-                                                        'type'       => 1,
+                                                        'opUserId'   => $this->getUser()->getId(),
+                                                        'reasonType' => $reasonType,
+                                                        'unlcokDate' => $unlcokDate,
+                                                        'type'       => $type,
                                                     ),
                                         'method' => 'post',
                                         'key'    => 'locked',
-                                    ),  
+                                    ),
                                 );
 
         $data              = $dataHttp->MutliCall($data);
@@ -749,7 +816,20 @@ class UserController extends Controller
         $res['result']     = false;
         if( $data['locked']['errno'] == 0 ){
             $res['result'] = true;
-        } 
+        }
+
+        $logRecord       = array(
+                              'route'    => $this->getRequest()->get('_route'),
+                              'res'      => $res['result'],
+                              'adminId'  => $this->getUser()->getId(),
+                              'ext'      => array( 
+                                              'userId'        => $userId,
+                                              'reasonType'    => $reasonType,
+                                              'unlcokDate'    => $unlcokDate, 
+                                              'type'          => $type,
+                                            ),
+                           );
+        $this->get('dwd.oplogger')->addCommonLog( $logRecord );
  
         $response          = new Response();
         $response->setContent( json_encode( $res ) );
@@ -757,7 +837,7 @@ class UserController extends Controller
     }
 
     /**
-     * @Route("/user/unbinddevice", name="dwd_csadmin_user_unbinddevice_show")
+     * @Route("/user/unbinddevice", name="dwd_csadmin_user_unbinddevice")
      *
      */
     public function unbindDevice()
@@ -769,13 +849,14 @@ class UserController extends Controller
           $params['password'] = $userPassword;
         }
 
+        $reasonType           = 2;
         $data                 = array( 
                                     array(
                                         'url'    => '/user/unbinddevice',
                                         'data'   =>  array( 
                                                         'userId'     => $userId,
-                                                        'opUserId'   => 1,
-                                                        'reasonType' => 2, 
+                                                        'opUserId'   => $this->getUser()->getId(),
+                                                        'reasonType' => $reasonType, 
                                                      ),
                                         'method' =>  'post',
                                         'key'    =>  'unbinddevice',
@@ -788,7 +869,18 @@ class UserController extends Controller
         $res['result']     = false;
         if( $data['unbinddevice']['errno'] == 0 ){
             $res['result'] = true;
-        } 
+        }
+
+        $logRecord         = array(
+                              'route'    => $this->getRequest()->get('_route'),
+                              'res'      => $res['result'],
+                              'adminId'  => $this->getUser()->getId(),
+                              'ext'      => array(
+                                              'userId'        => $userId,
+                                              'reasonType'    => $reasonType,
+                                            ),
+                             );
+        $this->get('dwd.oplogger')->addCommonLog( $logRecord );
  
         $response          = new Response();
         $response->setContent( json_encode( $res ) );

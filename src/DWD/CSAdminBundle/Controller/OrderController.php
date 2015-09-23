@@ -1,6 +1,6 @@
 <?php
 
-namespace DWD\CsAdminBundle\Controller;
+namespace DWD\CSAdminBundle\Controller;
  
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
@@ -10,7 +10,7 @@ use Symfony\Component\HttpFoundation\Response;
 
 /**
  * Class OrderController
- * @package DWD\CsAdminBundle\Controller
+ * @package DWD\CSAdminBundle\Controller
  * @Route("/")
  */
 class OrderController extends Controller
@@ -31,6 +31,7 @@ class OrderController extends Controller
     { 
         $dataHttp             = $this->get('dwd.data.http'); 
         $orderId              = $this->getRequest()->get('orderId');
+        $feedback             = $this->getRequest()->get('feedback');
   
         $data                 = array( 
                                     array(
@@ -46,22 +47,35 @@ class OrderController extends Controller
                                     ),  
                                 );
 
-        $data              = $dataHttp->MutliCall($data);
+        $data                 = $dataHttp->MutliCall($data);
     
-        $res               = array();
-        $res['result']     = false;
+        $res                  = array();
+        $res['result']        = false;
         if( $data['feedback']['data'] == true ){
-            $res['result'] = true;
+            $res['result']    = true;
         } 
+
+        $logRecord            = array(
+                                  'route'    => $this->getRequest()->get('_route'),
+                                  'res'      => $res['result'],
+                                  'adminId'  => $this->getUser()->getId(),
+                                  'ext'      => array(
+                                                  'orderId'        => $orderId,
+                                                  'feedback'       => $feedback,
+                                                  'type'           => 1,
+                                                  'status'         => 0,
+                                                ),
+                                );
+        $this->get('dwd.oplogger')->addCommonLog( $logRecord );
  
-        $response          = new Response();
+        $response             = new Response();
         $response->setContent( json_encode( $res ) );
         return $response; 
     } 
 
     /** 
      *
-     * @Route("/order/orderlog",name="dwd_csadmin_order_orderlog")
+     * @Route("/order/orderlogs",name="dwd_csadmin_order_orderlogs")
      */
     public function orderlogAction()
     { 
@@ -85,6 +99,7 @@ class OrderController extends Controller
         $data              = $dataHttp->MutliCall($data);
      
         $str               = '<table class="table table-striped table-bordered"><tr><th>状态</th><th>备注</th><th>创建时间</th></tr>';
+       
         foreach( $data['orderlog']['data']['list'] as $logrecord ){
             $str          .= "<tr><td>" . $this->get('dwd.util')->getOrderStatusLabel( $logrecord['status'] ). "</td><td>" . $logrecord['remark'] . "</td><td>" . $logrecord['created_at'] . "</td></tr>";
         } 
@@ -97,6 +112,46 @@ class OrderController extends Controller
         $response->setContent( json_encode( $res ) );
         return $response; 
     } 
+
+    /** 
+     * @Route("/order/redeem",name="dwd_csadmin_order_redeem")
+     */
+    public function redeemAction()
+    {
+        $dataHttp             = $this->get('dwd.data.http'); 
+        $orderId              = $this->getRequest()->get('orderId');
+        $redeemNumber         = $this->getRequest()->get('redeemNumber');
+  
+        $data                 = array(
+                                    array(
+                                        'url'    => '/order/redeem',
+                                        'data'   =>  array( 
+                                                        'orderId'        => $orderId,
+                                                        'redeemNumber'   => $redeemNumber, 
+                                                        'opUserId'       => $this->getUser()->getId(),
+                                                     ),
+                                        'method' =>  'get',
+                                        'key'    =>  'redeem',
+                                    ),  
+                                );
+
+        $data                 = $dataHttp->MutliCall($data);
+
+        $logRecord            = array(
+                                  'route'    => $this->getRequest()->get('_route'),
+                                  'res'      => $res['result'],
+                                  'adminId'  => $this->getUser()->getId(),
+                                  'ext'      => array(
+                                                  'orderId'        => $orderId,
+                                                  'redeemNumber'   => $redeemNumber,
+                                                ),
+                                );
+        $this->get('dwd.oplogger')->addCommonLog( $logRecord );
+
+        $response             = new Response();
+        $response->setContent( json_encode( $res ) );
+        return $response; 
+    }
 
     /** 
      *
