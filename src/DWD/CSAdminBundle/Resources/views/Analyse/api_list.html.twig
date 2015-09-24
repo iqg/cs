@@ -7,9 +7,9 @@
 {% block body %}
     <h1>{{ title }}</h1>
     <form action="{{ path('dwd_csadmin_analyse_dashboard') }}" method="post">
-        <div class="form-group" style="float:right;">
-            <label for="dtp_input2" class="col-md-2 control-label">选择日期</label>
-            <div class="input-group date form_date col-md-5" data-date="" data-date-format="yyyy年mm月dd日" data-link-field="dtp_input2" data-link-format="yyyy-mm-dd" style="float: left;width: 250px;">
+        <div class="form-group col-md-5 fr">
+            <label for="dtp_input2" class="col-md-3 control-label">选择日期</label>
+            <div class="input-group date form_date col-md-6 dwd-datepicker" data-date="" data-date-format="yyyy年mm月dd日" data-link-field="dtp_input2" data-link-format="yyyy-mm-dd">
                 <input class="form-control" size="16" type="text" value="" readonly>
                 <span class="input-group-addon"><span class="glyphicon glyphicon-remove"></span></span>
                 <span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
@@ -42,7 +42,7 @@
             <td>{{ apiInfo.successed }}</td>
             <td>{{ apiInfo.failed }}</td>
             <td>
-                <a href="{{ path('dwd_csadmin_analyse_dashboard_urichart', { uri: apiInfo.path, type: 'day' }) }}" class="btn btn-sm btn-default" target="_blank">
+                <a href="{{ path('dwd_csadmin_analyse_dashboard_urichart', { uri: apiInfo.path, type: 'day', startTime: startTimestamp - 86400*6, endTime: startTimestamp, duration: 86400, regionId : 2 }) }}" class="btn btn-sm btn-default" target="_blank">
                     查看历史趋势图
                 </a>
             </td>

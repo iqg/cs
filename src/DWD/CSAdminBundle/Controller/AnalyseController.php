@@ -48,7 +48,8 @@ class AnalyseController extends Controller
 
         return $this->render('DWDCSAdminBundle:Analyse:api_list.html.twig', array(
             'apiList'       => $apiList,
-            'title'         => date('Y-m-d', $startTimestamp) . ' API访问'
+            'title'         => date('Y-m-d', $startTimestamp) . ' API访问',
+            'startTimestamp' => $startTimestamp
         ));
     }
 
@@ -61,8 +62,10 @@ class AnalyseController extends Controller
     {
         $uri = $request->get('uri');
         $startTime = $request->get('startTime');
+        $endTime = $request->get('endTime');
         $duration = $request->get('duration');
         $type = $request->get('type');
+        $regionId = $request->get('regionId');
 
         $dm = $this->get('doctrine_mongodb')->getManager();
         $mongoConn = $dm->getConnection()->getMongo()->selectDB('iqianggou_analyse');
@@ -70,11 +73,19 @@ class AnalyseController extends Controller
         $calledArray = array();
         $costArray = array();
         $categories = array();
+        $startTimestamp = intval($startTime);
+        $currentTimestamp = $startTimestamp;
+        $endTimestamp = intval($endTime);
+        $dataCount = ($endTimestamp - $startTimestamp)/$duration;
 
         if ($type == 'day') {
             $oal = $mongoConn->selectCollection('openapi_access_data');
             $apiCursor = $oal->find([
-               'path' => $uri
+               'path' => $uri,
+               'startTimestamp' => [
+                   '$gte' => $startTimestamp,
+                   '$lte' => $endTimestamp
+               ]
             ])->sort(['startTimestamp' => 1]);
             foreach ($apiCursor as $doc) {
                 if ($doc['totalCost'] < 0) {
@@ -84,37 +95,41 @@ class AnalyseController extends Controller
                 $costArray []= round($doc['totalCost'] / $doc['called'], 2);
                 $categories []= date("Y-m-d", $doc['startTimestamp']);
             }
+            $currentTimestamp = $endTimestamp;
         } else {
             $oal = $mongoConn->selectCollection('openapi_access_logs');
-            $startTimestamp = intval($startTime);
 
-            for ( $i = 0; $i < 12; $i ++ ) {
+            for ( $i = 0; $i < $dataCount; $i ++ ) {
                 $requestCursor = $oal->find([
                     'request_time' => [
-                        '$gte' => $startTimestamp,
-                        '$lt' => $startTimestamp + $duration
+                        '$gte' => $currentTimestamp,
+                        '$lt' => $currentTimestamp + $duration
                     ],
                     'path' => $uri
                 ]);
-                $startTimestamp += $duration;
 
                 $called = 0;
                 $totalCost = 0;
                 foreach ($requestCursor as $doc) {
-                    if( $doc['cost'] < 0 ) {
+                    if ( $doc['cost'] < 0 ) {
                         continue;
                     }
                     $called ++;
                     $totalCost += $doc['cost'];
                 }
                 $calledArray []= $called;
-                if( $called ) {
+                if ( $called ) {
                     $costArray []= $totalCost / $called;
                 } else {
                     $calledArray []= 0;
                 }
+                // 精确到分钟
+                if ( $duration > 60 && $duration % 60 == 0 ) {
+                    $categories []= date( 'H:i', ($currentTimestamp + $duration) );
+                }
+                $currentTimestamp += $duration;
             }
-            $categories = array('0-5', '5-10', '10-15', '15-20', '20-25', '25-30', '30-35', '35-40', '40-45', '45-50', '50-55', '55-60');
+            $currentTimestamp = $startTimestamp;
         }
 
         $series = array(
@@ -135,7 +150,7 @@ class AnalyseController extends Controller
         $yData = array(
             array(
                 'labels' => array(
-                    'formatter' => new Expr('function () { return this.value + " ms" }'),
+                    'formatter' => new Expr('function () { return this.value.toFixed(0) + " ms" }'),
                     'style'     => array('color' => '#AA4643')
                 ),
                 'title' => array(
@@ -158,6 +173,7 @@ class AnalyseController extends Controller
         );
 
         $ob = new Highchart();
+        $ob->credits->enabled(false);
         $ob->chart->renderTo('container'); // The #id of the div where to render the chart
         $ob->chart->type('column');
         $ob->title->text('访问请求-' . $uri);
@@ -169,13 +185,16 @@ class AnalyseController extends Controller
                      "访问次数": "次",
                      "平均响应时间": "ms"
                  }[this.series.name];
-                 return this.x + ": <b>" + this.y + "</b> " + unit;
+                 return this.x + ": <b>" + this.y.toFixed(2) + "</b> " + unit;
              }');
         $ob->tooltip->formatter($formatter);
         $ob->series($series);
 
         return $this->render('DWDCSAdminBundle:Analyse:url_chart.html.twig', array(
-            'chart'        => $ob
+            'chart'        => $ob,
+            'currentTimestamp' => $currentTimestamp,
+            'uri'          => $uri,
+            'regionId'     => $regionId
         ));
     }
 }
