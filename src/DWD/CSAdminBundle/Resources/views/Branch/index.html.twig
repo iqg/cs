@@ -159,7 +159,7 @@
                     </div><br /> 
                     <div class="input-group col-md-12">
                         <span class="input-group-addon">门店电话</span>
-                        <input type="text" id="modify-address" value="{{ branchinfo['tel'] }}" class="form-control" placeholder="Tel">
+                        <input type="text" id="modify-tel" value="{{ branchinfo['tel'] }}" class="form-control" placeholder="Tel">
                     </div><br /> 
                     <div class="input-group col-md-12">
                         <span class="input-group-addon">验证方式</span>
@@ -178,7 +178,7 @@
                     </div><br />
                     <div class="input-group col-md-12">
                         <span class="input-group-addon">验证电话</span>
-                        <textarea id="redeem-tel" class="autogrow">{{ redeemTels }}</textarea>
+                        <textarea id="redeem-tels" class="autogrow">{{ redeemTels }}</textarea>
                     </div><br />
                 </div> 
                 <div class="modal-footer">
@@ -281,6 +281,42 @@
         </div>
     </div>
 
+    <div class="modal fade" id="resetPwdModal" tabindex="-1" role="dialog" aria-labelledby="resetPwdModal" aria-hidden="true">
+
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">×</button>
+                    <h3>重置密码</h3>
+                </div>
+                <div class="modal-body"> 
+                    <span>重置密码, 并发送新密码至手机号: {{ accountInfo['mobile'] }}?</span>
+                </div>
+                <div class="modal-footer">
+                    <a href="#" id="resetPwd-submit-btn" class="btn btn-default">确认</a>
+                    <a href="#" class="btn btn-default" data-dismiss="modal">关闭</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="campaignBranchDetailModal" tabindex="-1" role="dialog" aria-labelledby="campaignBranchDetailModal" aria-hidden="true">
+
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">×</button>
+                    <h3>活动详情</h3>
+                </div>
+                <div id="campaignBranchDetailTable" class="modal-body">
+                </div>
+                <div class="modal-footer"> 
+                    <a href="#" class="btn btn-default" data-dismiss="modal">关闭</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
 </div>
 
 <script type="text/javascript" >
@@ -294,7 +330,7 @@
                 "sAjaxSource": "/branch/orderlist?branchId={{branchId}}&type={{typeLabel['code']}}",
                 "sDom": "<'row'<'col-md-6'l><'col-md-6'f>r>t<'row'<'col-md-12'i><'col-md-12 center-block'p>>",
                 "sPaginationType": "bootstrap",
-                "oLanguage": { //国际化配置  
+                "oLanguage": { //国际化配置 
                     "sProcessing" : "正在获取数据，请稍后...",    
                     "sLengthMenu" : "显示 _MENU_ 条",    
                     "sZeroRecords" : "没有您要搜索的内容",    
@@ -378,6 +414,12 @@
         });
 
         $("#offline-submit-btn").click(function(e){
+            if( $(this).hasClass("disable") ){
+                alert('请勿重复操作');
+                return ;
+            }
+            $(this).addClass("disable");
+
             var offlineReason = $("#selectofflineReason").val();
             var offlineNote   = $("#offlineNote").val();
 
@@ -407,36 +449,45 @@
                 }    
             });
             operator.push( record );
+            $(this).removeClass("disable");
         });
 
         $("#modifyBranch-submit-btn").click(function(e){
  
-            var address      = $("#modify-address").val();
-            var redeemTel    = $("#redeem-tel").val();
-            var redeemTime   = $("#modify-redeemTime").val();
+            if( $(this).hasClass("disable") ){
+                alert('请勿重复操作');
+                return ;
+            }
+            $(this).addClass("disable");
 
-            var webRedeem    = $("#is_web_redeem").attr('checked');
-            var mobileRedeem = $("#is_mobile_redeem").attr('checked');
-            var paperRedeem  = $("#is_paper_redeem").attr('checked');
-            var secretRedeem = $("#is_secret_redeem").attr('checked');
+            var address        = $("#modify-address").val();
+            var tel            = $("#modify-tel").val();
+            var redeemTels     = $("#redeem-tels").val();
+            var redeemTime     = $("#modify-redeemTime").val();
+
+            var webRedeem      = $("#is_web_redeem").attr('checked');
+            var mobileRedeem   = $("#is_mobile_redeem").attr('checked');
+            var paperRedeem    = $("#is_paper_redeem").attr('checked');
+            var secretRedeem   = $("#is_secret_redeem").attr('checked');
  
-            var record       = new Object();
-            record.type      = "更新商户信息";
-            record.branchId  = {{branchId}};
+            var record         = new Object();
+            record.type        = "更新商户信息";
+            record.branchId    = {{branchId}};
+            record.branchName  = {{branchinfo['name']}};
             $.ajax({
                 type:'post',      
                 url:'/branch/update',    
-                data:{branchId:{{branchId}},address:address,redeemTel:redeemTel,redeemTime:redeemTime,webRedeem:webRedeem,mobileRedeem:mobileRedeem,paperRedeem:paperRedeem,secretRedeem:secretRedeem},
+                data:{branchId:{{branchId}},address:address,redeemTels:redeemTels,redeemTime:redeemTime,webRedeem:webRedeem,mobileRedeem:mobileRedeem,paperRedeem:paperRedeem,secretRedeem:secretRedeem,tel:tel},
                 dataType:'json',    
                 success:function(data){
                     if( data == true ){
                      record.res = true;
                      alert('更新成功');
                      location.href = location.href;
-                   } else {
+                    } else {
                      record.res = false;
                      alert('更新失败');
-                   }
+                    }
                 },
                 error:function (req,err) {
                    record.res  = false;
@@ -444,9 +495,11 @@
                 }
             });
             operator.push( record );
+            $(this).removeClass("disable");
         });
 
         $("#orderListTabContent").on("click", ".order-log-btn", function (e) {
+            $("#orderLogTable").html("");
             e.preventDefault();
             $('#orderLogModal').modal('show'); 
             orderId  =  $(this).attr("data-rel");
@@ -464,6 +517,7 @@
         }); 
 
         $("#orderListTabContent").on("click", ".order-detail-btn", function (e) {
+            $("#orderDetailTable").html("");
             e.preventDefault();
             $('#orderDetailModal').modal('show'); 
             orderId  =  $(this).attr("data-rel");
@@ -483,7 +537,15 @@
         $("#orderListTabContent").on("click", ".order-redeem-btn", function (e) {
             e.preventDefault();
             $('#orderRedeemModal').modal('show'); 
-            orderId  =  $(this).attr("data-rel");
+            orderId           =  $(this).attr("data-rel");
+            var record        = new Object();
+            record.type       = "验证";
+            record.orderId    = orderId;
+            record.itemName   = '';
+            record.branchId   = {{ branchinfo['id'] }};
+            record.branchName = {{ branchinfo['name'] }};
+            record.userName   = "{{accountInfo['username']}}";
+
             $.ajax({    
                 type:'post',        
                 url:'/order/redeem',    
@@ -499,7 +561,69 @@
                      alert('验证失败');
                    }
                 },    
+            });
+            operator.push(record);
+        });
+
+
+        $("#campaignbranch-table").on("click", ".campaignbranch-detail", function (e) {
+            $("#campaignBranchDetailTable").html("");
+            e.preventDefault();
+            $('#campaignBranchDetailModal').modal('show'); 
+            campaignBranchId  =  $(this).attr("data-rel");
+            $.ajax({    
+                type:'get',        
+                url:'/campaignbranch/detail',    
+                data:{campaignBranchId:campaignBranchId},
+                dataType:'json',    
+                success:function(data){
+                  if( data.result ){
+                     $("#campaignBranchDetailTable").html(data.content);
+                  } 
+                },    
             }); 
+        });
+
+        $("#resetPwd-submit-btn").click(function(e){
+
+            if(!confirm("确认重置?")){
+                return ;
+            }
+
+            if( $(this).hasClass("disable") ){
+                alert('请勿重复操作');
+                return ;
+            }
+
+            $(this).addClass("disable");
+ 
+            var record       = new Object();
+            record.type      = "重置密码";
+            record.userId    = {{accountInfo['id']}};
+            record.userName  = "{{accountInfo['username']}}";
+
+            $.ajax({    
+                type:'post',        
+                url:'/user/resetPwd',    
+                data:{userId:{{accountInfo['id']}}},
+                dataType:'json',    
+                success:function(data){
+                   if( true == data.result ){ 
+                       alert('重置成功')
+                      record.res = true;
+                   } else {
+                      alert( '重置失败');
+                      record.res = false;
+                   }
+                },
+                error:function (req,err) {
+                   record.res = false;
+                   record.err = err;  
+                   alert( '重置失败' ); 
+                }     
+            });
+            operator.push(record);
+            $(this).removeClass("disable");    
         });
 
         $('#orderListTab a:first').tab('show');
@@ -517,6 +641,11 @@
             e.preventDefault();
             $('#offlineModal').modal('show');
         });
+
+        $('#resetPwd-btn').click(function (e) {
+            e.preventDefault();
+            $('#resetPwdModal').modal('show');
+        }); 
 
         $("#process-submit-btn").click(function (e) {
             location.href   = '/complaint/confirm';

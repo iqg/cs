@@ -48,8 +48,12 @@ class ComplaintController extends Controller
     public function confirmAction(Request $request)
     { 
         $dataHttp        = $this->get('dwd.data.http');
+        $id              = $this->getRequest()->get('id');
         $opTags          = $this->getRequest()->get('opTags');
         $type            = $this->getRequest()->get('type');
+
+        $dm              = $this->get('doctrine_mongodb')->getManager();
+        $complaint       = $dm->getRepository('DWDDataBundle:Complaint')->findById( $id );
 
         $tagsList        = array();
         $data            = array(
@@ -77,15 +81,107 @@ class ComplaintController extends Controller
                 'autoSelectTags' => $autoSelectTags,
                 'complaintType'  => $this->get('dwd.util')->getComplaintTypesLabel( $type ),
                 'param'          => array(
-                                       'item_id'   => 6666,
-                                       'item'      => '1',
-                                       'branch'    => '1',
-                                       'branch_id' => 10002, 
-                                       'saler_id'  => 28,
-                                       'saler'     => '1',  
-                                       'orderId'   => 1382,   
+                                       'item_id'   => $complaint['branch'][0]['itemId'],
+                                       'item'      => $complaint['branch'][0]['itemName'],
+                                       'branch'    => $complaint['branch'][0]['name'],
+                                       'branch_id' => $complaint['branch'][0]['id'], 
+                                       'saler_id'  => $complaint['branch'][0]['salerId'],
+                                       'saler'     => $complaint['branch'][0]['saler'],
+                                       'orderId'   => $complaint['branch'][0],
                                     ),
         ));
+    }
+
+    private function _packageOperators( $operators )
+    {
+        $opRecords           = array(
+                                   'users'      => array(),
+                                   'branchs'    => array(),
+                                   'campaigns'  => array(),
+                                   'orders'     => array(),
+                               );
+
+        foreach( $operators as $operator ){
+
+            switch ($operator['type']) {
+                case '重置密码':
+                    $opRecords['users'][]      = array(
+                                                    'id'         => $operator['userId'],
+                                                    'name'       => $operator['userName'],
+                                                    'op'         => 'resetPwd',
+                                                    'res'        => $operator['res'],
+                                                 );
+                    break;
+                case '封号':
+                    $opRecords['users'][]      = array(
+                                                    'id'         => $operator['userId'],
+                                                    'name'       => $operator['userName'],
+                                                    'reason'     => $operator['reason'],
+                                                    'op'         => 'lock',
+                                                    'res'        => $operator['res'],
+                                                 );
+                case '纠错':
+                    $opRecords['orders'][]     = array(
+                                                    'id'         => $operator['orderId'],
+                                                    'userName'   => $operator['userName'],
+                                                    'userId'     => $operator['userId'],
+                                                    'branchName' => $operator['branchName'],
+                                                    'cbid'       => $operator['cbid'],
+                                                    'itemName'   => $operator['itemName'],
+                                                    'note'       => $operator['note'],
+                                                    'op'         => 'correctOrder',
+                                                    'res'        => $operator['res'],
+                                                 ); 
+                case '解绑设备':
+                    $opRecords['users'][]      = array(
+                                                    'id'         => $operator['userId'],
+                                                    'name'       => $operator['userName'],
+                                                    'reason'     => $operator['reason'],
+                                                    'op'         => 'unbindDevice',
+                                                    'res'        => $operator['res'],
+                                                 );
+                case '退款':
+                    $opRecords['orders'][]     = array(
+                                                    'id'         => $operator['userId'],
+                                                    'name'       => $operator['userName'],
+                                                    'op'         => 'refundOrder',
+                                                    'res'        => $operator['res'],
+                                                 );
+                case '编辑信息':              
+                    $opRecords['branchs'][]    = array(
+                                                    'id'         => $operator['branchId'],
+                                                    'name'       => $operator['branchName'],
+                                                    'op'         => 'modifyInfo',
+                                                    'ext'        => $operator['ext'],
+                                                    'res'        => $operator['res'],
+                                                 );  
+                case '验证':              
+                    $opRecords['orders'][]     = array(
+                                                    'id'         => $operator['orderId'],
+                                                    'branchId'   => $operator['branchId'],
+                                                    'branchName' => $operator['branchName'],
+                                                    'itemName'   => $operator['itemName'],
+                                                    'userName'   => $operator['userName'], 
+                                                    'op'         => 'redeem',
+                                                    'res'        => $operator['res'],
+                                                 );    
+                case '下线':              
+                    $opRecords['campaigns'][]  = array(
+                                                    'id'         => $operator['id'],
+                                                    'name'       => $operator['name'],
+                                                    'branchId'   => $operator['branchId'],
+                                                    'branchName' => $operator['branchName'],
+                                                    'reason'     => $operator['reason'],
+                                                    'note'       => $operator['note'], 
+                                                    'op'         => 'offline',
+                                                    'res'        => $operator['res'],
+                                                 );                         
+                default: 
+                    break;
+            }
+        }
+
+        return $opRecords;
     }
 
     /** 
@@ -102,72 +198,59 @@ class ComplaintController extends Controller
         $orders          = array();
         $campaigns       = array();
 
-        if( $operators != null ){
+        if( $operators  != null ){
             $operators   = json_decode( $operators, true );
         }
  
-        foreach( $operators as $operator ){
+        $opRecords       = self::_packageOperators( $operators );
 
-            switch ($operator['type']) {
-                case '重置密码':
-                    $users[] = array(
-                                  'id'   => $operator['userId'],
-                                  'name' => $operator['userName'],
-                                  'op'   => 'resetPwd',
-                                  'res'  => $operator['res'],
-                               );
-                    break;
-                
-                default: 
-                    break;
-            }
-        }
-
-        $complaintRecord  = array(
-                                'source'   => $source,
-                                'type'     => $type,
-                                'status'   => 0,
-                                'createAt' => time(), 
-                            );
-
-
-        if( !empty( $users ) ){
-            $complaintRecord['users']      = $users;
-        }
-        
-        if( !empty( $branchs ) ){
-            $complaintRecord['branchs']    = $branchs;
-        }
-
-        if( !empty( $orders ) ){
-            $complaintRecord['orders']     = $orders;
-        }
-
-        if( !empty( $orders ) ){
-            $complaintRecord['campaigns']  = $campaigns;
-        }
-
-        $complaint = new Complaint();
+        $complaint       = new Complaint();
         $complaint->setSource( $source );
+        $complaint->setType( $type );
 
-        $dm = $this->get('doctrine_mongodb')->getManager();
+        if( false == empty( $opRecords['users'] ) ){
+          $complaint->setUsers( $users );
+        }
+
+        if( false == empty( $opRecords['branchs'] ) ){
+          $complaint->setBranchs( $opRecords['branchs'] );
+        }
+
+        if( false == empty( $opRecords['campaigns'] ) ){
+          $complaint->setCampaigns( $opRecords['campaigns'] );
+        }
+
+        if( false == empty( $opRecords['orders'] ) ){ 
+          $complaint->setOrders( $opRecords['orders'] );
+        }
+
+        $complaint->setCreatedAt( time() );
+        $complaint->setStatus( 0 );
+        $dm                = $this->get('doctrine_mongodb')->getManager();
         $dm->persist($complaint);
-        $dm->flush();
+        $dm->flush(); 
 
         $logRecord         = array(
-                              'route'    => $this->getRequest()->get('_route'),
-                              'res'      => true,
-                              'adminId'  => $this->getUser()->getId(),
-                              'ext'      => array(
-                                              'source'        => $source,
-                                              'type'          => $type,
-                                              'status'        => 0,
-                                              'type'          => $type,
-                                            ),
+                                'route'    => $this->getRequest()->get('_route'),
+                                'res'      => true,
+                                'adminId'  => $this->getUser()->getId(),
+                                'ext'      => array(
+                                                'source'        => $source,
+                                                'type'          => $type,
+                                                'status'        => 0,
+                                                'type'          => $type,
+                                              ),
                              );
+
         $this->get('dwd.oplogger')->addCommonLog( $logRecord );
  
-        exit;
+        $response             = new Response();
+        $ret                  = array(
+                                   'res' => true, 
+                                   'data' => $complaint->getId() 
+                                ); 
+        $response->setContent(  json_encode( $ret ) );
+        return $response;
     }
 
     /**

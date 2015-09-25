@@ -61,7 +61,7 @@ class Util
                                  16   => '第三方帐号绑定手机号',
                                  17   => '培训失败提醒',
                                );
-        return $typeLabel[$typeId];
+        return isset( $typeLabel[$typeId] ) ? $typeLabel[$typeId] : '' ;
    }
 
    public function getCoinTypeLabel( $typeId )

@@ -621,56 +621,65 @@ class UserController extends Controller
      */
     public function ComplaintRecordsDataAction()
     {
-        $dataHttp        = $this->get('dwd.data.http');
-        $iDisplayStart   = $this->getRequest()->get('iDisplayStart');
-        $iDisplayLength  = $this->getRequest()->get('iDisplayLength'); 
-        $sEcho           = $this->getRequest()->get('sEcho');
-        $sSearch         = $this->getRequest()->get('sSearch', null);
-        $userId          = $this->getRequest()->get('userId');
-        $orderType       = $this->getRequest()->get('type', 'redeem');
-        $orderList       = array();
-        $data            = array( 
-                                array(
-                                    'url'    => '/user/complaints',
-                                    'data'   => array(
-                                        'userId'         => $userId,
-                                        'needPagination' => 1,
-                                        'pageLimit'      => $iDisplayLength,
-                                        'pageNum'        => $iDisplayStart / $iDisplayLength + 1,
-                                    ), 
-                                    'method' => 'get',
-                                    'key'    => 'complaintrecords',
-                                ),  
-                            ); 
 
-        $data              = $dataHttp->MutliCall($data);
+        $sEcho                = $this->getRequest()->get('sEcho');
+        $iDisplayStart        = $this->getRequest()->get('iDisplayStart');
+        $iDisplayLength       = $this->getRequest()->get('iDisplayLength');   
+        $sSearch              = $this->getRequest()->get('sSearch', null);
 
-        $complaintrecords  = array(
-                               'list'         => array(),
-                               'total'        => $data['complaintrecords']['data']['totalCnt'], 
-                             );
-        foreach( $data['complaintrecords']['data']['list'] as $complaintrecord )
-        { 
-            $complaintrecords['list'][] = array(
-                                              $complaintrecord['category_id'],
-                                              $complaintrecord['user_id'],
-                                              $complaintrecord['item_id'],
-                                              $complaintrecord['order_id'], 
-                                              $complaintrecord['created_at'], 
-                                              '[操作]',
-                                          );
-        }
+        $dm                   = $this->get('doctrine_mongodb')->getManager();
+        $complaintList        = $dm->getRepository('DWDDataBundle:Complaint')->getAll();
+        $complaintCnt         = $dm->getRepository('DWDDataBundle:Complaint')->getCount();
  
-        $res             = array
-                           (
-                                "sEcho"                => $sEcho, 
-                                "aaData"               => $complaintrecords['list'],
-                                "iTotalRecords"        => $data['complaintrecords']['data']['totalCnt'],
-                                "iTotalDisplayRecords" => $data['complaintrecords']['data']['totalCnt'],
-                           );
-        $response        = new Response();
+        $dataHttp             = $this->get('dwd.data.http'); 
+        $tagsList             = array();
+        $data                 = array(
+                                    array(
+                                        'url'    => '/complaint/taglist', 
+                                        'method' => 'get',
+                                        'key'    => 'complaintTags',
+                                    ),  
+                                ); 
+
+        $data                      = $dataHttp->MutliCall($data);
+ 
+        foreach ($data['complaintTags']['data']['list'] as  $tag) {
+            $tagsList[$tag['id']]  = $tag['name'];
+        } 
+
+        $aaData                    = array();
+    
+        foreach( $complaintList as $complaint ){
+            $tags                  = array();
+
+            if( isset( $complaint['tags'] ) ){
+              foreach ($complaint['tags'] as $tagId) {
+                  if( isset( $tagsList[$tagId] ) ){
+                      $tags[]        = $tagsList[$tagId];   
+                  } 
+              }
+            } 
+          
+            $aaData[]              = array(
+                                        $this->get('dwd.util')->getComplaintSourceLabel( $complaint['source'] ),
+                                        implode(",", $tags),
+                                        isset( $complaint['branch'] ) ? $complaint['branch'][0]['name'] : '',
+                                        isset( $complaint['branch'] ) ? $complaint['branch'][0]['itemName'] : '',
+                                        date("Y-m-d H:i:s", $complaint['createdAt']),
+                                        "<a href='#'>[详情]</a>",
+                                     );
+        }
+
+        $res                       = array(
+                                        "sEcho"                => $sEcho, 
+                                        "aaData"               => $aaData,
+                                        "iTotalRecords"        => $complaintCnt,
+                                        "iTotalDisplayRecords" => $complaintCnt,
+                                     );
+
+        $response             = new Response();
         $response->setContent( json_encode( $res ) );
-        return $response; 
+        return $response;
     }
 
     /**
@@ -759,7 +768,7 @@ class UserController extends Controller
         $res['result']     = false;
         if( $data['resetPwd']['status']["code"] == 10000 ){
             $res['result'] = true;
-        } 
+        }
 
         $logRecord         = array(
                                 'route'    => $this->getRequest()->get('_route'),

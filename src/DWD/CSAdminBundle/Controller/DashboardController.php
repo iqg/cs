@@ -23,8 +23,7 @@ class DashboardController extends Controller
      */
     public function indexAction(Request $request)
     { 
-    	$errMsg          = $this->getRequest()->get('errMsg', "");
-
+      	$errMsg          = $this->getRequest()->get('errMsg', ""); 
         $dataHttp        = $this->get('dwd.data.http');  
         $data            = array(
                                array(
@@ -48,7 +47,7 @@ class DashboardController extends Controller
         $response        = $dataHttp->MutliCall( $data );   
 
         return $this->render('DWDCSAdminBundle:Dashboard:index.html.twig', array(
-        	'errMsg'     => $errMsg,
+          	'errMsg'     => $errMsg,
             'zoneList'   => $response['zonelist']['data']['list'],
             'salerlist'  => $response['salerlist']['data']['list'],
         ));

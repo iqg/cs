@@ -166,6 +166,8 @@ class BranchController extends Controller
 
         if( empty( $accountInfo ) ){
            $accountInfo['username']  = '该门店不存在帐号';
+           $accountInfo['mobile']    = '该门店不存在手机号';
+           $accountInfo['id']        = -1;
         }
  
         $branchInfo['brandName']     =  $brandInfo['name'];
@@ -472,8 +474,9 @@ class BranchController extends Controller
     {
         $dataHttp        = $this->get('dwd.data.http');
         $branchId        = $this->getRequest()->get('branchId');
+        $tel             = $this->getRequest()->get('tel');
         $address         = $this->getRequest()->get('address');
-        $redeemTel       = $this->getRequest()->get('redeemTel');
+        $redeemTels      = $this->getRequest()->get('redeemTels');
         $redeemTime      = $this->getRequest()->get('redeemTime');
         $webRedeem       = $this->getRequest()->get('webRedeem');
         $mobileRedeem    = $this->getRequest()->get('mobileRedeem');
@@ -498,7 +501,7 @@ class BranchController extends Controller
           $redeemType   += self::SECRET_VERIFY;
         } 
 
-        $data            = array( 
+        $data            = array(
                                 array(
                                     'url'    => '/branch/update',
                                     'data'   => array(
@@ -506,14 +509,23 @@ class BranchController extends Controller
                                         'address'        => $address, 
                                         'redeem_time'    => $redeemTime,
                                         'redeem_type'    => $redeemType,
-                                        'tel'            => $redeemTel,
+                                        'tel'            => $tel,
                                     ), 
                                     'method' => 'post',
                                     'key'    => 'update',
                                 ),
-                            ); 
+                                array(
+                                    'url'    => '/branch/addredeemtels',
+                                    'data'   => array(
+                                        'branchId'       => $branchId, 
+                                        'redeemTels'     => $redeemTels,
+                                    ), 
+                                    'method' => 'post',
+                                    'key'    => 'addredeemtels',
+                                ),
+                            );
 
-        $data            = $dataHttp->MutliCall($data);
+        $data            = $dataHttp->MutliCall( $data );
         $res             = false;
         if( $data['update']['errno'] == 0 && $data['update']['data'] == true ){
           $res           = true;
@@ -528,7 +540,8 @@ class BranchController extends Controller
                                               'address'       => $address,
                                               'redeemTime'    => $redeemTime,
                                               'redeemType'    => $redeemType,
-                                              'tel'           => $redeemTel,
+                                              'redeemTels'    => $redeemTels,
+                                              'tel'           => $tel,
                                             ),
                            );
         $this->get('dwd.oplogger')->addCommonLog( $logRecord );
@@ -574,12 +587,12 @@ class BranchController extends Controller
         foreach( $data['campaignbranchs']['data']['list'] as $campaignbranch )
         {  
             $campaignbranchs['list'][] = array(
-                                         $campaignbranch['campaign_id'],
-                                         $campaignbranch['start_time'],
-                                         $campaignbranch['end_time'], 
-                                         $this->get('dwd.util')->getCampaignBranchTypeLabel( $campaignbranch['type'] ), 
-                                         '<a href="#" id="campaignbranch-detail">[详情]</a>'
-                                    );
+                                             $campaignbranch['campaign_id'],
+                                             $campaignbranch['start_time'],
+                                             $campaignbranch['end_time'], 
+                                             $this->get('dwd.util')->getCampaignBranchTypeLabel( $campaignbranch['type'] ), 
+                                             '<a href="#" data-rel=' . $campaignbranch['id'] . ' class="campaignbranch-detail">[详情]</a>'
+                                        );
         }
  
         $res             = array

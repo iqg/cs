@@ -639,6 +639,11 @@
         });
 
         $("#resetPwd-submit-btn").click(function(e){
+            if( $(this).hasClass('disabled') ){
+              alert('请勿重复提交');
+              return ;
+            }
+            $(this).addClass('disabled');
 
             if(!confirm("确认重置?")){
                 return ;
@@ -669,7 +674,8 @@
                    alert( '重置失败' ); 
                 }     
             });
-            operator.push(record);    
+            operator.push(record);
+            $(this).removeClass('disabled');    
         });
 
         $("#lockUser-submit-btn").click(function(e){
@@ -692,8 +698,8 @@
                 dataType:'json',    
                 success:function(data){
                    if( true == data.result ){
-                      location.href = location.href;
                       record.res    = true;
+                      location.href = location.href;
                    } else {
                       record.res    = false;
                       alert( '封号失败');
@@ -742,7 +748,12 @@
         });
 
         $("#correct-submit-btn").click(function(e){
-             
+            if( $(this).hasClass('disabled') ){
+              alert('请勿重复提交');
+              return ;
+            }
+            $(this).addClass('disabled');
+
             correctContent   = $("#correctContent").val();
             correctNote      = $("#correctNote").val();
             correctOrderId   = $("#correctOrderId").val();
@@ -773,6 +784,7 @@
                 }
             });
             operator.push(record);
+            $(this).removeClass('disabled');
         }); 
          
  
@@ -828,7 +840,8 @@
             $("#correctOrderId").val( $(this).attr("data-rel") );
         });
 
-        $("#orderListTabContent").on("click", ".order-log-btn", function (e) {
+        $("#orderListTabContent").on("click", ".order-log-btn", function (e) { 
+            $("#orderLogTable").html("");
             e.preventDefault();
             $('#orderLogModal').modal('show'); 
             orderId  =  $(this).attr("data-rel");
@@ -847,6 +860,7 @@
 
 
         $("#orderListTabContent").on("click", ".order-detail-btn", function (e) {
+            $("#orderDetailTable").html("");
             e.preventDefault();
             $('#orderDetailModal').modal('show'); 
             orderId  =  $(this).attr("data-rel");
@@ -864,11 +878,27 @@
         }); 
 
         $("#process-submit-btn").click(function (e) {
-            $.post("/complaint/prepare", {type:'{{type}}', source: {{source}}, operators: JSON.stringify(operator)}, function( data ) {
+            if( $(this).hasClass('disabled') ){
+              alert('请勿重复提交');
+              return ;
+            }
+            $(this).addClass('disabled');
 
-
-            }, "json");
-        });  
+            $.ajax({    
+                type:'post',        
+                url:'/complaint/prepare',    
+                data:{type:'{{type}}', source: {{source}}, operators: JSON.stringify(operator)},
+                dataType:'json',    
+                success:function(data){
+                  if( data.res != false ){
+                      location.href = "/complaint/confirm?id=" + data.data;
+                  }
+                },
+                error:function (req,err) { 
+                   alert( '提交失败' ); 
+                },   
+            });  
+        });
     });
  
  </script>
