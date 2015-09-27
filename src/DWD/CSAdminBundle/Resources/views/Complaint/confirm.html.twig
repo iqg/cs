@@ -25,41 +25,41 @@
                     <form class="form-inline" role="form">
 
                         <div class="form-group has-feedback">
-                            <label class="control-label" for="inputSuccess4">来源</label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 用户投诉-{{complaintType}}
+                            <label class="control-label" for="inputSuccess4">来源</label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {{complaintSource}}-{{complaintType}}
                         </div> <br /><br />
                     
-                        <div class="form-group has-feedback">
+                        <div class="form-group has-feedback c-tags">
                             <label class="control-label" for="inputSuccess4">标签</label>
                             &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                             {% for tagInfo in complaintTags['list'] %}
-                                <button id="{{ tagInfo['alias'] }}" class="btn btn-default btn-sm complaint-label">{{ tagInfo['name'] }}</button>&nbsp;&nbsp;
+                                <button id={{ tagInfo['id'] }} class="btn btn-default btn-sm complaint-label">{{ tagInfo['name'] }}</button>&nbsp;&nbsp;
                             {% endfor %} 
                         </div> <br /><br />
  
                         <div class="form-group has-feedback">
                             <label class="control-label">电话号码</label>&nbsp;&nbsp;
-                            <input type="text" id="mobile" class="form-control">
+                            <input type="text" id="mobile" class="form-control" value="{{mobile}}" >
                         </div> <br /><br />
 
                         <div class="form-group has-feedback">
                             <label class="control-label">投诉方式</label>&nbsp;&nbsp;
                             <label class="checkbox-inline">
-                                <input type="radio" name="complaintWay" id="complaintWay" value="1"> 客服电话 
+                                <input type="radio" name="complaintWay" {% if 1 == method %} checked=checked {% endif %} id="complaintWay" value=1> 客服电话 
                             </label>
                             <label class="checkbox-inline">
-                                <input type="radio" name="complaintWay" id="complaintWay" value="2"> 在线客服 
+                                <input type="radio" name="complaintWay" {% if 2 == method %} checked=checked {% endif %} id="complaintWay" value=2> 在线客服 
                             </label>
                             <label class="checkbox-inline">
-                                <input type="radio" name="complaintWay" id="complaintWay" value="3"> 其他 
+                                <input type="radio" name="complaintWay" {% if 3 == method %} checked=checked {% endif %} id="complaintWay" value=3> 其他 
                             </label> 
                         </div>  <br /><br />
  
                         <div class="form-group has-feedback">
                             <label class="control-label">平台</label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                             <select id="selectPlatform" data-rel="chosen">
-                                <option value=1>IOS客户端</option>
-                                <option value=2>安卓客户端</option>
-                                <option value=3>h5客户端</option> 
+                                <option {% if 1 == platform %} selected=selected {% endif %} value=1>IOS客户端</option>
+                                <option {% if 2 == platform %} selected=selected {% endif %} value=2>安卓客户端</option>
+                                <option {% if 3 == platform %} selected=selected {% endif %} value=3>h5客户端</option> 
                             </select>
                         </div> <br /><br />
 
@@ -80,16 +80,16 @@
 
                         <div class="form-group has-feedback">
                             <label class="control-label">备注</label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                            <textarea id="note" class="autogrow"></textarea>
+                            <textarea id="note" class="autogrow">{{note}}</textarea>
                         </div> <br /><br />
 
                         <div class="form-group has-feedback">
                             <label class="control-label">投诉状态</label>&nbsp;&nbsp;
                             <label class="checkbox-inline">
-                                <input type="radio" id="status" name="status" value="1"> 待跟进 
+                                <input type="radio" id="status" {% if 0 == status %} checked=checked {% endif %} name="status" value=0> 待跟进 
                             </label>
                             <label class="checkbox-inline">
-                                <input type="radio" id="status" name="status" value="0"> 已解决 
+                                <input type="radio" id="status" {% if 1 == status %} checked=checked {% endif %} name="status" value=1> 已解决 
                             </label> 
                         </div>  <br /><br /><br /><br /><br />
                         <div class="form-group has-feedback" style="margin-left: 39%">
@@ -103,21 +103,7 @@
 </div>
 
 <script type="text/javascript" >
-    var complaint           = new Object();
-    complaint.from          = 1;
-    complaint.tags          = [];
-    complaint.mobile        = '';
-    complaint.complaintWay  = 1;
-    complaint.platform      = 0;
-    complaint.item_id       = {{param['item_id']}};
-    complaint.item          = {{param['item']}};
-    complaint.branch        = {{param['branch']}};
-    complaint.branch_id     = {{param['branch_id']}};
-    complaint.saler_id      = {{param['saler_id']}};
-    complaint.saler         = {{param['saler']}};
-    complaint.note          = '';
-    complaint.status        = 0;
-    complaint.order_id      = {{param['orderId']}};
+    var complaint           = {{complaint|raw}};
 
     var tags = [];
     $(document).ready(function() {
@@ -138,9 +124,9 @@
 
 
         {% for tagAlias in autoSelectTags %}
-            $("#{{tagAlias}}").removeClass("btn-default");
-            $("#{{tagAlias}}").addClass("btn-primary");
-            tags.push( $("#{{tagAlias}}").attr("id") );
+            $(".c-tags #{{tagAlias}}").removeClass("btn-default");
+            $(".c-tags #{{tagAlias}}").addClass("btn-primary");
+            tags.push( $(".c-tags #{{tagAlias}}").attr("id") );
         {% endfor %}
 
 
@@ -150,7 +136,7 @@
                 return ;
             }
             complaint.platform       = $("#selectPlatform option:selected").val();
-            complaint.complaintWay   = $("#complaintWay:checked").val();
+            complaint.method         = $("#complaintWay:checked").val();
             complaint.status         = $("#status:checked").val();
             complaint.mobile         = $("#mobile").val();
             complaint.note           = $("#note").val();
@@ -158,10 +144,11 @@
 
             $.ajax({    
                 type:'post',        
-                url:'/complaint/processSubmit',    
+                url:'/complaint/savecommon',    
                 data: complaint,
                 dataType:'json',    
                 success:function(data){ 
+                            alert('data');
                         }  
             });
         });

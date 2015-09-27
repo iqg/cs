@@ -147,6 +147,7 @@
 	var     type    = '';
 	var     source  = 1;
 	var     id      = 0;
+	var    idType   = '';
 	var    city     = 0;
 	var    saler    = 0;
     $(document).ready(function() {
@@ -247,9 +248,10 @@
 		});  
 
 		$("#searchOtherBox").autocomplete({
-	                source: "/autocomplete-user/search",
+	                source: "/autocomplete-other/search",
 	                select: function(e, ui) {
-				      id = ui.item.id;
+				      id     = ui.item.id;
+				      idType = ui.item.type;
 				    } 
 		});              
 
@@ -277,7 +279,7 @@
 			  break;
 			case 'ask':
 			case 'tech-error':
-			  location.href='/complaint/other?type=' + type + '&source=' + source;
+			  location.href='/complaint/other?type=' + type + '&source=' + source + '&id=' + id + '&idType=' + idType;
 			  break; 
 		   } 
 		});
@@ -302,6 +304,11 @@
                   } 
                 },    
             }); 
+        });
+
+        $("#complaintrecords-table").on("click", ".complaint-edit-btn", function (e) {
+        	complaintId  =  $(this).attr("data-rel");
+            location.href = "/complaint/confirm?id=" + complaintId;
         });
 
 		$("#usage").click();

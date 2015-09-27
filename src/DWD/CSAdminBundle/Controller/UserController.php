@@ -623,13 +623,18 @@ class UserController extends Controller
     {
 
         $sEcho                = $this->getRequest()->get('sEcho');
+        $userId               = $this->getRequest()->get('userId');
         $iDisplayStart        = $this->getRequest()->get('iDisplayStart');
         $iDisplayLength       = $this->getRequest()->get('iDisplayLength');   
         $sSearch              = $this->getRequest()->get('sSearch', null);
 
         $dm                   = $this->get('doctrine_mongodb')->getManager();
-        $complaintList        = $dm->getRepository('DWDDataBundle:Complaint')->getAll();
-        $complaintCnt         = $dm->getRepository('DWDDataBundle:Complaint')->getCount();
+        $options              = array(
+                                  'limit'  => $iDisplayLength,
+                                  'skip'   => $iDisplayStart,
+                                );
+        $complaintList        = $dm->getRepository('DWDDataBundle:Complaint')->getUserComplaints( $userId, $options );
+        $complaintCnt         = $dm->getRepository('DWDDataBundle:Complaint')->getUserCount( $userId );
  
         $dataHttp             = $this->get('dwd.data.http'); 
         $tagsList             = array();
@@ -659,14 +664,14 @@ class UserController extends Controller
                   } 
               }
             } 
-          
+        
             $aaData[]              = array(
                                         $this->get('dwd.util')->getComplaintSourceLabel( $complaint['source'] ),
                                         implode(",", $tags),
                                         isset( $complaint['branch'] ) ? $complaint['branch'][0]['name'] : '',
                                         isset( $complaint['branch'] ) ? $complaint['branch'][0]['itemName'] : '',
                                         date("Y-m-d H:i:s", $complaint['createdAt']),
-                                        "<a href='#'>[详情]</a>",
+                                        "<a href='/complaint/confirm?id=" . $complaint['_id'] . "' target='_blank' >[详情]</a>",
                                      );
         }
 

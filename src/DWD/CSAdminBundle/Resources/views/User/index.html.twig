@@ -408,6 +408,23 @@
         </div>
     </div> 
 
+    <div class="modal fade" id="complaintRecordModal" tabindex="-1" role="dialog" aria-labelledby="orderLogModal" aria-hidden="true">
+
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">×</button>
+                    <h3>投诉详情</h3>
+                </div>
+                <div id="complaintRecordTable" class="modal-body">
+                </div>
+                <div class="modal-footer"> 
+                    <a href="#" class="btn btn-default" data-dismiss="modal">关闭</a>
+                </div>
+            </div>
+        </div>
+    </div> 
+
     <div align="center">
         <input type="button" id="process-submit-btn" class="btn-primary" value="下一步"/>
     </div> 
@@ -754,14 +771,14 @@
             }
             $(this).addClass('disabled');
 
-            correctContent   = $("#correctContent").val();
-            correctNote      = $("#correctNote").val();
-            correctOrderId   = $("#correctOrderId").val();
-            var record       = new Object();
-            record.type      = "纠错";
-            record.content   = correctContent;
-            record.orderId   = correctOrderId;
-            record.note      = correctNote; 
+            correctContent    = $("#correctContent").val();
+            correctNote       = $("#correctNote").val();
+            correctOrderId    = $("#correctOrderId").val();
+            var record        = new Object();
+            record.type       = "纠错";
+            record.content    = correctContent;
+            record.orderId    = correctOrderId;
+            record.note       = correctNote; 
 
             $.ajax({    
                 type:'post',        
@@ -877,6 +894,24 @@
             }); 
         }); 
 
+        $("#complaintrecords-table").on("click", ".complaint-detail-btn", function (e) {
+            $("#complaintRecordTable").html("");
+            e.preventDefault();
+            $('#complaintRecordModal').modal('show'); 
+            complaintId  =  $(this).attr("data-rel");
+            $.ajax({    
+                type:'post',        
+                url:'/complaint/detail',    
+                data:{complaintId:complaintId},
+                dataType:'json',    
+                success:function(data){
+                  if( data.result ){
+                     $("#complaintRecordTable").html(data.content);
+                  } 
+                },    
+            }); 
+        }); 
+
         $("#process-submit-btn").click(function (e) {
             if( $(this).hasClass('disabled') ){
               alert('请勿重复提交');
@@ -887,7 +922,7 @@
             $.ajax({    
                 type:'post',        
                 url:'/complaint/prepare',    
-                data:{type:'{{type}}', source: {{source}}, operators: JSON.stringify(operator)},
+                data:{type:'{{type}}', source: {{source}}, operators: JSON.stringify(operator), userId: {{userId}}},
                 dataType:'json',    
                 success:function(data){
                   if( data.res != false ){

@@ -76,7 +76,7 @@ doctrine:
 doctrine_mongodb:
     connections:
         default:
-            server: mongodb://iqg_search:6yhn$RFV@10.0.0.10:27017/iqianggou_search
+            server: mongodb://iqg_search:6yhn$RFV@27.115.51.166:27017/iqianggou_search
             options: {}
     default_database: iqianggou_search
     document_managers:
