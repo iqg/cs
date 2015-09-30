@@ -78,7 +78,7 @@ class UserController extends Controller
     {
         $orderTypeId             = 2;
         switch ( $typeCode ) {
-                case 'wait-redeem':
+                case 'waitredeem':
                     $orderTypeId = 2;
                     break;
                 case 'refund':
@@ -150,54 +150,26 @@ class UserController extends Controller
                                'total'        => $data['orderlist']['data']['totalCnt'], 
                              );
 
-        $campaignBranchIds = array();
         $ordersInfo        = array();
          
         foreach( $data['orderlist']['data']['list'] as $orderInfo )
         {
             $ordersInfo[]        = $orderInfo;
-            $campaignBranchIds[] = $orderInfo['campaign_branch_id'];
         }
 
-        $data                    = array(
-                                      array(
-                                          'url'    => '/campaignbranch/campaignbranchlist',
-                                          'data'   => array(
-                                              'campaignBranchIds' => implode(',', $campaignBranchIds),
-                                          ),
-                                          'method' => 'get',
-                                          'key'    => 'campaignbranchlist',
-                                      ),
-                                      array(
-                                          'url'    => '/campaignbranch/branchlist',
-                                          'data'   => array(
-                                              'campaignBranchIds' => implode(',', $campaignBranchIds),
-                                          ),
-                                          'method' => 'get',
-                                          'key'    => 'branchs',
-                                      ),
-                                  );
-        $data                    =  $dataHttp->MutliCall($data);
         $tableInfo               =  $this->get('dwd.util')->getOrderTableInfo( $orderTypeId );
 
         foreach( $ordersInfo as $key => $orderInfo ){
-           if( false == isset( $data['branchs']['data']['list'][$orderInfo['campaign_branch_id']] ) || 
-               false == isset( $data['campaignbranchlist']['data']['list'][$orderInfo['campaign_branch_id']] )  ){
-               continue ;
-           }
-
-           $branchInfo           = $data['branchs']['data']['list'][$orderInfo['campaign_branch_id']];
-           $campaignBranchInfo   = $data['campaignbranchlist']['data']['list'][$orderInfo['campaign_branch_id']];
            $tdValues             = array();
            foreach ($tableInfo['field'] as $field) 
            {  
               $tdValue           = '';
               switch ( $field ) {
                 case 'itemName':
-                  $tdValue       = $campaignBranchInfo['campaign_id'];
+                  $tdValue       = $orderInfo['item_name'];
                   break;
                 case 'branchName':
-                  $tdValue       = $branchInfo['name'];
+                  $tdValue       = $orderInfo['branch_name'];
                   break;
                 case 'redeemNumber':
                   $tdValue       = $orderInfo['redeem_number'];
@@ -223,18 +195,7 @@ class UserController extends Controller
               $tdValues[]        = $tdValue;
            }
            $tdValues[]           = $this->_getOperation( $tableInfo['operation'], $orderInfo['id'] );
-           $orderList['list'][]  = $tdValues;
-        /*   $orderList['list'][]  = array(
-                                         $orderInfo['id'],
-                                         $branchInfo['name'],
-                                         $campaignBranchInfo['campaign_id'],
-                                         $orderInfo['price'],
-                                         $this->get('dwd.util')->getOrderStatusLabel($orderInfo['status']),
-                                         $this->get('dwd.util')->getOrderTypeLabel($orderInfo['type']),
-                                         $orderInfo['trade_number'],
-                                         $orderInfo['created_at'],
-                                         $orderInfo['updated_at'],
-                                    );  */
+           $orderList['list'][]  = $tdValues; 
         }
 
         return $orderList;
@@ -664,12 +625,23 @@ class UserController extends Controller
                   } 
               }
             } 
-        
+
+            $branchName = '';
+            $itemName   = '';
+
+            if( isset( $complaint['branchs'] ) ){
+              $branchName = $complaint['branchs'][0]['name'];
+              $itemName   = isset( $complaint['branchs'][0]['itemName'] ) ? $complaint['branchs'][0]['itemName'] : '';
+            } else if( isset( $complaint['orders'] ) ) {
+              $branchName = isset( $complaint['orders'][0]['branchName'] ) ? $complaint['orders'][0]['branchName'] : '';
+              $itemName   = isset( $complaint['orders'][0]['itemName'] ) ? $complaint['orders'][0]['itemName'] : '';
+            }
+
             $aaData[]              = array(
                                         $this->get('dwd.util')->getComplaintSourceLabel( $complaint['source'] ),
                                         implode(",", $tags),
-                                        isset( $complaint['branch'] ) ? $complaint['branch'][0]['name'] : '',
-                                        isset( $complaint['branch'] ) ? $complaint['branch'][0]['itemName'] : '',
+                                        $branchName,
+                                        $itemName,
                                         date("Y-m-d H:i:s", $complaint['createdAt']),
                                         "<a href='/complaint/confirm?id=" . $complaint['_id'] . "' target='_blank' >[详情]</a>",
                                      );

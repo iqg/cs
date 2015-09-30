@@ -21,26 +21,48 @@ class CampaignBranchController extends Controller
      */
     public function detailAction(Request $request)
     {  
-        $dataHttp        = $this->get('dwd.data.http');
-        $id              = $this->getRequest()->get('id');
-        $data            = array(
-                               array(
-                                   'url'    => '/campaignbranch/detail',
-                                   'data'   => array(
-                                       'campaignBranchId'    => $id,
-                                   ),
-                                   'method' => 'get',
-                                   'key'    => 'detail',
-                               ),
-                           );
-      
-        $response        = $dataHttp->MutliCall( $data );   
+        $dataHttp          = $this->get('dwd.data.http');
+        $id                = $this->getRequest()->get('campaignBranchId');
+        $data              = array(
+                                 array(
+                                     'url'    => '/campaignbranch/detail',
+                                     'data'   => array(
+                                         'campaignBranchId'    => $id,
+                                     ),
+                                     'method' => 'get',
+                                     'key'    => 'detail',
+                                 ),
+                             );
+        
+        $data              = $dataHttp->MutliCall( $data ); 
+        $campaignBranch    = $data['detail']['data'];
+        
+        $str               = '<table class="table table-striped table-bordered"><tr></tr>';
+        $str              .= "<tr><td>活动id</td><td>" . $campaignBranch['id'] . "</td></tr>";
+        $str              .= "<tr><td>商品名称</td><td>" . $campaignBranch['campaign_id'] . "</td></tr>";
+        $str              .= "<tr><td>分类</td><td>未知</td></tr>";
+        $str              .= "<tr><td>市场价格</td><td>￥ " . $campaignBranch['start_price'] . "元</td></tr>";
+        $str              .= "<tr><td>商品</td><td>" . $campaignBranch['campaign_id'] . "</td></tr>";
+        $str              .= "<tr><td>描述</td><td>" . $campaignBranch['id'] . "</td></tr>";
+        $str              .= "<tr><td>每日供应量</td><td>" . $campaignBranch['stock'] . "</td></tr>";
+        $str              .= "<tr><td>当天库存</td><td>" . $campaignBranch['left'] . "</td></tr>";
+        $str              .= "<tr><td>活动类型</td><td>" . $campaignBranch['type'] . "</td></tr>";
+        $str              .= "<tr><td>活动开始时间</td><td>" . $campaignBranch['start_time'] . "</td></tr>";
+        $str              .= "<tr><td>活动结束时间</td><td>" . $campaignBranch['end_time'] . "</td></tr>";
+        $str              .= "<tr><td>使用方式</td><td>" . $campaignBranch['allow_take_out'] . "</td></tr>";
+        $str              .= "<tr><td>周几营业</td><td>" . $campaignBranch['week'] . "</td></tr>";
+        $str              .= "<tr><td>特别提示</td><td>" . $campaignBranch['tips'] . "</td></tr>";
+        $str              .= "<tr><td>状态</td><td>" . $this->get('dwd.util')->getEnabledLabel( $campaignBranch['enabled'] ) . "</td></tr>"; 
+        $str              .= "</table>";
 
-        return $this->render('DWDCSAdminBundle:Dashboard:index.html.twig', array(
-          	'errMsg'     => $errMsg,
-            'zoneList'   => $response['zonelist']['data']['list'],
-            'salerlist'  => $response['salerlist']['data']['list'],
-        ));
+        $res               = array(
+                                'result'  => true,
+                                'content' => $str,
+                             );
+
+        $response          = new Response();
+        $response->setContent( json_encode( $res ) );
+        return $response; 
     }
  
 }

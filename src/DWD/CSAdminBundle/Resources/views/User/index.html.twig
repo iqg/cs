@@ -363,6 +363,8 @@
                             <span class="input-group-addon">备注</span>
                             <textarea id="correctNote"></textarea>
                             <input id="correctOrderId" type="hidden" />
+                            <input id="correctItemName" type="hidden" />
+                            <input id="correctBranchName" type="hidden" />
                          </div><br /> 
                      </div><br /> 
                 </div>
@@ -708,7 +710,7 @@
             record.userId    = {{userId}};  
             record.note      = lockNote;
 
-            $.ajax({    
+           /* $.ajax({    
                 type:'post',        
                 url:'/user/lock',    
                 data:{userId:{{userId}},selectlockReason:selectlockReason,lockNote:lockNote},
@@ -727,8 +729,9 @@
                    record.err = err;  
                    alert( '封号失败' ); 
                 } 
-            });
-            operator.push(record);    
+            }); */
+            operator.push(record);
+            $('#lockUserModal').modal('hide');
         }); 
 
         $("#deviceUnbind-submit-btn").click(function(e){
@@ -778,9 +781,11 @@
             record.type       = "纠错";
             record.content    = correctContent;
             record.orderId    = correctOrderId;
-            record.note       = correctNote; 
+            record.note       = correctNote;
+            record.itemName   = $("#correctItemName").val();
+            record.branchName = $("#correctBranchName").val();
 
-            $.ajax({    
+           /* $.ajax({    
                 type:'post',        
                 url:'/order/feedback',    
                 data:{type:1,orderId:correctOrderId,feedback:correctContent,status:0},
@@ -799,9 +804,11 @@
                    record.err = err;  
                    alert( '提交失败' ); 
                 }
-            });
+            }); */
             operator.push(record);
+            alert('提交成功'); 
             $(this).removeClass('disabled');
+            $('#correctModal').modal('hide');
         }); 
          
  
@@ -848,13 +855,17 @@
 
         $("#lock-user-btn").click(function (e) {
             e.preventDefault();
+            $("#lockNote").val('');
             $('#lockUserModal').modal('show');
         });
 
         $("#orderListTabContent").on("click", ".order-correct-btn", function (e) {
             e.preventDefault();
             $('#correctModal').modal('show');
+            $('#correctNote').val("");
             $("#correctOrderId").val( $(this).attr("data-rel") );
+            $("#correctItemName").val($(this).parent().prev().prev().prev().text());
+            $("#correctBranchName").val($(this).parent().prev().prev().text());
         });
 
         $("#orderListTabContent").on("click", ".order-log-btn", function (e) { 

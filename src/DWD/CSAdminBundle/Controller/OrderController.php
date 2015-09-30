@@ -120,7 +120,19 @@ class OrderController extends Controller
     {
         $dataHttp             = $this->get('dwd.data.http'); 
         $orderId              = $this->getRequest()->get('orderId');
+        $adminPwd             = $this->getRequest()->get('adminPwd');
         $redeemNumber         = $this->getRequest()->get('redeemNumber');
+
+        $factory              = $this->get('security.encoder_factory');
+        $user                 = $this->getUser();
+        $encoder              = $factory->getEncoder($user);
+        $password             = $encoder->encodePassword($adminPwd, $user->getSalt());
+
+        if( $password != $this->getUser()->getPassword() ){
+            $response         = new Response();
+            $response->setContent( json_encode( '管理员密码错误' ) );
+            return $response;     
+        }
   
         $data                 = array(
                                     array(
@@ -130,16 +142,17 @@ class OrderController extends Controller
                                                         'redeemNumber'   => $redeemNumber, 
                                                         'opUserId'       => $this->getUser()->getId(),
                                                      ),
-                                        'method' =>  'get',
+                                        'method' =>  'post',
                                         'key'    =>  'redeem',
-                                    ),  
+                                    ), 
                                 );
 
         $data                 = $dataHttp->MutliCall($data);
-
+ 
+ 
         $logRecord            = array(
                                   'route'    => $this->getRequest()->get('_route'),
-                                  'res'      => $res['result'],
+                                  'res'      => true,
                                   'adminId'  => $this->getUser()->getId(),
                                   'ext'      => array(
                                                   'orderId'        => $orderId,
@@ -147,7 +160,12 @@ class OrderController extends Controller
                                                 ),
                                 );
         $this->get('dwd.oplogger')->addCommonLog( $logRecord );
-
+        $redeemInfo           = $data['redeem'];
+        $res                  = true;
+        if( intval($redeemInfo['errno']) != 0 || $redeemInfo['data'] == 'failed' ){
+            $res              = '验证失败';
+        }
+  
         $response             = new Response();
         $response->setContent( json_encode( $res ) );
         return $response; 
@@ -219,7 +237,7 @@ class OrderController extends Controller
         $str              .= "<tr><td>退款帐号</td><td>" . $orderinfo['user_id'] . "</td></tr>";
         $str              .= "<tr><td>状态</td><td>" . $this->get('dwd.util')->getOrderStatusLabel($orderinfo['status']) . "</td></tr>";
    
-        $str              .= "</table》";
+        $str              .= "</table>";
         $res               = array(
                                 'result'  => true,
                                 'content' => $str,

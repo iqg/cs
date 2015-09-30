@@ -95,11 +95,38 @@ class ComplaintController extends Controller
                                   'branchId'  => '',
                                ) ;
     
-      /*  if( empty( $complaint->getBranchs() ) ){
-           $branch          =  $complaint->getBranchs();                             
-        } */ 
-        $complaint['id']   =  strval($complaint['_id']);
+        if( false == empty( $complaint['branchs'] ) ){
+           $branch['branch']    =  $complaint['branchs'][0]['name'];  
+        } else if( false == empty( $complaint['orders'] ) ){
+           $branch['branch']    =  isset($complaint['orders'][0]['branchName']) ? $complaint['orders'][0]['branchName'] : '';
+           $branch['itemName']  =  isset($complaint['orders'][0]['itemName']) ? $complaint['orders'][0]['itemName'] : '';
+        }
+        
+        $complaint['id']        =  strval($complaint['_id']);
         unset( $complaint['_id'] ); 
+
+        $salerinfo              =  array(
+                                     'name' => '',
+                                   );
+        if( isset( $complaint['salers'] ) || !empty( $complaint['salers'] ) )
+        {
+           $dataHttp            = $this->get('dwd.data.http'); 
+           $data                = array(
+                                      array(
+                                         'url'    => '/saler/salerinfo',
+                                         'data'   => array(
+                                             'salerId'    => $complaint['salers'][0],
+                                         ),
+                                         'method' => 'get',
+                                         'key'    => 'salerinfo',
+                                      ),
+                                  );
+          
+           $data                = $dataHttp->MutliCall( $data ); 
+           $salerinfo           = $data['salerinfo']['data'];
+        }
+        $branch['saler']        = $salerinfo['name'];      
+
 
         return $this->render('DWDCSAdminBundle:complaint:confirm.html.twig', array(
                 'complaintTags'   => $complaintTags,
@@ -138,45 +165,42 @@ class ComplaintController extends Controller
                     break;
                 case '封号':
                     $opRecords['users'][]      = array(
-                                                    'id'         => $operator['userId'],
-                                                    'name'       => $operator['userName'],
+                                                    'id'         => $operator['userId'], 
                                                     'reason'     => $operator['reason'],
                                                     'op'         => 'lock',
-                                                    'res'        => $operator['res'],
                                                  );
                     break;
                 case '纠错':
                     $opRecords['orders'][]     = array(
                                                     'id'         => $operator['orderId'],  
                                                     'content'    => $operator['content'],
+                                                    'itemName'   => $operator['itemName'],
+                                                    'branchName' => $operator['branchName'],
                                                     'note'       => $operator['note'],
                                                     'op'         => 'correctOrder',
-                                                    'res'        => $operator['res'],
                                                  );
                     break;
                 case '解绑设备':
                     $opRecords['users'][]      = array(
-                                                    'id'         => $operator['userId'],
-                                                    'name'       => $operator['userName'],
+                                                    'id'         => $operator['userId'], 
                                                     'reason'     => $operator['reason'],
                                                     'op'         => 'unbindDevice',
                                                     'res'        => $operator['res'],
                                                  );
                     break;
-                case '退款':
+            /*    case '退款':
                     $opRecords['orders'][]     = array(
                                                     'id'         => $operator['userId'],
                                                     'name'       => $operator['userName'],
                                                     'op'         => 'refundOrder',
                                                     'res'        => $operator['res'],
                                                  );
-                    break;
-                case '编辑信息':              
+                    break; */
+                case '更新商户信息':              
                     $opRecords['branchs'][]    = array(
                                                     'id'         => $operator['branchId'],
                                                     'name'       => $operator['branchName'],
-                                                    'op'         => 'modifyInfo',
-                                                    'ext'        => $operator['ext'],
+                                                    'op'         => 'modifyInfo', 
                                                     'res'        => $operator['res'],
                                                  );  
                     break;
@@ -189,9 +213,18 @@ class ComplaintController extends Controller
                                                     'userName'   => $operator['userName'], 
                                                     'op'         => 'redeem',
                                                     'res'        => $operator['res'],
-                                                 );
+                                                 );  
                     break;    
-                case '下线':              
+                case '商户下线':              
+                    $opRecords['branchs'][]    = array(
+                                                    'id'         => $operator['branchId'],
+                                                    'name'       => $operator['branchName'], 
+                                                    'reason'     => $operator['reason'],
+                                                    'note'       => $operator['note'], 
+                                                    'op'         => 'offline',
+                                                    'res'        => $operator['res'],
+                                                 );   
+                case '活动下线':              
                     $opRecords['campaigns'][]  = array(
                                                     'id'         => $operator['id'],
                                                     'name'       => $operator['name'],
@@ -233,7 +266,7 @@ class ComplaintController extends Controller
         }
  
         $opRecords       = self::_packageOperators( $operators );
-
+ 
         $complaint       = new Complaint();
         $complaint->setUserId( $userId );
         $complaint->setBranchId( $branchId );
@@ -242,11 +275,37 @@ class ComplaintController extends Controller
         $complaint->setTags( array() );
 
         if( false == empty( $opRecords['users'] ) ){
-          $complaint->setUsers( $users );
+          $complaint->setUsers( $opRecords['users'] );
         }
-
+ 
         if( false == empty( $opRecords['branchs'] ) ){
           $complaint->setBranchs( $opRecords['branchs'] );
+          $branchIds     = array();
+          foreach ( $opRecords['branchs'] as $branch ) {
+            $branchIds[] = $branch['id'];    
+          }
+
+          $dataHttp        =  $this->get('dwd.data.http');
+          $data            =  array(
+                                  array(
+                                      'url'    => '/branch/branchList',
+                                      'data'   => array(
+                                          'branchIds'      => implode(',', $branchIds), 
+                                      ),
+                                      'method' => 'get',
+                                      'key'    => 'branchList',
+                                  ), 
+                              );
+          $data            =  $dataHttp->MutliCall($data);
+          $branchList      =  $data['branchList']['data'];
+          $zoneList        =  array();
+          $salerList       =  array();
+          foreach ($branchList as  $branchInfo) {
+            $zoneList[]    =  $branchInfo['zone_id'];
+            $salerList[]   =  $branchInfo['saler_id'];
+          }
+          $complaint->setSalers( $salerList );
+          $complaint->setZones( $zoneList );
         }
 
         if( false == empty( $opRecords['campaigns'] ) ){
@@ -341,7 +400,7 @@ class ComplaintController extends Controller
 
         $response             = new Response();
         $response->setContent(  'ok' );
-        return $response; 
+        return $response;
     }
 
     /** 
@@ -394,13 +453,13 @@ class ComplaintController extends Controller
                                               'note'         => $note,
                                               'platform'     => $platform,
                                               'complaintWay' => $method,
-                                              'complaintId'  => $id,
+                                              'complaintId'  => $complaintId,
                                             ),
                              );
         $this->get('dwd.oplogger')->addCommonLog( $logRecord );
         
         $response             = new Response();
-        $response->setContent( json_encode( $id ) );
+        $response->setContent( json_encode( $complaintId ) );
         return $response; 
     }
 
@@ -460,15 +519,22 @@ class ComplaintController extends Controller
     public function listAction(Request $request)
     {
         $sEcho                = $this->getRequest()->get('sEcho');
+        $city                 = $this->getRequest()->get('city', 0);
+        $saler                = $this->getRequest()->get('saler', 0);
         $iDisplayStart        = $this->getRequest()->get('iDisplayStart');
         $iDisplayLength       = $this->getRequest()->get('iDisplayLength');   
         $sSearch              = $this->getRequest()->get('sSearch', null);
 
         $dm                   = $this->get('doctrine_mongodb')->getManager();
-        $complaintList        = $dm->getRepository('DWDDataBundle:Complaint')->getAll();
-        $complaintCnt         = $dm->getRepository('DWDDataBundle:Complaint')->getCount();
+        $conditions           = array();
+        if( $city != 0 ){
+            $conditions['zones']  = $city;
+            $conditions['salers'] = $saler;    
+        }
+        $complaintList        = $dm->getRepository('DWDDataBundle:Complaint')->getAll( $conditions );
+        $complaintCnt         = $dm->getRepository('DWDDataBundle:Complaint')->getCount( $conditions );
  
-        $dataHttp             = $this->get('dwd.data.http'); 
+        $dataHttp             = $this->get('dwd.data.http');
         $tagsList             = array();
         $data                 = array(
                                     array(

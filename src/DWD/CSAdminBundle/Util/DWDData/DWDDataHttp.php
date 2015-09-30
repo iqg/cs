@@ -125,7 +125,7 @@ class DWDDataHttp
                 $info     = curl_getinfo($done['handle']);
                 $error    = curl_error($done['handle']);
                 $results  = curl_multi_getcontent($done['handle']);
-
+          
                 if( empty( $error ) ){
                     $responses[$map[(string) $done['handle']]] = json_decode( $results, true );
                 } else {

@@ -23,8 +23,8 @@
                 <div class="box-content">
                     <ul class="dashboard-list">
                         <li>  
-                            <strong>{{ 'label.branch_name'|trans }}&nbsp;:&nbsp;</strong> {{ branchinfo['name'] }}&nbsp;&nbsp;&nbsp;<a id='modifyBranch-btn' href="#">[编辑名称]</a><br><br>
-                            <strong>{{ 'label.branch_name'|trans }}&nbsp;:&nbsp;</strong> {{ accountInfo['username'] }}&nbsp;&nbsp;&nbsp;<a id='resetPwd-btn' href="#">[重置密码]</a> (重置密码前,确认联系人电话)<br><br> 
+                            <strong>{{ 'label.branch_name'|trans }}&nbsp;:&nbsp;</strong><span id='info-branchName'>{{ branchinfo['name'] }}</span>&nbsp;&nbsp;&nbsp;<a id='modifyBranch-btn' href="#">[编辑名称]</a><br><br>
+                            <strong>{{ 'label.branch_name'|trans }}&nbsp;:&nbsp;</strong> {{ accountInfo['username'] }}&nbsp;&nbsp;&nbsp;{% if '该门店不存在手机号' != accountInfo['mobile'] %}<a id='resetPwd-btn' href="#">[重置密码]</a> (重置密码前,确认联系人电话){% endif %}<br><br> 
                             <strong>{{ 'label.city'|trans }}&nbsp;:&nbsp;</strong> {{ branchinfo['zoneName'] }}<br><br>
                             <strong>状态&nbsp;:&nbsp;</strong>{% if 0 == branchinfo['enabled'] %}  已下线 {% else %} 在线 <a id='offline-btn'>&nbsp;[下线]</a>  {% endif %}<br><br>
                             <strong>{{ 'label.brand_name'|trans }}&nbsp;:&nbsp;</strong> {{ branchinfo['brandName'] }}<br><br>
@@ -164,16 +164,16 @@
                     <div class="input-group col-md-12">
                         <span class="input-group-addon">验证方式</span>
                         <label class="checkbox-inline">
-                            <input type="checkbox" {% if 1 in branchinfo['redeemTypeIds'] %} checked=checked  {% endif %} id="is_web_redeem" value="1"> 网络
+                            <input type="checkbox" {% if 1 in branchinfo['redeemTypeIds'] %} checked=checked  {% endif %} id="is_web_redeem"> 网络
                         </label>
                         <label class="checkbox-inline">
-                            <input type="checkbox" {% if 2 in branchinfo['redeemTypeIds'] %} checked=checked  {% endif %} id="is_mobile_redeem" value="2"> 电话 
+                            <input type="checkbox" {% if 2 in branchinfo['redeemTypeIds'] %} checked=checked  {% endif %} id="is_mobile_redeem"> 电话 
                         </label>
                         <label class="checkbox-inline">
-                            <input type="checkbox" {% if 4 in branchinfo['redeemTypeIds'] %} checked=checked {% endif %} id="is_paper_redeem" value="4"> 纸质 
+                            <input type="checkbox" {% if 4 in branchinfo['redeemTypeIds'] %} checked=checked {% endif %} id="is_paper_redeem"> 纸质 
                         </label> 
                         <label class="checkbox-inline">
-                            <input type="checkbox" {% if 8 in branchinfo['redeemTypeIds'] %} checked=checked  {% endif %} id="is_secret_redeem" value="8"> 密码 
+                            <input type="checkbox" {% if 8 in branchinfo['redeemTypeIds'] %} checked=checked  {% endif %} id="is_secret_redeem"> 密码 
                         </label> 
                     </div><br />
                     <div class="input-group col-md-12">
@@ -317,13 +317,38 @@
         </div>
     </div>
 
+    <div class="modal fade" id="orderRedeemModal" tabindex="-1" role="dialog" aria-labelledby="orderRedeemModal" aria-hidden="true">
+
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">×</button>
+                    <h3>订单验证</h3>
+                </div>
+                <div class="modal-body"> 
+                    <span>验证密码: </span><input type="pasword" id="redeemPassword"/>
+                    <input type='hidden' id='redeemOrderId' />
+                    <input type='hidden' id='redeemNumber' />
+                </div>
+                <div class="modal-footer">
+                    <a href="#" id="redeem-submit-btn" class="btn btn-default">确认</a>
+                    <a href="#" class="btn btn-default" data-dismiss="modal">关闭</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div align="center">
+        <input type="button" id="process-submit-btn" class="btn-primary" value="下一步"/>
+    </div>
+
 </div>
 
 <script type="text/javascript" >
     operator    = new Array();
     $(document).ready(function() {
         {% for  typeLabel in orderlistTypes %}
-            $('#{{typeLabel['code']}}-orderlist-table').dataTable({
+           var {{typeLabel['code']}}Table = $('#{{typeLabel['code']}}-orderlist-table').dataTable({
                 "bProcessing": true,
                 "bStateSave": true,
                 "bServerSide":  true,
@@ -465,19 +490,36 @@
             var redeemTels     = $("#redeem-tels").val();
             var redeemTime     = $("#modify-redeemTime").val();
 
-            var webRedeem      = $("#is_web_redeem").attr('checked');
-            var mobileRedeem   = $("#is_mobile_redeem").attr('checked');
-            var paperRedeem    = $("#is_paper_redeem").attr('checked');
-            var secretRedeem   = $("#is_secret_redeem").attr('checked');
+            var webRedeem      = $("#is_web_redeem")[0].checked;
+            var mobileRedeem   = $("#is_mobile_redeem")[0].checked;
+            var paperRedeem    = $("#is_paper_redeem")[0].checked;
+            var secretRedeem   = $("#is_secret_redeem")[0].checked;
  
             var record         = new Object();
             record.type        = "更新商户信息";
             record.branchId    = {{branchId}};
-            record.branchName  = {{branchinfo['name']}};
+            record.branchName  = "{{branchinfo['name']}}";
+            var data           = {branchId:{{branchId}},address:address,redeemTels:redeemTels,redeemTime:redeemTime,tel:tel};
+            if( false != webRedeem ){
+                data.webRedeem    = 1;
+            }
+            
+            if( false != mobileRedeem ){
+                data.mobileRedeem = 1;
+            }
+            
+            if( false != paperRedeem ){
+                data.paperRedeem  = 1;
+            }
+
+            if( false != secretRedeem ){
+                data.secretRedeem = 1;
+            }
+            
             $.ajax({
                 type:'post',      
                 url:'/branch/update',    
-                data:{branchId:{{branchId}},address:address,redeemTels:redeemTels,redeemTime:redeemTime,webRedeem:webRedeem,mobileRedeem:mobileRedeem,paperRedeem:paperRedeem,secretRedeem:secretRedeem,tel:tel},
+                data: data,
                 dataType:'json',    
                 success:function(data){
                     if( data == true ){
@@ -520,7 +562,8 @@
             $("#orderDetailTable").html("");
             e.preventDefault();
             $('#orderDetailModal').modal('show'); 
-            orderId  =  $(this).attr("data-rel");
+            orderId       =  $(this).attr("data-rel");
+             
             $.ajax({    
                 type:'post',        
                 url:'/order/orderdetail',    
@@ -537,32 +580,45 @@
         $("#orderListTabContent").on("click", ".order-redeem-btn", function (e) {
             e.preventDefault();
             $('#orderRedeemModal').modal('show'); 
-            orderId           =  $(this).attr("data-rel");
+            $("#redeemPassword").val("");
+            orderId           = $(this).attr("data-rel");
+            redeemNumber      = $(this).parent().prev().text();
+
+            $("#redeemNumber").val(redeemNumber);
+            $("#redeemOrderId").val(orderId);
+        });
+
+        $("#redeem-submit-btn").click(function(e){
+            orderId           = $("#redeemOrderId").val();
             var record        = new Object();
             record.type       = "验证";
             record.orderId    = orderId;
             record.itemName   = '';
-            record.branchId   = {{ branchinfo['id'] }};
-            record.branchName = {{ branchinfo['name'] }};
+            record.branchId   = {{branchinfo['id']}};
+            record.branchName = "{{branchinfo['name']}}";
             record.userName   = "{{accountInfo['username']}}";
+            adminPwd          = $("#redeemPassword").val(); 
+            redeemNumber      = $("#redeemNumber").val();
 
             $.ajax({    
                 type:'post',        
                 url:'/order/redeem',    
-                data:{orderId:orderId,adminPwd:adminPwd},
+                data:{orderId:orderId,adminPwd:adminPwd,redeemNumber:redeemNumber},
                 dataType:'json',    
                 success:function(data){
                    if( data == true ){
                      record.res = true;
                      alert('验证成功');
-                     location.href = location.href;
+                     $('#orderRedeemModal').modal('hide'); 
+                     waitredeemTable.fnDraw();
                    } else {
                      record.res = false;
-                     alert('验证失败');
+                     record.err = data;
+                     alert(data);
                    }
                 },    
             });
-            operator.push(record);
+            operator.push(record); 
         });
 
 
@@ -648,7 +704,26 @@
         }); 
 
         $("#process-submit-btn").click(function (e) {
-            location.href   = '/complaint/confirm';
+            if( $(this).hasClass('disabled') ){
+              alert('请勿重复提交');
+              return ;
+            }
+            $(this).addClass('disabled');
+
+            $.ajax({    
+                type:'post',        
+                url:'/complaint/prepare',    
+                data:{type:'{{type}}', source: {{source}}, operators: JSON.stringify(operator), branchId: {{branchId}}},
+                dataType:'json',    
+                success:function(data){
+                  if( data.res != false ){
+                      location.href = "/complaint/confirm?id=" + data.data;
+                  }
+                },
+                error:function (req,err) { 
+                   alert( '提交失败' ); 
+                },   
+            });  
         });
     });
 </script>

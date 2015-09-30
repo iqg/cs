@@ -57,6 +57,16 @@ class Complaint
     /**
      * @MongoDB\Collection
      */
+    protected $salers;
+
+    /**
+     * @MongoDB\Collection
+     */
+    protected $zones;
+
+    /**
+     * @MongoDB\Collection
+     */
     protected $campaigns;
 
     /**
@@ -457,5 +467,49 @@ class Complaint
     public function getBranchId()
     {
         return $this->branchId;
+    }
+
+    /**
+     * Set salers
+     *
+     * @param collection $salers
+     * @return self
+     */
+    public function setSalers($salers)
+    {
+        $this->salers = $salers;
+        return $this;
+    }
+
+    /**
+     * Get salers
+     *
+     * @return collection $salers
+     */
+    public function getSalers()
+    {
+        return $this->salers;
+    }
+
+    /**
+     * Set zones
+     *
+     * @param collection $zones
+     * @return self
+     */
+    public function setZones($zones)
+    {
+        $this->zones = $zones;
+        return $this;
+    }
+
+    /**
+     * Get zones
+     *
+     * @return collection $zones
+     */
+    public function getZones()
+    {
+        return $this->zones;
     }
 }

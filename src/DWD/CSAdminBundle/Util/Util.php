@@ -37,7 +37,7 @@ class Util
                                  10   => '未知',
                                  11   => '申请退款中',
                                );
-        return $statusLabel[$statusId];
+        return isset( $statusLabel[$statusId] ) ? $statusLabel[$statusId] : $statusId;
    }
 
    public function getSMSTypeLabel( $typeId )
@@ -121,7 +121,7 @@ class Util
       $tableInfo            =  array(
                                  2    => array(
                                            'label'     => '未领用',
-                                           'code'      => 'wait-redeem',
+                                           'code'      => 'waitredeem',
                                            'head'      => array(
                                                              '商品',
                                                              '门店',
@@ -133,6 +133,7 @@ class Util
                                                              'redeemNumber',
                                                           ),
                                            'operation' => array(
+                                                            '验证',
                                                             '退款',
                                                             '纠错',
                                                             '日志',
@@ -270,5 +271,9 @@ class Util
                                   7        => '市场活动奖励活动', 
                                );
         return isset( $typeLabel[$typeId] ) ?  $typeLabel[$typeId] : '' ;
+   }
+
+   public function getEnabledLabel( $enabled ){
+      return intval( $enabled ) == 0 ? '已下线' : '在线'; 
    }
 }

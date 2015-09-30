@@ -69,6 +69,9 @@ class BranchController extends Controller
              case '详情': 
                     $opStr   .= "&nbsp;&nbsp;&nbsp;<a href='#' class='order-detail-btn' data-rel='$orderId'>[详情]</a>";
                     break;
+             case '验证': 
+                    $opStr   .= "&nbsp;&nbsp;&nbsp;<a href='#' class='order-redeem-btn' data-rel='$orderId'>[验证]</a>";
+                    break;
           }
         }
 
@@ -204,7 +207,7 @@ class BranchController extends Controller
         $pageNum             = $limitStart / $pageLimit + 1;
 
         switch ( $orderType ) {
-            case 'wait-redeem':
+            case 'waitredeem':
                 $orderTypeId = 2;
                 break;
             case 'refund':
@@ -253,40 +256,20 @@ class BranchController extends Controller
             $campaignBranchIds[] = $orderInfo['campaign_branch_id'];
         }
 
-        $data                    = array(
-                                      array(
-                                          'url'    => '/campaignbranch/campaignbranchlist',
-                                          'data'   => array(
-                                              'campaignBranchIds' => implode(',', $campaignBranchIds),
-                                          ),
-                                          'method' => 'get',
-                                          'key'    => 'campaignbranchlist',
-                                      ),
-                                      array(
-                                          'url'    => '/campaignbranch/branchlist',
-                                          'data'   => array(
-                                              'campaignBranchIds' => implode(',', $campaignBranchIds),
-                                          ),
-                                          'method' => 'get',
-                                          'key'    => 'branchs',
-                                      ),
-                                  );
-        $data                    = $dataHttp->MutliCall($data);
+  
         $tableInfo               =  $this->get('dwd.util')->getOrderTableInfo( $orderTypeId );
 
         foreach( $ordersInfo as $key => $orderInfo ){
-           $branchInfo           = $data['branchs']['data']['list'][$orderInfo['campaign_branch_id']];
-           $campaignBranchInfo   = $data['campaignbranchlist']['data']['list'][$orderInfo['campaign_branch_id']];
            $tdValues             = array();
            foreach ($tableInfo['field'] as $field) 
            {  
               $tdValue           = '';
               switch ( $field ) {
                 case 'itemName':
-                  $tdValue       = $campaignBranchInfo['campaign_id'];
+                  $tdValue       = $orderInfo['item_name'];
                   break;
                 case 'branchName':
-                  $tdValue       = $branchInfo['name'];
+                  $tdValue       = $orderInfo['branch_name'];
                   break;
                 case 'redeemNumber':
                   $tdValue       = $orderInfo['redeem_number'];
@@ -349,7 +332,7 @@ class BranchController extends Controller
                             );
        
         if( !empty( $orderInfo ) &&  $branchInfo['id'] ==  $branchId ){ 
-            $orderList       =  array(
+            $orderList   =  array(
                                 'list' => 
                                     array(
                                         array(
@@ -409,61 +392,69 @@ class BranchController extends Controller
      */
     public function ComplaintRecordsDataAction()
     {
-        $dataHttp        = $this->get('dwd.data.http');
-        $iDisplayStart   = $this->getRequest()->get('iDisplayStart');
-        $iDisplayLength  = $this->getRequest()->get('iDisplayLength'); 
-        $sEcho           = $this->getRequest()->get('sEcho');
-        $sSearch         = $this->getRequest()->get('sSearch', null);
-        $branchId        = $this->getRequest()->get('branchId');
-        $orderType       = $this->getRequest()->get('type', 'redeem');
-        $orderList       = array();
-        $data            = array( 
-                                array(
-                                    'url'    => '/branch/complaints',
-                                    'data'   => array(
-                                        'branchId'       => $branchId,
-                                        'needPagination' => 1,
-                                        'pageLimit'      => $iDisplayLength,
-                                        'pageNum'        => $iDisplayStart / $iDisplayLength + 1,
-                                    ), 
-                                    'method' => 'get',
-                                    'key'    => 'complaintrecords',
-                                ),  
-                            ); 
 
-        $data              = $dataHttp->MutliCall($data);
 
-        $complaintrecords  = array(
-                               'list'         => array(),
-                               'total'        => $data['complaintrecords']['data']['totalCnt'], 
-                             );
-        foreach( $data['complaintrecords']['data']['list'] as $complaintrecord )
-        { 
-            $complaintrecords['list'][] = array(
-                                             $complaintrecord['item_id'],
-                                             $complaintrecord['order_id'],
-                                             $complaintrecord['user_id'], 
-                                             $complaintrecord['saler_id'],
-                                             $complaintrecord['type_id'], 
-                                             $complaintrecord['status'],
-                                             $complaintrecord['description'], 
-                                             $complaintrecord['from_id'],
-                                             $complaintrecord['category_id'],
-                                             $complaintrecord['mobile'],
-                                             $complaintrecord['created_at'],
-                                             $complaintrecord['updated_at'],
-                                             $complaintrecord['resolved_at'],
-                                          );
-        }
+        $sEcho                = $this->getRequest()->get('sEcho');
+        $branchId             = $this->getRequest()->get('branchId');
+        $iDisplayStart        = $this->getRequest()->get('iDisplayStart');
+        $iDisplayLength       = $this->getRequest()->get('iDisplayLength');   
+        $sSearch              = $this->getRequest()->get('sSearch', null);
+
+        $dm                   = $this->get('doctrine_mongodb')->getManager();
+        $options              = array(
+                                  'limit'  => $iDisplayLength,
+                                  'skip'   => $iDisplayStart,
+                                );
+        $complaintList        = $dm->getRepository('DWDDataBundle:Complaint')->getBranchComplaints( $branchId, $options );
+        $complaintCnt         = $dm->getRepository('DWDDataBundle:Complaint')->getBranchCount( $branchId );
  
-        $res             = array
-                           (
-                                "sEcho"                => $sEcho, 
-                                "aaData"               => $complaintrecords['list'],
-                                "iTotalRecords"        => $data['complaintrecords']['data']['totalCnt'],
-                                "iTotalDisplayRecords" => $data['complaintrecords']['data']['totalCnt'],
-                           );
-        exit(json_encode( $res )); 
+        $dataHttp             = $this->get('dwd.data.http'); 
+        $tagsList             = array();
+        $data                 = array(
+                                    array(
+                                        'url'    => '/complaint/taglist', 
+                                        'method' => 'get',
+                                        'key'    => 'complaintTags',
+                                    ),  
+                                ); 
+
+        $data                      = $dataHttp->MutliCall($data);
+ 
+        foreach ($data['complaintTags']['data']['list'] as  $tag) {
+            $tagsList[$tag['id']]  = $tag['name'];
+        } 
+
+        $aaData                    = array();
+    
+        foreach( $complaintList as $complaint ){
+            $tags                  = array();
+
+            if( isset( $complaint['tags'] ) ){
+              foreach ($complaint['tags'] as $tagId) {
+                  if( isset( $tagsList[$tagId] ) ){
+                      $tags[]      = $tagsList[$tagId];   
+                  } 
+              }
+            } 
+        
+            $aaData[]              = array(
+                                        $this->get('dwd.util')->getComplaintSourceLabel( $complaint['source'] ),
+                                        implode(",", $tags),
+                                        $this->get('dwd.util')->getComplaintStatusLabel( $complaint['status'] ),
+                                        "<a href='/complaint/confirm?id=" . $complaint['_id'] . "' target='_blank' >[详情]</a>",
+                                     );
+        }
+
+        $res                       = array(
+                                        "sEcho"                => $sEcho, 
+                                        "aaData"               => $aaData,
+                                        "iTotalRecords"        => $complaintCnt,
+                                        "iTotalDisplayRecords" => $complaintCnt,
+                                     );
+
+        $response             = new Response();
+        $response->setContent( json_encode( $res ) );
+        return $response;
     }
 
     /**
@@ -483,24 +474,23 @@ class BranchController extends Controller
         $paperRedeem     = $this->getRequest()->get('paperRedeem');
         $secretRedeem    = $this->getRequest()->get('secretRedeem');
  
-        $redeemType      = 0;
-
-        if( $webRedeem ) {
+        $redeemType      = 0; 
+        if( $webRedeem   ) {
           $redeemType   += self::WEB_VERIFY;
         }
 
-        if( $webRedeem ) {
+        if( $mobileRedeem ) {
           $redeemType   += self::TEL_VERIFY;
         }
 
-        if( $webRedeem ) {
+        if( $paperRedeem ) {
           $redeemType   += self::PAPER_VERIFY;
         }
 
-        if( $webRedeem ) {
+        if( $secretRedeem ) {
           $redeemType   += self::SECRET_VERIFY;
         } 
-
+ 
         $data            = array(
                                 array(
                                     'url'    => '/branch/update',
@@ -527,6 +517,7 @@ class BranchController extends Controller
 
         $data            = $dataHttp->MutliCall( $data );
         $res             = false;
+
         if( $data['update']['errno'] == 0 && $data['update']['data'] == true ){
           $res           = true;
         }
