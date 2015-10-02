@@ -101,7 +101,7 @@ class OrderController extends Controller
         $str               = '<table class="table table-striped table-bordered"><tr><th>状态</th><th>备注</th><th>创建时间</th></tr>';
        
         foreach( $data['orderlog']['data']['list'] as $logrecord ){
-            $str          .= "<tr><td>" . $this->get('dwd.util')->getOrderStatusLabel( $logrecord['status'] ). "</td><td>" . $logrecord['remark'] . "</td><td>" . $logrecord['created_at'] . "</td></tr>";
+            $str          .= "<tr><td>" . $this->get('dwd.util')->getOrderLogStatusLabel( $logrecord['status'] ). "</td><td>" . $logrecord['remark'] . "</td><td>" . $logrecord['created_at'] . "</td></tr>";
         } 
         $str              .= "</table》";
         $res               = array(
