@@ -1,0 +1,157 @@
+{% extends "DWDCSAdminBundle:Layout:layout.html.twig" %}
+
+{% block body %}
+<div class="ch-container">
+    <div id="content" class="col-lg-10 col-sm-10">
+            <!-- content starts -->
+                <div>
+        <ul class="breadcrumb">
+            <li>
+                <a href="/">首页</a>
+            </li>
+            <li>
+                投诉确认
+            </li>
+        </ul>
+    </div>
+
+    <div class="row">
+        <div class="box col-md-15">
+            <div class="box-inner">
+                <div class="box-header well">
+                    <h2><i class="glyphicon glyphicon-file"></i> {{ 'title.complaint_confirm'|trans }}</h2>
+                </div> 
+                <div class="box-content">
+                    <form class="form-inline" role="form">
+
+                        <div class="form-group has-feedback">
+                            <label class="control-label" for="inputSuccess4">来源</label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {{complaintSource}}-{{complaintType}}
+                        </div> <br /><br />
+                    
+                        <div class="form-group has-feedback c-tags">
+                            <label class="control-label" for="inputSuccess4">标签</label>
+                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                            {% for tagInfo in complaintTags['list'] %}
+                                <button id={{ tagInfo['id'] }} class="btn btn-default btn-sm complaint-label">{{ tagInfo['name'] }}</button>&nbsp;&nbsp;
+                            {% endfor %} 
+                        </div> <br /><br />
+ 
+                        <div class="form-group has-feedback">
+                            <label class="control-label">电话号码</label>&nbsp;&nbsp;
+                            <input type="text" id="mobile" class="form-control" value="{{mobile}}" >
+                        </div> <br /><br />
+
+                        <div class="form-group has-feedback">
+                            <label class="control-label">投诉方式</label>&nbsp;&nbsp;
+                            <label class="checkbox-inline">
+                                <input type="radio" name="complaintWay" {% if 1 == method %} checked=checked {% endif %} id="complaintWay" value=1> 客服电话 
+                            </label>
+                            <label class="checkbox-inline">
+                                <input type="radio" name="complaintWay" {% if 2 == method %} checked=checked {% endif %} id="complaintWay" value=2> 在线客服 
+                            </label>
+                            <label class="checkbox-inline">
+                                <input type="radio" name="complaintWay" {% if 3 == method %} checked=checked {% endif %} id="complaintWay" value=3> 其他 
+                            </label> 
+                        </div>  <br /><br />
+ 
+                        <div class="form-group has-feedback">
+                            <label class="control-label">平台</label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                            <select id="selectPlatform" data-rel="chosen">
+                                <option {% if 1 == platform %} selected=selected {% endif %} value=1>IOS客户端</option>
+                                <option {% if 2 == platform %} selected=selected {% endif %} value=2>安卓客户端</option>
+                                <option {% if 3 == platform %} selected=selected {% endif %} value=3>h5客户端</option> 
+                            </select>
+                        </div> <br /><br />
+
+                        <div class="form-group has-feedback">
+                            <label class="control-label">活动</label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                            <input readonly=readonly value="{{param['item']}}" type="text" class="form-control">
+                        </div> <br /><br />
+
+                        <div class="form-group has-feedback">
+                            <label class="control-label">门店</label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                            <input readonly=readonly value="{{param['branch']}}" type="text" class="form-control">
+                        </div> <br /><br />
+
+                        <div class="form-group has-feedback">
+                            <label class="control-label">跟进销售</label>&nbsp;&nbsp;
+                            <input readonly=readonly value="{{param['saler']}}"  type="text" class="form-control">
+                        </div> <br /><br />
+
+                        <div class="form-group has-feedback">
+                            <label class="control-label">备注</label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                            <textarea id="note" class="autogrow">{{note}}</textarea>
+                        </div> <br /><br />
+
+                        <div class="form-group has-feedback">
+                            <label class="control-label">投诉状态</label>&nbsp;&nbsp;
+                            <label class="checkbox-inline">
+                                <input type="radio" id="status" {% if 0 == status %} checked=checked {% endif %} name="status" value=0> 待跟进 
+                            </label>
+                            <label class="checkbox-inline">
+                                <input type="radio" id="status" {% if 1 == status %} checked=checked {% endif %} name="status" value=1> 已解决 
+                            </label> 
+                        </div>  <br /><br /><br /><br /><br />
+                        <div class="form-group has-feedback" style="margin-left: 39%">
+                            <button type="button" id="confirm-btn" class="btn btn-primary">确认提交</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>  
+</div>
+
+<script type="text/javascript" >
+    var complaint           = {{complaint|raw}};
+
+    var tags = [];
+    $(document).ready(function() {
+        $(".complaint-label").click(function (e) {
+
+            if( $(this).hasClass("btn-default") ){
+                $(this).removeClass("btn-default");
+                $(this).addClass("btn-primary");
+                tags.push( $(this).attr("id") );
+            } else {
+                $(this).removeClass("btn-primary"); 
+                $(this).addClass("btn-default");
+                tags.splice($.inArray($(this).attr("id"),tags),1);
+            }
+
+            return false;
+        });
+
+
+        {% for tagAlias in autoSelectTags %}
+            $(".c-tags #{{tagAlias}}").removeClass("btn-default");
+            $(".c-tags #{{tagAlias}}").addClass("btn-primary");
+            tags.push( $(".c-tags #{{tagAlias}}").attr("id") );
+        {% endfor %}
+
+
+        $("#confirm-btn").click(function (e) {
+
+            if(!confirm("确认提交?")){
+                return ;
+            }
+            complaint.platform       = $("#selectPlatform option:selected").val();
+            complaint.method         = $("#complaintWay:checked").val();
+            complaint.status         = $("#status:checked").val();
+            complaint.mobile         = $("#mobile").val();
+            complaint.note           = $("#note").val();
+            complaint.tags           = tags.join(",");
+
+            $.ajax({    
+                type:'post',        
+                url:'/complaint/savecommon',    
+                data: complaint,
+                dataType:'json',    
+                success:function(data){ 
+                           alert("提交成功");
+                        }  
+            });
+        });
+    });
+</script>
+{% endblock %}

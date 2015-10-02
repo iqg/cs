@@ -7,6 +7,8 @@ imports:
 # http://symfony.com/doc/current/best_practices/configuration.html#application-related-configuration
 parameters:
     locale: zh_CN
+    cookie_domain: .iqianggou.dev
+    redis_dsn: 'redis://127.0.0.1:6379'
 
 framework:
     #esi:             ~
@@ -40,7 +42,7 @@ twig:
 assetic:
     debug:          "%kernel.debug%"
     use_controller: false
-    bundles:        [ ]
+    bundles:        [ DWDCSAdminBundle ]
     #java: /usr/bin/java
     filters:
         cssrewrite: ~
@@ -71,6 +73,16 @@ doctrine:
         naming_strategy: doctrine.orm.naming_strategy.underscore
         auto_mapping: true
 
+doctrine_mongodb:
+    connections:
+        default:
+            server: mongodb://iqg_search:6yhn$RFV@27.115.51.166:27017/iqianggou_search
+            options: {}
+    default_database: iqianggou_search
+    document_managers:
+        default:
+            auto_mapping: true
+
 # Swiftmailer Configuration
 swiftmailer:
     transport: "%mailer_transport%"
@@ -79,14 +91,14 @@ swiftmailer:
     password:  "%mailer_password%"
     spool:     { type: memory }
 
-# KnpPaginator Configuration
-knp_paginator:
-    page_range: 5                      # default page range used in pagination control
-    default_options:
-        page_name: page                # page query parameter name
-        sort_field_name: sort          # sort field query parameter name
-        sort_direction_name: direction # sort direction query parameter name
-        distinct: true                 # ensure distinct results, useful when ORM queries are using GROUP BY statements
-    template:
-        pagination: KnpPaginatorBundle:Pagination:sliding.html.twig     # sliding pagination controls template
-        sortable: KnpPaginatorBundle:Pagination:sortable_link.html.twig # sort link template
+# FOSUserBundle Configuration
+fos_user:
+    db_driver: orm # other valid values are 'mongodb', 'couchdb' and 'propel'
+    firewall_name: main
+    user_class: DWD\DataBundle\Entity\User
+
+# SncRedis Configuration
+snc_redis:
+    session:
+        client: session
+        locking: false

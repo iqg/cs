@@ -1,0 +1,111 @@
+{% extends "DWDCSAdminBundle:Layout:layout.html.twig" %}
+
+{% block body %}
+<div class="ch-container">
+    <div id="content" class="col-lg-10 col-sm-10">
+            <!-- content starts -->
+                <div>
+        <ul class="breadcrumb">
+            <li>
+                <a href="/">首页</a>
+            </li>
+            <li>
+                投诉确认
+            </li>
+        </ul>
+    </div>
+
+    <div class="row">
+        <div class="box col-md-15">
+            <div class="box-inner">
+                <div class="box-header well">
+                    <h2><i class="glyphicon glyphicon-file"></i> {{ 'title.complaint_confirm'|trans }}</h2>
+                </div> 
+                <div class="box-content">
+                    <form class="form-inline" role="form">
+
+                        <div class="form-group has-feedback">
+                            <label class="control-label" for="inputSuccess4">来源</label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 其他投诉-{{complaintType}}
+                        </div> <br /><br />
+                    
+                        <div class="form-group has-feedback">
+                            <label class="control-label" for="inputSuccess4">标签</label>
+                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+                                <button id="{{tagId}}" readonly=readonly class="btn btn-primary btn-sm complaint-label">{{complaintType}}</button>&nbsp;&nbsp; 
+                        </div> <br /><br />
+ 
+                        <div class="form-group has-feedback">
+                            <label class="control-label">来电电话</label>&nbsp;&nbsp;
+                            <input type="text" id="mobile" class="form-control">
+                        </div> <br /><br />
+
+                        <div class="form-group has-feedback">
+                            <label class="control-label">投诉方式</label>&nbsp;&nbsp;
+                            <label class="checkbox-inline">
+                                <input type="radio" name="complaintWay" checked=checked id="complaintWay" value=1> 客服电话 
+                            </label>
+                            <label class="checkbox-inline">
+                                <input type="radio" name="complaintWay" id="complaintWay" value=2> 在线客服 
+                            </label>
+                            <label class="checkbox-inline">
+                                <input type="radio" name="complaintWay" id="complaintWay" value=3> 其他 
+                            </label> 
+                        </div>  <br /><br /> 
+                       
+                        <div class="form-group has-feedback">
+                            <label class="control-label">备注</label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                            <textarea id="note" class="autogrow"></textarea>
+                        </div> <br /><br />
+
+                        <div class="form-group has-feedback">
+                            <label class="control-label">投诉状态</label>&nbsp;&nbsp;
+                            <label class="checkbox-inline">
+                                <input type="radio" id="status" checked=checked name="status" value=0> 待跟进 
+                            </label>
+                            <label class="checkbox-inline">
+                                <input type="radio" id="status" name="status" value=1> 已解决 
+                            </label> 
+                        </div>  <br /><br /><br /><br /><br />
+                        <div class="form-group has-feedback" style="margin-left: 39%">
+                            <button type="button" id="confirm-btn" class="btn btn-primary">保存</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>  
+</div>
+
+<script type="text/javascript" >
+    $(document).ready(function() { 
+ 
+        $(".complaint-label").click(function (e) {
+            return false;
+        });
+
+        $("#confirm-btn").click(function (e) {
+
+            if(!confirm("确认提交?")){
+                return ;
+            }
+ 
+            method         = $("#complaintWay:checked").val();
+            status         = $("#status:checked").val();
+            mobile         = $("#mobile").val();
+            note           = $("#note").val();
+            tags           = {{tagId}};
+            userId         = {{userId}};
+            branchId       = {{branchId}};
+
+            $.ajax({    
+                type:'post',        
+                url:'/complaint/othersubmit',    
+                data: {tags: tags, mobile:mobile, status: status, method: method, note: note, type:"{{type}}", branchId: branchId, userId:userId },
+                dataType:'json',    
+                success:function(data){ 
+                        }  
+            });
+        });
+    });
+</script>
+{% endblock %}

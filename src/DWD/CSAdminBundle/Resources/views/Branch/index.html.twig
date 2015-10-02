@@ -1,0 +1,730 @@
+{% extends "DWDCSAdminBundle:Layout:layout.html.twig" %}
+
+{% block body %}
+<div class="ch-container">
+    <div id="content" class="col-lg-10 col-sm-10">
+            <!-- content starts -->
+                <div>
+        <ul class="breadcrumb">
+            <li>
+                <a href="/">首页</a>
+            </li>
+            <li>
+                商户投诉
+            </li>
+        </ul>
+    </div>
+    <div class="row">
+        <div class="box col-md-12">
+            <div class="box-inner">
+                <div class="box-header well">
+                    <h2><i class="glyphicon glyphicon-home"></i> {{ 'title.branchinfo'|trans }}</h2>
+                </div> 
+                <div class="box-content">
+                    <ul class="dashboard-list">
+                        <li>  
+                            <strong>{{ 'label.branch_name'|trans }}&nbsp;:&nbsp;</strong><span id='info-branchName'>{{ branchinfo['name'] }}</span>&nbsp;&nbsp;&nbsp;<a id='modifyBranch-btn' href="#">[编辑名称]</a><br><br>
+                            <strong>{{ 'label.branch_name'|trans }}&nbsp;:&nbsp;</strong> {{ accountInfo['username'] }}&nbsp;&nbsp;&nbsp;{% if '该门店不存在手机号' != accountInfo['mobile'] %}<a id='resetPwd-btn' href="#">[重置密码]</a> (重置密码前,确认联系人电话){% endif %}<br><br> 
+                            <strong>{{ 'label.city'|trans }}&nbsp;:&nbsp;</strong> {{ branchinfo['zoneName'] }}<br><br>
+                            <strong>状态&nbsp;:&nbsp;</strong>{% if 0 == branchinfo['enabled'] %}  已下线 {% else %} 在线 <a id='offline-btn'>&nbsp;[下线]</a>  {% endif %}<br><br>
+                            <strong>{{ 'label.brand_name'|trans }}&nbsp;:&nbsp;</strong> {{ branchinfo['brandName'] }}<br><br>
+                            <strong>{{ 'label.branch_address'|trans }}&nbsp;:&nbsp;</strong> {{ branchinfo['address'] }}&nbsp;&nbsp;<a href="http://map.baidu.com/?content={{branchinfo['address']}}&latlng={{branchinfo['lat']}},{{branchinfo['lng']}}&title={{ branchinfo['name'] }}&autoOpen=true" target="_blank">[<i class="glyphicon glyphicon-screenshot"></i>查看位置]</a><br><br>
+                            <strong>{{ 'label.redeem_type'|trans }}&nbsp;:&nbsp;</strong> {{branchinfo['redeemTypes']}}<br><br>
+                            <strong>{{ 'label.redeem_tel'|trans }}&nbsp;:&nbsp;</strong> {{ redeemTels }}<br><br>
+                            <strong>{{ 'label.brand_contact_tel'|trans }}&nbsp;:&nbsp;</strong> {{branchinfo['brandTel']}}<br><br>
+                            <strong>{{ 'label.branch_account'|trans }}&nbsp;:&nbsp;</strong> {{branchinfo['id']}}<br><br>
+                            <strong>{{ 'label.created_at'|trans }}&nbsp;:&nbsp;</strong> {{branchinfo['created_at']}}<br><br>
+                            <strong>{{ 'label.follow_saler'|trans }}&nbsp;:&nbsp;</strong> {{branchinfo['salerName']}}<br><br>
+                        </li>
+                    <ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="row">
+        <div class="box col-md-12">
+            <div class="box-inner">
+                <div class="box-header well" data-original-title="">
+                    <h2>{{ 'title.order_list'|trans }}</h2>
+
+                    <div class="box-icon"> 
+                        <a href="#" class="btn btn-minimize btn-round btn-default"><i
+                                class="glyphicon glyphicon-chevron-up"></i></a> 
+                    </div>
+                </div>
+                <div class="box-content">
+                    <br />
+                    <ul class="nav nav-tabs" id="orderListTab">
+                        {% for typeLabel in orderlistTypes %}
+                            <li><a href="#{{typeLabel['code']}}">{{typeLabel['label']}}</a></li>
+                        {% endfor %}
+                    </ul><br />
+                    <div id="orderListTabContent" class="tab-content">
+                    {% for typeLabel in orderlistTypes %}
+                        <div class="tab-pane active" id="{{typeLabel['code']}}">
+                            <table id="{{typeLabel['code']}}-orderlist-table" class="table table-striped table-bordered bootstrap-datatable responsive">
+                            <thead>
+                            <tr>
+                                {% for thInfo in typeLabel['head'] %}
+                                    <th>{{ thInfo }}</th>
+                                {% endfor %}
+                                <th>操作</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            </tbody>
+                            </table>
+                        </div>
+                    {% endfor %} 
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="box col-md-12">
+            <div class="box-inner">
+                <div class="box-header well" data-original-title="">
+                    <h2>在线活动列表</h2>
+
+                    <div class="box-icon"> 
+                        <a href="#" class="btn btn-minimize btn-round btn-default"><i
+                                class="glyphicon glyphicon-chevron-up"></i></a> 
+                    </div>
+                </div>
+                <div class="box-content"> 
+                    <table id="campaignbranch-table" class="table table-striped table-bordered bootstrap-datatable responsive">
+                    <thead>
+                    <tr>
+                        <th>商品名称</th>
+                        <th>上线时间</th>
+                        <th>下线时间</th>
+                        <th>类型</th>
+                        <th>操作</th> 
+                    </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                    </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="box col-md-12">
+            <div class="box-inner">
+                <div class="box-header well" data-original-title="">
+                    <h2>{{ 'title.complaintrecords_list'|trans }}</h2>
+
+                    <div class="box-icon"> 
+                        <a href="#" class="btn btn-minimize btn-round btn-default"><i
+                                class="glyphicon glyphicon-chevron-up"></i></a> 
+                    </div>
+                </div>
+                <div class="box-content"> 
+                    <table id="complaintrecords-table" class="table table-striped table-bordered bootstrap-datatable responsive">
+                    <thead>
+                    <tr>
+                        <th>分类</th>
+                        <th>标签</th>
+                        <th>状态</th>
+                        <th>操作</th> 
+                    </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                    </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="modifyBranchModal" tabindex="-1" role="dialog" aria-labelledby="modifyBranchModal" aria-hidden="true">
+
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">×</button>
+                    <h3>商户信息</h3>
+                </div>
+                <div class="modal-body">  
+                     <div class="input-group col-md-12">
+                        <span class="input-group-addon">兑换时间</span>
+                        <input type="text" id="modify-redeemTime" value="{{ branchinfo['redeem_time'] }}" class="form-control" placeholder="RedeemTime">
+                    </div><br />
+                    <div class="input-group col-md-12">
+                        <span class="input-group-addon">门店地址</span>
+                        <input type="text" id="modify-address" value="{{ branchinfo['address'] }}" class="form-control" placeholder="Address">
+                    </div><br /> 
+                    <div class="input-group col-md-12">
+                        <span class="input-group-addon">门店电话</span>
+                        <input type="text" id="modify-tel" value="{{ branchinfo['tel'] }}" class="form-control" placeholder="Tel">
+                    </div><br /> 
+                    <div class="input-group col-md-12">
+                        <span class="input-group-addon">验证方式</span>
+                        <label class="checkbox-inline">
+                            <input type="checkbox" {% if 1 in branchinfo['redeemTypeIds'] %} checked=checked  {% endif %} id="is_web_redeem"> 网络
+                        </label>
+                        <label class="checkbox-inline">
+                            <input type="checkbox" {% if 2 in branchinfo['redeemTypeIds'] %} checked=checked  {% endif %} id="is_mobile_redeem"> 电话 
+                        </label>
+                        <label class="checkbox-inline">
+                            <input type="checkbox" {% if 4 in branchinfo['redeemTypeIds'] %} checked=checked {% endif %} id="is_paper_redeem"> 纸质 
+                        </label> 
+                        <label class="checkbox-inline">
+                            <input type="checkbox" {% if 8 in branchinfo['redeemTypeIds'] %} checked=checked  {% endif %} id="is_secret_redeem"> 密码 
+                        </label> 
+                    </div><br />
+                    <div class="input-group col-md-12">
+                        <span class="input-group-addon">验证电话</span>
+                        <textarea id="redeem-tels" class="autogrow">{{ redeemTels }}</textarea>
+                    </div><br />
+                </div> 
+                <div class="modal-footer">
+                    <a href="#" id="modifyBranch-submit-btn" class="btn btn-default">保存</a>
+                    <a href="#" class="btn btn-default" data-dismiss="modal">关闭</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <br />
+    <div class="form-group has-feedback" style="margin-left: 50%">
+      
+    </div>
+
+
+    <div class="modal fade" id="orderDetailModal" tabindex="-1" role="dialog" aria-labelledby="orderDetailModal" aria-hidden="true">
+
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">×</button>
+                    <h3>订单详情</h3>
+                </div>
+                <div id="orderDetailTable" class="modal-body">
+                </div>
+                <div class="modal-footer"> 
+                    <a href="#" class="btn btn-default" data-dismiss="modal">关闭</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="offlineModal" tabindex="-1" role="dialog" aria-labelledby="offlineModal" aria-hidden="true">
+
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">×</button>
+                    <h3>下线</h3>
+                </div>
+                <div class="modal-body">  
+                     <div class="control-group"> 
+                         <div class="input-group col-md-4">
+                            <span class="input-group-addon">原因</span>
+                            <select id="selectofflineReason" >
+                                <option value=1>推广效果不好</option>
+                                <option value=2>用户质量差</option>
+                                <option value=3>操作太麻烦</option>
+                                <option value=4>不结算成本太高</option>
+                                <option value=5>合作到期了</option>
+                                <option value=6>做了别的推广，不需要爱抢购了</option>
+                                <option value=7>门店要转让/倒闭/装修了</option>
+                            </select>
+                         </div><br />
+                         <div class="input-group col-md-4">
+                            <span class="input-group-addon">备注</span>
+                            <textarea id="offlineNote"></textarea>
+                         </div><br />
+                     </div><br /> 
+                </div>
+                <div class="modal-footer">
+                    <a href="#" id="offline-submit-btn" class="btn btn-default">下线</a>
+                    <a href="#" class="btn btn-default" data-dismiss="modal">关闭</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="orderDetailModal" tabindex="-1" role="dialog" aria-labelledby="orderDetailModal" aria-hidden="true">
+
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">×</button>
+                    <h3>订单详情</h3>
+                </div>
+                <div id="orderDetailTable" class="modal-body">
+                </div>
+                <div class="modal-footer"> 
+                    <a href="#" class="btn btn-default" data-dismiss="modal">关闭</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="orderLogModal" tabindex="-1" role="dialog" aria-labelledby="orderLogModal" aria-hidden="true">
+
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">×</button>
+                    <h3>订单日志记录</h3>
+                </div>
+                <div id="orderLogTable" class="modal-body">
+                </div>
+                <div class="modal-footer"> 
+                    <a href="#" class="btn btn-default" data-dismiss="modal">关闭</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="resetPwdModal" tabindex="-1" role="dialog" aria-labelledby="resetPwdModal" aria-hidden="true">
+
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">×</button>
+                    <h3>重置密码</h3>
+                </div>
+                <div class="modal-body"> 
+                    <span>重置密码, 并发送新密码至手机号: {{ accountInfo['mobile'] }}?</span>
+                </div>
+                <div class="modal-footer">
+                    <a href="#" id="resetPwd-submit-btn" class="btn btn-default">确认</a>
+                    <a href="#" class="btn btn-default" data-dismiss="modal">关闭</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="campaignBranchDetailModal" tabindex="-1" role="dialog" aria-labelledby="campaignBranchDetailModal" aria-hidden="true">
+
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">×</button>
+                    <h3>活动详情</h3>
+                </div>
+                <div id="campaignBranchDetailTable" class="modal-body">
+                </div>
+                <div class="modal-footer"> 
+                    <a href="#" class="btn btn-default" data-dismiss="modal">关闭</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="orderRedeemModal" tabindex="-1" role="dialog" aria-labelledby="orderRedeemModal" aria-hidden="true">
+
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">×</button>
+                    <h3>订单验证</h3>
+                </div>
+                <div class="modal-body"> 
+                    <span>验证密码: </span><input type="pasword" id="redeemPassword"/>
+                    <input type='hidden' id='redeemOrderId' />
+                    <input type='hidden' id='redeemNumber' />
+                </div>
+                <div class="modal-footer">
+                    <a href="#" id="redeem-submit-btn" class="btn btn-default">确认</a>
+                    <a href="#" class="btn btn-default" data-dismiss="modal">关闭</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div align="center">
+        <input type="button" id="process-submit-btn" class="btn-primary" value="下一步"/>
+    </div>
+
+</div>
+
+<script type="text/javascript" >
+    operator    = new Array();
+    $(document).ready(function() {
+        {% for  typeLabel in orderlistTypes %}
+           var {{typeLabel['code']}}Table = $('#{{typeLabel['code']}}-orderlist-table').dataTable({
+                "bProcessing": true,
+                "bStateSave": true,
+                "bServerSide":  true,
+                "sAjaxSource": "/branch/orderlist?branchId={{branchId}}&type={{typeLabel['code']}}",
+                "sDom": "<'row'<'col-md-6'l><'col-md-6'f>r>t<'row'<'col-md-12'i><'col-md-12 center-block'p>>",
+                "sPaginationType": "bootstrap",
+                "oLanguage": { //国际化配置 
+                    "sProcessing" : "正在获取数据，请稍后...",    
+                    "sLengthMenu" : "显示 _MENU_ 条",    
+                    "sZeroRecords" : "没有您要搜索的内容",    
+                    "sInfo" : "从 _START_ 到  _END_ 条记录 总记录数为 _TOTAL_ 条",    
+                    "sInfoEmpty" : "记录数为0",    
+                    "sInfoFiltered" : "(全部记录数 _MAX_ 条)",    
+                    "sInfoPostFix" : "",    
+                    "sSearch" : "搜索订单",    
+                    "sUrl" : "", 
+                    "oPaginate": {    
+                        "sFirst" : "第一页",    
+                        "sPrevious" : "上一页",    
+                        "sNext" : "下一页",    
+                        "sLast" : "最后一页"    
+                    }
+                },
+                "aoColumnDefs": [
+                        {"bSortable": false, "aTargets": [1, 2, 3]},
+                    ],
+            });
+        {% endfor %} 
+         
+        $('#campaignbranch-table').dataTable({
+                "bProcessing": true,
+                "bStateSave": true,
+                "bFilter": false,
+                "bServerSide":  true,
+                "sAjaxSource": "/branch/campaignbranchs?branchId={{branchId}}",
+                "sDom": "<'row'<'col-md-6'l><'col-md-6'f>r>t<'row'<'col-md-12'i><'col-md-12 center-block'p>>",
+                "sPaginationType": "bootstrap",
+                "oLanguage": { //国际化配置  
+                    "sProcessing" : "正在获取数据，请稍后...",    
+                    "sLengthMenu" : "显示 _MENU_ 条",    
+                    "sZeroRecords" : "没有您要搜索的内容",    
+                    "sInfo" : "从 _START_ 到  _END_ 条记录 总记录数为 _TOTAL_ 条",    
+                    "sInfoEmpty" : "记录数为0",    
+                    "sInfoFiltered" : "(全部记录数 _MAX_ 条)",    
+                    "sInfoPostFix" : "",    
+                    "sSearch" : "搜索",    
+                    "sUrl" : "", 
+                    "oPaginate": {    
+                        "sFirst" : "第一页",    
+                        "sPrevious" : "上一页",    
+                        "sNext" : "下一页",    
+                        "sLast" : "最后一页",   
+                    }
+                }, 
+                "aoColumnDefs": [
+                        {"bSortable": false, "aTargets": [1, 2, 3]},
+                    ],
+        });
+
+        $('#complaintrecords-table').dataTable({
+                "bProcessing": true,
+                "bStateSave": true,
+                "bFilter": false,
+                "bServerSide":  true,
+                "sAjaxSource": "/branch/complaintrecords?branchId={{branchId}}",
+                "sDom": "<'row'<'col-md-6'l><'col-md-6'f>r>t<'row'<'col-md-12'i><'col-md-12 center-block'p>>",
+                "sPaginationType": "bootstrap",
+                "oLanguage": { //国际化配置  
+                    "sProcessing" : "正在获取数据，请稍后...",    
+                    "sLengthMenu" : "显示 _MENU_ 条",    
+                    "sZeroRecords" : "没有您要搜索的内容",    
+                    "sInfo" : "从 _START_ 到  _END_ 条记录 总记录数为 _TOTAL_ 条",    
+                    "sInfoEmpty" : "记录数为0",    
+                    "sInfoFiltered" : "(全部记录数 _MAX_ 条)",    
+                    "sInfoPostFix" : "",    
+                    "sSearch" : "搜索",    
+                    "sUrl" : "", 
+                    "oPaginate": {    
+                        "sFirst" : "第一页",
+                        "sPrevious" : "上一页",    
+                        "sNext" : "下一页",    
+                        "sLast" : "最后一页"    
+                    }
+                }, 
+                "aoColumnDefs": [
+                        {"bSortable": false, "aTargets": [1, 2, 3]},
+                    ],
+        });
+
+        $("#offline-submit-btn").click(function(e){
+            if( $(this).hasClass("disable") ){
+                alert('请勿重复操作');
+                return ;
+            }
+            $(this).addClass("disable");
+
+            var offlineReason = $("#selectofflineReason").val();
+            var offlineNote   = $("#offlineNote").val();
+
+            var record       = new Object();
+            record.type      = "商户下线";
+            record.branchId  = {{branchId}};
+            record.reason    = offlineReason;
+            record.note      = offlineNote;
+            $.ajax({
+                type:'post',      
+                url:'/branch/offline',    
+                data:{branchId:{{branchId}},offlineReason:offlineReason,offlineNote:offlineNote},
+                dataType:'json',    
+                success:function(data){ 
+                   if( data == true ){
+                     record.res = true;
+                     alert('更新成功');
+                     location.href = location.href;
+                   } else {
+                     record.res = false;
+                     alert('更新失败');
+                   }
+                },
+                error:function (req,err) {
+                   record.res  = false;
+                   record.err  = err;   
+                }    
+            });
+            operator.push( record );
+            $(this).removeClass("disable");
+        });
+
+        $("#modifyBranch-submit-btn").click(function(e){
+ 
+            if( $(this).hasClass("disable") ){
+                alert('请勿重复操作');
+                return ;
+            }
+            $(this).addClass("disable");
+
+            var address        = $("#modify-address").val();
+            var tel            = $("#modify-tel").val();
+            var redeemTels     = $("#redeem-tels").val();
+            var redeemTime     = $("#modify-redeemTime").val();
+
+            var webRedeem      = $("#is_web_redeem")[0].checked;
+            var mobileRedeem   = $("#is_mobile_redeem")[0].checked;
+            var paperRedeem    = $("#is_paper_redeem")[0].checked;
+            var secretRedeem   = $("#is_secret_redeem")[0].checked;
+ 
+            var record         = new Object();
+            record.type        = "更新商户信息";
+            record.branchId    = {{branchId}};
+            record.branchName  = "{{branchinfo['name']}}";
+            var data           = {branchId:{{branchId}},address:address,redeemTels:redeemTels,redeemTime:redeemTime,tel:tel};
+            if( false != webRedeem ){
+                data.webRedeem    = 1;
+            }
+            
+            if( false != mobileRedeem ){
+                data.mobileRedeem = 1;
+            }
+            
+            if( false != paperRedeem ){
+                data.paperRedeem  = 1;
+            }
+
+            if( false != secretRedeem ){
+                data.secretRedeem = 1;
+            }
+            
+            $.ajax({
+                type:'post',      
+                url:'/branch/update',    
+                data: data,
+                dataType:'json',    
+                success:function(data){
+                    if( data == true ){
+                     record.res = true;
+                     alert('更新成功');
+                     location.href = location.href;
+                    } else {
+                     record.res = false;
+                     alert('更新失败');
+                    }
+                },
+                error:function (req,err) {
+                   record.res  = false;
+                   record.err  = err;
+                }
+            });
+            operator.push( record );
+            $(this).removeClass("disable");
+        });
+
+        $("#orderListTabContent").on("click", ".order-log-btn", function (e) {
+            $("#orderLogTable").html("");
+            e.preventDefault();
+            $('#orderLogModal').modal('show'); 
+            orderId  =  $(this).attr("data-rel");
+            $.ajax({    
+                type:'get',
+                url:'/order/orderlogs',    
+                data:{orderId:orderId},
+                dataType:'json',    
+                success:function(data){
+                  if( data.result ){
+                     $("#orderLogTable").html(data.content);
+                  } 
+                },    
+            }); 
+        }); 
+
+        $("#orderListTabContent").on("click", ".order-detail-btn", function (e) {
+            $("#orderDetailTable").html("");
+            e.preventDefault();
+            $('#orderDetailModal').modal('show'); 
+            orderId       =  $(this).attr("data-rel");
+             
+            $.ajax({    
+                type:'post',        
+                url:'/order/orderdetail',    
+                data:{orderId:orderId},
+                dataType:'json',    
+                success:function(data){
+                  if( data.result ){
+                     $("#orderDetailTable").html(data.content);
+                  } 
+                },    
+            }); 
+        });
+
+        $("#orderListTabContent").on("click", ".order-redeem-btn", function (e) {
+            e.preventDefault();
+            $('#orderRedeemModal').modal('show'); 
+            $("#redeemPassword").val("");
+            orderId           = $(this).attr("data-rel");
+            redeemNumber      = $(this).parent().prev().text();
+
+            $("#redeemNumber").val(redeemNumber);
+            $("#redeemOrderId").val(orderId);
+        });
+
+        $("#redeem-submit-btn").click(function(e){
+            orderId           = $("#redeemOrderId").val();
+            var record        = new Object();
+            record.type       = "验证";
+            record.orderId    = orderId;
+            record.itemName   = '';
+            record.branchId   = {{branchinfo['id']}};
+            record.branchName = "{{branchinfo['name']}}";
+            record.userName   = "{{accountInfo['username']}}";
+            adminPwd          = $("#redeemPassword").val(); 
+            redeemNumber      = $("#redeemNumber").val();
+
+            $.ajax({    
+                type:'post',        
+                url:'/order/redeem',    
+                data:{orderId:orderId,adminPwd:adminPwd,redeemNumber:redeemNumber},
+                dataType:'json',    
+                success:function(data){
+                   if( data == true ){
+                     record.res = true;
+                     alert('验证成功');
+                     $('#orderRedeemModal').modal('hide'); 
+                     waitredeemTable.fnDraw();
+                   } else {
+                     record.res = false;
+                     record.err = data;
+                     alert(data);
+                   }
+                },    
+            });
+            operator.push(record); 
+        });
+
+
+        $("#campaignbranch-table").on("click", ".campaignbranch-detail", function (e) {
+            $("#campaignBranchDetailTable").html("");
+            e.preventDefault();
+            $('#campaignBranchDetailModal').modal('show'); 
+            campaignBranchId  =  $(this).attr("data-rel");
+            $.ajax({    
+                type:'get',        
+                url:'/campaignbranch/detail',    
+                data:{campaignBranchId:campaignBranchId},
+                dataType:'json',    
+                success:function(data){
+                  if( data.result ){
+                     $("#campaignBranchDetailTable").html(data.content);
+                  } 
+                },    
+            }); 
+        });
+
+        $("#resetPwd-submit-btn").click(function(e){
+
+            if(!confirm("确认重置?")){
+                return ;
+            }
+
+            if( $(this).hasClass("disable") ){
+                alert('请勿重复操作');
+                return ;
+            }
+
+            $(this).addClass("disable");
+ 
+            var record       = new Object();
+            record.type      = "重置密码";
+            record.userId    = {{accountInfo['id']}};
+            record.userName  = "{{accountInfo['username']}}";
+
+            $.ajax({    
+                type:'post',        
+                url:'/user/resetPwd',    
+                data:{userId:{{accountInfo['id']}}},
+                dataType:'json',    
+                success:function(data){
+                   if( true == data.result ){ 
+                       alert('重置成功')
+                      record.res = true;
+                   } else {
+                      alert( '重置失败');
+                      record.res = false;
+                   }
+                },
+                error:function (req,err) {
+                   record.res = false;
+                   record.err = err;  
+                   alert( '重置失败' ); 
+                }     
+            });
+            operator.push(record);
+            $(this).removeClass("disable");    
+        });
+
+        $('#orderListTab a:first').tab('show');
+        $('#orderListTab a').click(function (e) {
+            e.preventDefault();
+            $(this).tab('show');
+        });
+
+        $('#modifyBranch-btn').click(function (e) {
+            e.preventDefault();
+            $('#modifyBranchModal').modal('show');
+        });
+
+        $('#offline-btn').click(function (e) {
+            e.preventDefault();
+            $('#offlineModal').modal('show');
+        });
+
+        $('#resetPwd-btn').click(function (e) {
+            e.preventDefault();
+            $('#resetPwdModal').modal('show');
+        }); 
+
+        $("#process-submit-btn").click(function (e) {
+            if( $(this).hasClass('disabled') ){
+              alert('请勿重复提交');
+              return ;
+            }
+            $(this).addClass('disabled');
+
+            $.ajax({    
+                type:'post',        
+                url:'/complaint/prepare',    
+                data:{type:'{{type}}', source: {{source}}, operators: JSON.stringify(operator), branchId: {{branchId}}},
+                dataType:'json',    
+                success:function(data){
+                  if( data.res != false ){
+                      location.href = "/complaint/confirm?id=" + data.data;
+                  }
+                },
+                error:function (req,err) { 
+                   alert( '提交失败' ); 
+                },   
+            });  
+        });
+    });
+</script>
+{% endblock %}

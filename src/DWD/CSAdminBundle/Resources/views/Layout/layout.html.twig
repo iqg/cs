@@ -7,7 +7,7 @@
 <html>
     <head>
         <meta charset="UTF-8" />
-        <title>{% block title %}多维度客服后台系统{% endblock %}</title>
+        <title>{% block title %}多维度彩虹客服后台系统{% endblock %}</title>
 
         <link rel="stylesheet" href="{{ asset('css/bootstrap.min.css') }}" /> 
          {# The styles #}
@@ -27,7 +27,8 @@
         <link href="{{ asset('css/default/jquery.iphone.toggle.css') }}" rel='stylesheet' />
         <link href="{{ asset('css/default/uploadify.css') }}" rel='stylesheet' />
         <link href="{{ asset('css/default/animate.min.css') }}" rel='stylesheet' />
- 
+        <link href="{{ asset('css/default/jquery-ui.min.css') }}" rel='stylesheet' /> 
+
         <script src="{{ asset('bower_components/jquery/jquery.min.js') }}" ></script>
  
         {% block stylesheets %}
@@ -36,30 +37,27 @@
     </head>
 
     <body>
-
         {% block header %}
             <header>
                 <div class="navbar navbar-default navbar-static-top" role="navigation">
                     <div class="container">
                         <div class="navbar-header">
                             <a class="navbar-brand" href="{{ path('dwd_csadmin_dashboard') }}">
-                                多维度客服后台
-                            </a>
-
-                            <button type="button" class="navbar-toggle"
-                                    data-toggle="collapse"
-                                    data-target=".navbar-collapse">
-                                <span class="sr-only">Toggle navigation</span>
-                                <span class="icon-bar"></span>
-                                <span class="icon-bar"></span>
-                                <span class="icon-bar"></span>
-                            </button>
+                                多维度彩虹系统 
+                            </a> 
                         </div>
                         <div class="navbar-collapse collapse">
-                            <ul class="nav navbar-nav navbar-right">
-                                {% block header_navigation_links %}
-                                {% endblock %}
-                            </ul>
+                                {# block header_navigation_links %}
+                                    <ul class="nav navbar-nav navbar-right">
+                                        <li><a href="#">Dashboard</a></li>
+                                        <li><a href="#">Settings</a></li>
+                                        <li><a href="#">Profile</a></li>
+                                        <li><a href="#">Help</a></li>
+                                    </ul>
+                                    <form class="navbar-form navbar-right">
+                                        <input type="text" class="form-control" placeholder="Search...">
+                                    </form>
+                                {% endblock #}
                         </div>
                     </div>
                 </div>
@@ -96,7 +94,7 @@
     <script src="{{ asset('js/default/jquery.uploadify-3.1.min.js') }}"></script>
     <script src="{{ asset('js/default/jquery.history.js') }}"></script>
     <script src="{{ asset('js/default/charisma.js') }}"></script>
-
+    <script src="{{ asset('js/default/jquery-ui.min.js') }}"></script>  
     {% block javascripts %}
     {% endblock %}
 
