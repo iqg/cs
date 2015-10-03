@@ -23,18 +23,17 @@
                 <div class="box-content">
                     <ul class="dashboard-list">
                         <li>  
-                            <strong>{{ 'label.branch_name'|trans }}&nbsp;:&nbsp;</strong><span id='info-branchName'>{{ branchinfo['name'] }}</span>&nbsp;&nbsp;&nbsp;<a id='modifyBranch-btn' href="#">[编辑名称]</a><br><br>
-                            <strong>{{ 'label.branch_name'|trans }}&nbsp;:&nbsp;</strong> {{ accountInfo['username'] }}&nbsp;&nbsp;&nbsp;{% if '该门店不存在手机号' != accountInfo['mobile'] %}<a id='resetPwd-btn' href="#">[重置密码]</a> (重置密码前,确认联系人电话){% endif %}<br><br> 
-                            <strong>{{ 'label.city'|trans }}&nbsp;:&nbsp;</strong> {{ branchinfo['zoneName'] }}<br><br>
-                            <strong>状态&nbsp;:&nbsp;</strong>{% if 0 == branchinfo['enabled'] %}  已下线 {% else %} 在线 <a id='offline-btn'>&nbsp;[下线]</a>  {% endif %}<br><br>
-                            <strong>{{ 'label.brand_name'|trans }}&nbsp;:&nbsp;</strong> {{ branchinfo['brandName'] }}<br><br>
-                            <strong>{{ 'label.branch_address'|trans }}&nbsp;:&nbsp;</strong> {{ branchinfo['address'] }}&nbsp;&nbsp;<a href="http://map.baidu.com/?content={{branchinfo['address']}}&latlng={{branchinfo['lat']}},{{branchinfo['lng']}}&title={{ branchinfo['name'] }}&autoOpen=true" target="_blank">[<i class="glyphicon glyphicon-screenshot"></i>查看位置]</a><br><br>
-                            <strong>{{ 'label.redeem_type'|trans }}&nbsp;:&nbsp;</strong> {{branchinfo['redeemTypes']}}<br><br>
-                            <strong>{{ 'label.redeem_tel'|trans }}&nbsp;:&nbsp;</strong> {{ redeemTels }}<br><br>
-                            <strong>{{ 'label.brand_contact_tel'|trans }}&nbsp;:&nbsp;</strong> {{branchinfo['brandTel']}}<br><br>
-                            <strong>{{ 'label.branch_account'|trans }}&nbsp;:&nbsp;</strong> {{branchinfo['id']}}<br><br>
-                            <strong>{{ 'label.created_at'|trans }}&nbsp;:&nbsp;</strong> {{branchinfo['created_at']}}<br><br>
-                            <strong>{{ 'label.follow_saler'|trans }}&nbsp;:&nbsp;</strong> {{branchinfo['salerName']}}<br><br>
+                            <strong>{{ 'label.branch_name'|trans }}&nbsp;:&nbsp;</strong><span id='info-branchName'></span><br><br>
+                            <strong>{{ 'label.branch_account'|trans }}&nbsp;:&nbsp;</strong><span id='info-branchAccount'></span><br><br> 
+                            <strong>{{ 'label.city'|trans }}&nbsp;:&nbsp;</strong><span id='info-branchCity'></span><br><br>
+                            <strong>状态&nbsp;:&nbsp;</strong><span id='info-branchStatus'></span><br><br>
+                            <strong>{{ 'label.brand_name'|trans }}&nbsp;:&nbsp;</strong><span id='info-brandName'></span><br><br>
+                            <strong>{{ 'label.branch_address'|trans }}&nbsp;:&nbsp;</strong><span id='info-branchAddress'></span><br><br>
+                            <strong>{{ 'label.redeem_type'|trans }}&nbsp;:&nbsp;</strong><span id='info-redeemTypes'></span><br><br>
+                            <strong>{{ 'label.redeem_tel'|trans }}&nbsp;:&nbsp;</strong><span id='info-redeemTels'></span><br><br>
+                            <strong>{{ 'label.brand_contact_tel'|trans }}&nbsp;:&nbsp;</strong><span id='info-brandTel'></span><br><br> 
+                            <strong>{{ 'label.created_at'|trans }}&nbsp;:&nbsp;</strong><span id='info-createdAt'></span><br><br>
+                            <strong>{{ 'label.follow_saler'|trans }}&nbsp;:&nbsp;</strong><span id='info-salerName'></span><br><br>
                         </li>
                     <ul>
                 </div>
@@ -346,7 +345,42 @@
 
 <script type="text/javascript" >
     operator    = new Array();
+    branchinfo  = {{jsonBranchInfo|raw}}; 
+    accountinfo = {{jsonAccountInfo|raw}};
+    redeemTels  = {{redeemTels}};
+
+    function __init(){
+        infoBranchNameHtml  =  branchinfo.name + "&nbsp;&nbsp;&nbsp;<a id='modifyBranch-btn' href='#'>[编辑名称]</a>";
+        $("#info-branchName").html( infoBranchNameHtml );
+
+        infoAccountNameHtml =  accountinfo.username;
+        if( '该门店不存在手机号' != accountinfo.mobile && null != accountinfo.mobile ){
+            infoAccountNameHtml += "&nbsp;&nbsp;&nbsp;<a id='resetPwd-btn' href='#'>[重置密码]</a> (重置密码前,确认联系人电话)";
+        }
+        $("#info-branchAccount").html( infoAccountNameHtml );
+
+        $("#info-branchCity").html( branchinfo.zoneName );
+
+        if( 0 == branchinfo.enabled ){
+            $("#info-branchStatus").html('已下线');
+        } else {
+            $("#info-branchStatus").html("在线 <a id='offline-btn'>&nbsp;[下线]</a>");
+        } 
+
+        $("#info-brandName").html( branchinfo.brandName );
+
+        $address           = branchinfo.address + "&nbsp;&nbsp;<a href='http://map.baidu.com/?content=" + branchinfo.address + "&latlng=" + branchinfo.lat + "," + branchinfo.lng + "&title=" + branchinfo.name + "&autoOpen=true' target='_blank'>[<i class='glyphicon glyphicon-screenshot'></i>查看位置]</a>";
+
+        $("#info-branchAddress").html( $address );
+        $("#info-redeemTypes").html( branchinfo.redeemTypes );
+        $("#info-redeemTels").html( redeemTels );
+        $("#info-brandTel").html( branchinfo.brandTel );
+        $("#info-createdAt").html( branchinfo.created_at );
+        $("#info-salerName").html( branchinfo.salerName );
+    }
+
     $(document).ready(function() {
+        __init();
         {% for  typeLabel in orderlistTypes %}
            var {{typeLabel['code']}}Table = $('#{{typeLabel['code']}}-orderlist-table').dataTable({
                 "bProcessing": true,
@@ -462,7 +496,8 @@
                    if( data == true ){
                      record.res = true;
                      alert('更新成功');
-                     location.href = location.href;
+                     branchinfo.status = 0;
+                     __init();
                    } else {
                      record.res = false;
                      alert('更新失败');
@@ -500,20 +535,25 @@
             record.branchId    = {{branchId}};
             record.branchName  = "{{branchinfo['name']}}";
             var data           = {branchId:{{branchId}},address:address,redeemTels:redeemTels,redeemTime:redeemTime,tel:tel};
+            var redeemTypes    = '';
             if( false != webRedeem ){
                 data.webRedeem    = 1;
+                redeemTypes      += 'web验证';
             }
             
             if( false != mobileRedeem ){
                 data.mobileRedeem = 1;
+                redeemTypes      += redeemTypes == '' ? '电话验证' : ',电话验证';
             }
             
             if( false != paperRedeem ){
                 data.paperRedeem  = 1;
+                redeemTypes      += redeemTypes == '' ? '纸质验证' : ',纸质验证';
             }
 
             if( false != secretRedeem ){
                 data.secretRedeem = 1;
+                redeemTypes      += redeemTypes == '' ? '密码验证' : ',密码验证';
             }
             
             $.ajax({
@@ -523,12 +563,17 @@
                 dataType:'json',    
                 success:function(data){
                     if( data == true ){
-                     record.res = true;
-                     alert('更新成功');
-                     location.href = location.href;
+                      record.res = true;
+                      alert('更新成功');
+                      branchinfo.redeemTypes = redeemTypes;
+                      branchinfo.address     = address;
+                      branchinfo.address     = address;
+                      branchinfo.redeem_time = $redeemTime;
+                      branchinfo.redeem_type = $tel;
+                      branchinfo.tel = $redeemTime; 
                     } else {
-                     record.res = false;
-                     alert('更新失败');
+                      record.res = false;
+                      alert('更新失败');
                     }
                 },
                 error:function (req,err) {

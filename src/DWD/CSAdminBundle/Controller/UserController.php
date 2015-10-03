@@ -65,6 +65,7 @@ class UserController extends Controller
         }
       
         return $this->render('DWDCSAdminBundle:User:index.html.twig', array(
+            'jsonUserInfo'     => json_encode( $data['user']['data'] ),
             'balancerecords'   => $data['balancerecords']['data']['list'],
             'userinfo'         => $data['user']['data'],
             'orderlistTypes'   => $orderListTypes,

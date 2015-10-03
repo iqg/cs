@@ -24,15 +24,15 @@
                     <ul class="dashboard-list">
                         <li> 
                             <img class="dashboard-avatar" src="{{ userinfo['avatar'] }}">
-                            <strong>{{ 'label.user_id'|trans }}&nbsp;:&nbsp;</strong> {{ userinfo['id'] }}<br><br>
-                            <strong>{{ 'label.username'|trans }}&nbsp;:&nbsp;</strong> {{ userinfo['username'] }}&nbsp;&nbsp;&nbsp;<a id="resetPwd-btn" href="#">[重置密码]</a><br><br>
-                            <strong>{{ 'label.email'|trans }}&nbsp;:&nbsp;</strong> {{ userinfo['email'] }}<br><br>
-                            <strong>{{ 'label.locked'|trans }}&nbsp;:&nbsp;</strong>{% if userinfo['enabled'] != 0 %} <span class="label-success label label-default">可用</span> {% else %}  <span class="label-important label label-default">禁用</span> {% endif %}&nbsp;&nbsp;&nbsp; {% if userinfo['locked'] == 0 %}<span class="label-success label label-default">未封号</span>&nbsp;&nbsp;&nbsp;<a id="lock-user-btn" href="#">[封号]</a>{% else %}<span class="label-important label label-default">已封号</span>{% endif %} &nbsp;&nbsp;&nbsp;<a id='lockedrecords-btn' href="#">[封号记录]</a><br><br> 
-                            <strong>{{ 'label.mobile'|trans }}&nbsp;:&nbsp;</strong> {{ userinfo['mobile'] }}&nbsp;&nbsp;&nbsp;<a id="unbind-device-btn" href="#">[解绑设备]</a>&nbsp;&nbsp;&nbsp;<br><br>
-                            <strong>{{ 'label.balance'|trans }}&nbsp;:&nbsp;</strong> {{ userinfo['balance'] }}元&nbsp;&nbsp;&nbsp;<a id='balancerecords-btn' href="#">[余额记录]</a><br><br>
-                            <strong>{{ 'label.coin'|trans }}&nbsp;:&nbsp;</strong> {{ userinfo['coin'] }}&nbsp;&nbsp;&nbsp;<a id='coinrecords-btn' href="#">[金币记录]</a>&nbsp;&nbsp;&nbsp;<a id='recommendrecords-btn' href="#">[推荐好友记录]</a><br><br>
-                            <strong>{{ 'label.last_login'|trans }}&nbsp;:&nbsp;</strong> {{ userinfo['last_login'] }}<br><br>
-                            <strong>{{ 'label.created_at'|trans }}&nbsp;:&nbsp;</strong> {{ userinfo['created_at'] }}&nbsp;&nbsp;&nbsp;<a id='smsrecords-btn' href="#">[短信记录]</a><br><br>
+                            <strong>{{ 'label.user_id'|trans }}&nbsp;:&nbsp;</strong><span id='info-userid'></span><br><br>
+                            <strong>{{ 'label.username'|trans }}&nbsp;:&nbsp;</strong><span id='info-username'></span><br><br>
+                            <strong>{{ 'label.email'|trans }}&nbsp;:&nbsp;</strong><span id='info-email'></span><br><br>
+                            <strong>{{ 'label.locked'|trans }}&nbsp;:&nbsp;</strong><span id='info-locked'></span><br><br> 
+                            <strong>{{ 'label.mobile'|trans }}&nbsp;:&nbsp;</strong><span id='info-mobile'></span><br><br>
+                            <strong>{{ 'label.balance'|trans }}&nbsp;:&nbsp;</strong><span id='info-balance'></span><br><br>
+                            <strong>{{ 'label.coin'|trans }}&nbsp;:&nbsp;</strong><span id='info-coin'></span><br><br>
+                            <strong>{{ 'label.last_login'|trans }}&nbsp;:&nbsp;</strong><span id='info-lastLogin'></span><br><br>
+                            <strong>{{ 'label.created_at'|trans }}&nbsp;:&nbsp;</strong><span id='info-createdAt'></span><br><br>
                         </li>
                     <ul>
                 </div>
@@ -432,8 +432,40 @@
     </div> 
 </div>
 <script type="text/javascript" >
-    operator    = new Array();
+    operator      = new Array();
+    userinfo      = {{jsonUserInfo|raw}};
+
+    function __init(){
+        $("#info-userid").html( userinfo.id );
+        userName   = userinfo.username + "&nbsp;&nbsp;&nbsp;<a id='resetPwd-btn' href='#'>[重置密码]</a>";
+        $("#info-username").html( userName );
+        $("#info-email").html( userinfo.email );
+        lockedinfo = '';
+        if( 0 != userinfo.enabled ){
+            lockedinfo += "<span class='label-success label label-default'>可用</span>&nbsp;&nbsp;&nbsp;";
+        } else {
+            lockedinfo += "<span class='label-important label label-default'>禁用</span>&nbsp;&nbsp;&nbsp;";
+        }
+
+        if( 0 == userinfo.locked ){
+            lockedinfo += "<span class='label-success label label-default'>未封号</span>&nbsp;&nbsp;&nbsp;<a id='lock-user-btn' href='#'>[封号]</a>";
+        } else {
+            lockedinfo += "<span class='label-important label label-default'>已封号</span>";
+        }
+        lockedinfo     += "&nbsp;&nbsp;&nbsp;<a id='lockedrecords-btn' href='#'>[封号记录]</a>";
+        $("#info-locked").html( lockedinfo );
+        mobileinfo      = userinfo.mobile + "&nbsp;&nbsp;&nbsp;<a id='unbind-device-btn' href='#'>[解绑设备]</a>&nbsp;&nbsp;&nbsp;";
+        $("#info-mobile").html( mobileinfo ); 
+        balanceinfo     = userinfo.balance + "元&nbsp;&nbsp;&nbsp;<a id='balancerecords-btn' href='#'>[余额记录]</a>"; 
+        $("#info-balance").html( balanceinfo );
+        coininfo        = userinfo.coin + "&nbsp;&nbsp;&nbsp;<a id='coinrecords-btn' href='#'>[金币记录]</a>&nbsp;&nbsp;&nbsp;<a id='recommendrecords-btn' href='#'>[推荐好友记录]</a>"; 
+        $("#info-coin").html( coininfo );
+        $("#info-lastLogin").html( userinfo.last_login );
+        $("#info-createdAt").html( userinfo.created_at + "&nbsp;&nbsp;&nbsp;<a id='smsrecords-btn' href='#''>[短信记录]</a>" );
+    }
+
     $(document).ready(function() {
+        __init();
         {% for typeLabel in orderlistTypes %}
             $('#{{typeLabel['code']}}-orderlist-table').dataTable({
                 "bProcessing": true,
@@ -717,8 +749,9 @@
                 dataType:'json',    
                 success:function(data){
                    if( true == data.result ){
-                      record.res    = true;
-                      location.href = location.href;
+                      record.res      = true;
+                      userinfo.locked = 1;  
+                      __init();
                    } else {
                       record.res    = false;
                       alert( '封号失败');

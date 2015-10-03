@@ -171,7 +171,7 @@ class BranchController extends Controller
            $accountInfo['username']  = '该门店不存在帐号';
            $accountInfo['mobile']    = '该门店不存在手机号';
            $accountInfo['id']        = -1;
-        }
+        } 
  
         $branchInfo['brandName']     =  $brandInfo['name'];
         $branchInfo['brandTel']      =  $brandInfo['tel'];
@@ -188,6 +188,8 @@ class BranchController extends Controller
         } 
 
         return $this->render('DWDCSAdminBundle:Branch:index.html.twig', array( 
+            'jsonBranchInfo'         => json_encode( $branchInfo ),
+            'jsonAccountInfo'        => json_encode( $accountInfo ),
             'branchinfo'             => $branchInfo,
             'orderlistTypes'         => $orderListTypes,
             'branchId'               => $branchId,
