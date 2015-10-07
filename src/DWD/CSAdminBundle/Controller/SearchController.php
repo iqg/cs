@@ -20,6 +20,45 @@ class SearchController extends Controller
     
     /** 
      * 如果是混合的关键字，全部转化成拼音
+     * @Route("/autocomplete-branchname/search", name="dwd_csadmin_autocomplete_branchname_search")
+     */
+    public function autocompleteBranchNameSearchAction(Request $request)
+    {
+        $dataHttp       = $this->get('dwd.data.http');
+        $q              = $request->get('term');
+        $mb_size        = mb_strlen($q, 'UTF-8');
+        if ( $mb_size < 3 ) {
+            $response = new Response();
+            $response->setContent(json_encode([]));
+            return $response;
+        }
+
+        $dm             = $this->get('doctrine_mongodb')->getManager();
+        $resultByName   = $dm->getRepository('DWDDataBundle:Store')->findByName(array('$regex' => $q));
+        $resultByPinyin = $dm->getRepository('DWDDataBundle:Store')->findByPinyin(array('$regex' => $q));
+        $result         = array_merge($resultByName, $resultByPinyin);
+
+        $resultHash     = array();
+        $arrayResult    = array(); 
+
+        foreach ($result as $record) {
+            if (isset($resultHash[$record->getBranchId()])) {
+                continue;
+            }
+            $branchInfo           = array();
+            $branchInfo['id']     = $record->getBranchId();
+            $branchInfo['label']  = $record->getName(); 
+            $arrayResult[]        = $branchInfo;
+            $resultHash[$record->getBranchId()] = True;
+        }
+
+        $response                 = new Response();
+        $response->setContent(json_encode($arrayResult));
+        return $response;
+    }
+
+    /** 
+     * 如果是混合的关键字，全部转化成拼音
      * @Route("/autocomplete-branch/search", name="dwd_csadmin_autocomplete_branch_search")
      */
     public function autocompleteBranchSearchAction(Request $request)
@@ -60,9 +99,7 @@ class SearchController extends Controller
                               ),
                           );
       
-        $data              = $dataHttp->MutliCall( $data ); 
-     
-        $arrayResult       = array();
+        $data              = $dataHttp->MutliCall( $data );  
 
         if( false == empty( $data['redeemNumber']['data'] ) && $data['redeemNumber']['errno'] == 0 ){
             $branchInfo    = array(

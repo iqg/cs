@@ -420,7 +420,8 @@ class ComplaintController extends Controller
         $type                 = $this->getRequest()->get('type');
         $userId               = $this->getRequest()->get('userId');
         $branchId             = $this->getRequest()->get('branchId');
-        
+        $users                = $this->getRequest()->get('users');
+        var_dump( $users );
         $now                  = time();
         $dm                   = $this->get('doctrine_mongodb')->getManager();
         $complaint            = $dm->getRepository('DWDDataBundle:Complaint')->findOneBy( array( '_id' => $complaintId) );
@@ -435,6 +436,7 @@ class ComplaintController extends Controller
         $complaint->setUserId( $userId );
         $complaint->setBranchId( $branchId );
         $complaint->setPlatform( $platform );
+        $complaint->setUsers( $users );
 
         if( $status != self::UNSOLVED ){
             $complaint->setResolvedAt( $now );
@@ -521,6 +523,7 @@ class ComplaintController extends Controller
         $sEcho                = $this->getRequest()->get('sEcho');
         $city                 = $this->getRequest()->get('city', 0);
         $saler                = $this->getRequest()->get('saler', 0);
+        $branchId             = $this->getRequest()->get('branchId', 0);
         $iDisplayStart        = $this->getRequest()->get('iDisplayStart');
         $iDisplayLength       = $this->getRequest()->get('iDisplayLength');   
         $sSearch              = $this->getRequest()->get('sSearch', null);
@@ -528,9 +531,17 @@ class ComplaintController extends Controller
         $dm                   = $this->get('doctrine_mongodb')->getManager();
         $conditions           = array();
         if( $city != 0 ){
-            $conditions['zones']  = $city;
-            $conditions['salers'] = $saler;    
+            $conditions['zones']    = intval($city);    
         }
+
+        if( $saler != 0 ){
+            $conditions['salers']   = intval($saler);
+        }
+
+        if( $branchId != 0 ){
+            $conditions['branchId'] = intval($branchId);
+        }
+ 
         $complaintList        = $dm->getRepository('DWDDataBundle:Complaint')->getAll( $conditions );
         $complaintCnt         = $dm->getRepository('DWDDataBundle:Complaint')->getCount( $conditions );
  
@@ -570,7 +581,7 @@ class ComplaintController extends Controller
                                         date("Y-m-d H:i:s", $complaint['createdAt']),
                                         isset( $complaint['resolvedAt'] ) ? date("Y-m-d H:i:s", $complaint['resolvedAt']) : "",
                                         $this->get('dwd.util')->getComplaintStatusLabel( $complaint['status'] ),
-                                        $complaint['status'] == self::UNSOLVED ? "<a href='#' data-rel=" . $complaint['_id'] . " class='complaint-edit-btn'>[编辑]</a>  <a href='#' data-rel=" . $complaint['_id'] . " class='complaint-detail-btn'>[详情]</a>" : "<a href='#' data-rel=" . $complaint['_id'] . "  class='complaint-detail-btn'>[详情]</a>",
+                                        $complaint['status'] == self::UNSOLVED ? "<a href='#' data-rel=" . $complaint['_id'] . " class='complaint-edit-btn'>[编辑]</a>  <a href='#' data-rel=" . $complaint['_id'] . " class='complaint-log-btn'>[日志]</a>" : "<a href='#' data-rel=" . $complaint['_id'] . "  class='complaint-log-btn'>[日志]</a>",
                                      );
         }
 
@@ -600,5 +611,98 @@ class ComplaintController extends Controller
         $response             = new Response();
         $response->setContent( json_encode( $complaint ) );
         return $response; 
+    }
+
+    /**
+     *
+     * @Route("/complaint/complaintlog",name="dwd_csadmin_complaint_log")
+     */
+    public function logAction(Request $request)
+    {    
+        $id                = $this->getRequest()->get('id');
+        $dm                = $this->get('doctrine_mongodb')->getManager(); 
+        $complaint         = $dm->getRepository('DWDDataBundle:Complaint')->findOneBy( array( '_id' => $id ) ); 
+       
+        $str               = '<table class="table table-striped table-bordered"><tr><th>操作</th><th>内容</th></tr>';
+
+        $branchs           = $complaint->getBranchs();
+        $users             = $complaint->getUsers();
+        $orders            = $complaint->getOrders();
+        $campaigns         = $complaint->getCampaigns();
+
+        if( !empty( $branchs ) ){
+
+            foreach ($branchs as $branch) {
+                switch ($branch['op']) {
+                    case 'modifyInfo':
+                        $str   .= "<tr><td>更新商户信息</td><td>" . $branch['name'] . "</td></tr>";
+                        break;
+                    case 'offline':
+                        $str   .= "<tr><td>商户下线</td><td>" . $branch['name'] . "</td></tr>";
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
+
+        if( !empty( $users ) ){
+
+            foreach ($users as $user) {
+                switch ($user['op']) {
+                    case 'resetPwd':
+                        $str   .= "<tr><td>重置密码</td><td>" . $user['id'] . "</td></tr>";
+                        break;
+                    case 'lock':
+                        $str   .= "<tr><td>封号</td><td>" . $user['id'] . "</td></tr>";
+                        break;
+                    case 'unbindDevice':
+                        $str   .= "<tr><td>解绑设备</td><td>" . $user['id'] . "</td></tr>";
+                        break; 
+                    default:
+                        break;
+                }
+            }
+        }
+
+        if( !empty( $orders ) ){
+
+            foreach ($orders as $order) {
+                switch ($order['op']) {
+                    case 'correctOrder':
+                        $str   .= "<tr><td>纠错</td><td>" . ( isset( $order['itemName'] ) ? $order['itemName'] : '' ) . "</td></tr>";
+                        break;
+                    case 'redeem':
+                        $str   .= "<tr><td>验证</td><td>" . ( isset( $order['itemName'] ) ? $order['itemName'] : '' ) . "</td></tr>";
+                        break; 
+                    default:
+                        break;
+                }
+            }
+        }
+
+        if( !empty( $campaigns ) ){
+
+            foreach ($campaigns as $campaign) {
+                switch ($campaign['op']) {
+                    case 'offline':
+                        $str   .= "<tr><td>活动下线</td><td>" . $campaign['name'] . "</td></tr>";
+                        break; 
+                    default:
+                        break;
+                }
+            }
+        }
+        
+        $str              .= "</table>";
+
+        $res               = array(
+                                'result'  => true,
+                                'content' => $str,
+                             );
+
+        $response          = new Response();
+        $response->setContent( json_encode( $res ) );
+        return $response;  
     }
 }

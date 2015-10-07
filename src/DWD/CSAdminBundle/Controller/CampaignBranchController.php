@@ -46,7 +46,7 @@ class CampaignBranchController extends Controller
         $str              .= "<tr><td>描述</td><td>" . $campaignBranch['id'] . "</td></tr>";
         $str              .= "<tr><td>每日供应量</td><td>" . $campaignBranch['stock'] . "</td></tr>";
         $str              .= "<tr><td>当天库存</td><td>" . $campaignBranch['left'] . "</td></tr>";
-        $str              .= "<tr><td>活动类型</td><td>" . $campaignBranch['type'] . "</td></tr>";
+        $str              .= "<tr><td>活动类型</td><td>" . $this->get('dwd.util')->getOrderTypeLabel( $campaignBranch['type'] ) . "</td></tr>";
         $str              .= "<tr><td>活动开始时间</td><td>" . $campaignBranch['start_time'] . "</td></tr>";
         $str              .= "<tr><td>活动结束时间</td><td>" . $campaignBranch['end_time'] . "</td></tr>";
         $str              .= "<tr><td>使用方式</td><td>" . $campaignBranch['allow_take_out'] . "</td></tr>";
