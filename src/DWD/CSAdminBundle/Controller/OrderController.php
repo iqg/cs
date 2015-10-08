@@ -93,7 +93,7 @@ class OrderController extends Controller
                                                      ),
                                         'method' =>  'get',
                                         'key'    =>  'orderlog',
-                                    ),  
+                                    ),
                                 );
 
         $data              = $dataHttp->MutliCall($data);

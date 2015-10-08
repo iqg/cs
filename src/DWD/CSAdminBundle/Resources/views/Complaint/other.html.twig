@@ -103,6 +103,9 @@
                 data: {tags: tags, mobile:mobile, status: status, method: method, note: note, type:"{{type}}", branchId: branchId, userId:userId },
                 dataType:'json',    
                 success:function(data){ 
+                            if( data == 'ok' ){
+                                alert('提交成功');
+                            }
                         }  
             });
         });

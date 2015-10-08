@@ -620,12 +620,20 @@ class BranchController extends Controller
                                     'method' => 'post',
                                     'key'    => 'update',
                                 ),
+                                array(
+                                    'url'    => '/campaignbranch/offline',
+                                    'data'   => array(
+                                        'branchId'       => $branchId, 
+                                    ), 
+                                    'method' => 'post',
+                                    'key'    => 'offline',
+                                ),
                             ); 
 
         $data            = $dataHttp->MutliCall($data);  
 
         $res             = false;
-        if( $data['update']['errno'] == 0 && $data['update']['data'] == true ){
+        if( $data['offline']['errno'] == 0 && $data['update']['errno'] == 0 && $data['update']['data'] == true ){
           $res           = true;
         }
 

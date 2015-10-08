@@ -39,7 +39,7 @@ class SearchController extends Controller
         $result         = array_merge($resultByName, $resultByPinyin);
 
         $resultHash     = array();
-        $arrayResult    = array(); 
+        $arrayResult    = array();
 
         foreach ($result as $record) {
             if (isset($resultHash[$record->getBranchId()])) {

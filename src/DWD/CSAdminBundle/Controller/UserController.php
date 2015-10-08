@@ -791,6 +791,7 @@ class UserController extends Controller
                                                         'reasonType' => $reasonType,
                                                         'unlcokDate' => $unlcokDate,
                                                         'type'       => $type,
+                                                        'note'       => '后台封号',
                                                     ),
                                         'method' => 'post',
                                         'key'    => 'locked',

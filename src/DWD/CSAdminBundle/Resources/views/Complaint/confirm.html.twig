@@ -214,6 +214,10 @@
             complaint.status         = $("#status:checked").val();
             complaint.mobile         = $("#mobile").val();
             complaint.note           = $("#note").val();
+            if( tags.length == 0 ){
+                alert("请选择分类");
+                return ;
+            }
             complaint.tags           = tags.join(",");
 
             $.ajax({    

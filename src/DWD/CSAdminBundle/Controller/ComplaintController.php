@@ -44,7 +44,7 @@ class ComplaintController extends Controller
            $branchId     = $id;
         }
 
-        return $this->render('DWDCSAdminBundle:complaint:other.html.twig', array(
+        return $this->render('DWDCSAdminBundle:Complaint:other.html.twig', array(
                 'complaintType'  => $this->get('dwd.util')->getComplaintTypesLabel( $type ),
                 'type'           => $type,
                 'tagId'          => $tagId,
@@ -155,8 +155,8 @@ class ComplaintController extends Controller
         if( empty( $branch['saler'] ) ){
             $branch['saler']    = $salerinfo['name'];
         }      
-
-        return $this->render('DWDCSAdminBundle:complaint:confirm.html.twig', array(
+ 
+        return $this->render('DWDCSAdminBundle:Complaint:confirm.html.twig', array(
                 'complaintTags'   => $complaintTags,
                 'autoSelectTags'  => $autoSelectTags,
                 'status'          => isset( $complaint['status'] ) ? $complaint['status'] : 0,
@@ -252,6 +252,7 @@ class ComplaintController extends Controller
                                                     'op'         => 'offline',
                                                     'res'        => $operator['res'],
                                                  );   
+                    break;
                 case '活动下线':              
                     $opRecords['campaigns'][]  = array(
                                                     'id'         => $operator['id'],
@@ -458,8 +459,7 @@ class ComplaintController extends Controller
         $complaint->setMobile( $mobile );
         $complaint->setMethod( $method );
         $complaint->setStatus( $status );
-        $complaint->setNote( $note );  
-        $complaint->setCreatedAt( $now );
+        $complaint->setNote( $note );   
         $complaint->setType( $type );
         $complaint->setUserId( $userId );
         $complaint->setBranchId( $branchId );

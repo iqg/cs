@@ -77,6 +77,7 @@
                             </table>
                         </div>
                     {% endfor %} 
+                    </div>
                 </div>
             </div>
         </div>
@@ -107,6 +108,7 @@
                     <tbody>
                     </tbody>
                     </table>
+                </div>
             </div>
         </div>
     </div>
@@ -135,6 +137,7 @@
                     <tbody>
                     </tbody>
                     </table>
+                </div>
             </div>
         </div>
     </div>
@@ -328,6 +331,7 @@
                     <span>验证密码: </span><input type="pasword" id="redeemPassword"/>
                     <input type='hidden' id='redeemOrderId' />
                     <input type='hidden' id='redeemNumber' />
+                    <input type='hidden' id='redeemItemName' />
                 </div>
                 <div class="modal-footer">
                     <a href="#" id="redeem-submit-btn" class="btn btn-default">确认</a>
@@ -347,7 +351,7 @@
     operator    = new Array();
     branchinfo  = {{jsonBranchInfo|raw}}; 
     accountinfo = {{jsonAccountInfo|raw}};
-    redeemTels  = {{redeemTels}};
+    redeemTels  = "{{redeemTels}}";
 
     function __init(){
         infoBranchNameHtml  =  branchinfo.name + "&nbsp;&nbsp;&nbsp;<a id='modifyBranch-btn' href='#'>[编辑名称]</a>";
@@ -482,11 +486,12 @@
             var offlineReason = $("#selectofflineReason").val();
             var offlineNote   = $("#offlineNote").val();
 
-            var record       = new Object();
-            record.type      = "商户下线";
-            record.branchId  = {{branchId}};
-            record.reason    = offlineReason;
-            record.note      = offlineNote;
+            var record        = new Object();
+            record.type       = "商户下线";
+            record.branchId   = {{branchId}};
+            record.branchName = "{{branchinfo['name']}}";
+            record.reason     = offlineReason;
+            record.note       = offlineNote;
             $.ajax({
                 type:'post',      
                 url:'/branch/offline',    
@@ -495,12 +500,13 @@
                 success:function(data){ 
                    if( data == true ){
                      record.res = true;
-                     alert('更新成功');
-                     branchinfo.status = 0;
+                     alert('下线成功');
+                     branchinfo.enabled = 0;
+                     $('#offlineModal').modal('hide');
                      __init();
                    } else {
                      record.res = false;
-                     alert('更新失败');
+                     alert('下线失败');
                    }
                 },
                 error:function (req,err) {
@@ -567,7 +573,6 @@
                       alert('更新成功');
                       branchinfo.redeemTypes = redeemTypes;
                       branchinfo.address     = address;
-                      branchinfo.address     = address;
                       branchinfo.redeem_time = $redeemTime;
                       branchinfo.redeem_type = $tel;
                       branchinfo.tel = $redeemTime; 
@@ -628,9 +633,11 @@
             $("#redeemPassword").val("");
             orderId           = $(this).attr("data-rel");
             redeemNumber      = $(this).parent().prev().text();
+            itemName          = $(this).parent().prev().prev().prev().text();
 
             $("#redeemNumber").val(redeemNumber);
             $("#redeemOrderId").val(orderId);
+            $("#redeemItemName").val(itemName);
         });
 
         $("#redeem-submit-btn").click(function(e){
@@ -638,7 +645,7 @@
             var record        = new Object();
             record.type       = "验证";
             record.orderId    = orderId;
-            record.itemName   = '';
+            record.itemName   = $("#redeemItemName").val();
             record.branchId   = {{branchinfo['id']}};
             record.branchName = "{{branchinfo['name']}}";
             record.userName   = "{{accountInfo['username']}}";
