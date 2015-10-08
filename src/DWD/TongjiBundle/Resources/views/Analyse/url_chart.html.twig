@@ -1,0 +1,27 @@
+{% extends "DWDTongjiBundle:Layout:layout.html.twig" %}
+
+{% block body %}
+    <div class="body-query-wrap">
+        <div class="form-group">
+            <label class="control-label">查询区间：</label>
+            <div class="form-field">
+                <a href="{{ path('dwd_tongji_analyse_dashboard_urichart', { uri: uri, type: 'minute', startTime: currentTimestamp, endTime: currentTimestamp + 86400, duration: 3600, regionId : 0 }) }}"><span class="select-item {% if regionId == 0 %}select-item-sel{% endif %}">昨天</span></a>
+                <a href="{{ path('dwd_tongji_analyse_dashboard_urichart', { uri: uri, type: 'day', startTime: currentTimestamp - 86400*1, endTime: currentTimestamp, duration: 86400, regionId : 1 }) }}"><span class="select-item {% if regionId == 1 %}select-item-sel{% endif %}">过去2天</span></a>
+                <a href="{{ path('dwd_tongji_analyse_dashboard_urichart', { uri: uri, type: 'day', startTime: currentTimestamp - 86400*6, endTime: currentTimestamp, duration: 86400, regionId : 2 }) }}"><span class="select-item {% if regionId == 2 %}select-item-sel{% endif %}">过去7天</span></a>
+                <a href="{{ path('dwd_tongji_analyse_dashboard_urichart', { uri: uri, type: 'day', startTime: currentTimestamp - 86400*30, endTime: currentTimestamp, duration: 86400, regionId : 3 }) }}"><span class="select-item {% if regionId == 3 %}select-item-sel{% endif %}">过去30天</span></a>
+            </div>
+        </div>
+    </div>
+    <div id="container" style="min-width: 400px; height: 400px; margin: 0 auto"></div>
+{% endblock %}
+
+{% block javascripts %}
+
+    <script src="{{ asset('bundles/dwdtongji/js/highcharts.js') }}"></script>
+    <script src="{{ asset('bundles/dwdtongji/js/exporting.js') }}"></script>
+
+    <script type="text/javascript">
+        {{ chart(chart) }}
+    </script>
+
+{% endblock %}

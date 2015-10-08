@@ -27,6 +27,7 @@ class AppKernel extends Kernel
             new DWD\CSAdminBundle\DWDCSAdminBundle(),
             new DWD\DataBundle\DWDDataBundle(),
             new AppBundle\AppBundle(),
+            new DWD\TongjiBundle\DWDTongjiBundle(),
         );
 
         if (in_array($this->getEnvironment(), array('dev', 'test'))) {

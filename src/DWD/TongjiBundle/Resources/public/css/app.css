@@ -1,0 +1,81 @@
+.col-centered{
+    margin: 0 auto;
+    float: none;
+}
+@media (min-width: 768px) {
+    .sidebar {
+        position: fixed;
+        top: 51px;
+        bottom: 0;
+        left: 0;
+        z-index: 1000;
+        display: block;
+        padding: 20px;
+        overflow-x: hidden;
+        overflow-y: auto; /* Scrollable contents if viewport is shorter than content. */
+        background-color: #f5f5f5;
+        border-right: 1px solid #eee;
+    }
+}
+
+.fl {
+    float: left;
+}
+
+.fr {
+    float: right;
+}
+
+.dwd-datepicker {
+    float: left !important;
+}
+
+.body-query-wrap .form-group {
+    margin: 0;
+    font-size: 12px;
+}
+
+.body-query-wrap .form-group .control-label {
+    display: inline-block;
+    font-weight: 400;
+    width: 60px;
+    color: #000;
+    vertical-align: top;
+    height: 30px;
+    line-height: 30px;
+    text-align: right;
+}
+
+.body-query-wrap .form-group .control-label {
+    display: inline-block;
+    font-weight: 400;
+    width: 60px;
+    color: #000;
+    vertical-align: top;
+    height: 30px;
+    line-height: 30px;
+    text-align: right;
+}
+
+.body-query-wrap .form-group .form-field {
+    display: inline-block;
+    min-width: 680px;
+    height: 30px;
+    line-height: 30px;
+    vertical-align: middle;
+}
+
+.body-query-wrap .form-group .form-field .select-item {
+    display: inline-block;
+    padding: 0 10px;
+    margin-right: 5px;
+    height: 25px;
+    line-height: 25px;
+    cursor: pointer;
+    border-radius: 3px;
+}
+
+.body-query-wrap .form-group .form-field .select-item-sel {
+    background-color: #f5f5f5;
+    color: #2074ac;
+}

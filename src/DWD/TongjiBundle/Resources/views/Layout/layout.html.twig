@@ -1,0 +1,83 @@
+{#
+   This is the base template used as the application layout which contains the
+   common elements and decorates all the other templates.
+   See http://symfony.com/doc/current/book/templating.html#template-inheritance-and-layouts
+#}
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8" />
+        <title>{% block title %}多维度客服后台系统{% endblock %}</title>
+
+        <link rel="stylesheet" href="{{ asset('bundles/dwdtongji/css/bootstrap.min.css') }}" />
+        <link rel="stylesheet" href="{{ asset('bundles/dwdtongji/css/font-awesome.min.css') }}" />
+        <link rel="stylesheet" href="{{ asset('bundles/dwdtongji/css/jquery-ui.min.css') }}" />
+        <link rel="stylesheet" href="{{ asset('bundles/dwdtongji/css/app.css') }}" />
+        {% block stylesheets %}
+        {% endblock %}
+        <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}" />
+    </head>
+
+    <body>
+
+        {% block header %}
+            <header>
+                <div class="navbar navbar-default navbar-static-top" role="navigation">
+                    <div class="container">
+                        <div class="navbar-header">
+                            <a class="navbar-brand" href="{{ path('dwd_tongji_analyse_dashboard') }}">
+                                多维度统计
+                            </a>
+
+                            <button type="button" class="navbar-toggle"
+                                    data-toggle="collapse"
+                                    data-target=".navbar-collapse">
+                                <span class="sr-only">Toggle navigation</span>
+                                <span class="icon-bar"></span>
+                                <span class="icon-bar"></span>
+                                <span class="icon-bar"></span>
+                            </button>
+                        </div>
+                        <div class="navbar-collapse collapse">
+                                {% block header_navigation_links %}
+                                    <ul class="nav navbar-nav navbar-right">
+
+                                        {% if app.user %}
+                                            <li><a href="#">Dashboard</a></li>
+                                            <li><a href="#">Settings</a></li>
+                                            <li><a href="#">Profile</a></li>
+
+                                            <li>
+                                                <a href="{{ path('dwd_tongji_logout') }}">
+                                                    退出
+                                                </a>
+                                            </li>
+                                        {% endif %}
+                                    </ul>
+                                    <form class="navbar-form navbar-right">
+                                        <input type="text" class="form-control" placeholder="Search...">
+                                    </form>
+                                {% endblock %}
+                        </div>
+                    </div>
+                </div>
+            </header>
+        {% endblock %}
+
+        <div class="container body-container">
+            {% block body %}
+            {% endblock %}
+        </div>
+
+        {% block footer %}
+        {% endblock %}
+
+        <script src="{{ asset('bundles/dwdtongji/js/jquery-1.11.3.min.js') }}"></script>
+        <script src="{{ asset('bundles/dwdtongji/js/bootstrap.min.js') }}"></script>
+        <script src="{{ asset('bundles/dwdtongji/js/jquery-ui.min.js') }}"></script>
+
+        {% block javascripts %}
+        {% endblock %}
+
+    </body>
+</html>

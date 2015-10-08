@@ -1,0 +1,4 @@
+services:
+#    dwd_tongji.example:
+#        class: DWD\TongjiBundle\Example
+#        arguments: [@service_id, "plain_value", %parameter%]

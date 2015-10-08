@@ -1,0 +1,72 @@
+{% extends "DWDTongjiBundle:Layout:layout.html.twig" %}
+
+{% block stylesheets %}
+    <link rel="stylesheet" href="{{ asset('bundles/dwdtongji/css/bootstrap-datetimepicker.min.css') }}" />
+{% endblock %}
+
+{% block body %}
+    <h1>{{ title }}</h1>
+    <form action="{{ path('dwd_tongji_analyse_dashboard') }}" method="post">
+        <div class="form-group col-md-5 fr">
+            <label for="dtp_input2" class="col-md-3 control-label">选择日期</label>
+            <div class="input-group date form_date col-md-6 dwd-datepicker" data-date="" data-date-format="yyyy年mm月dd日" data-link-field="dtp_input2" data-link-format="yyyy-mm-dd">
+                <input class="form-control" size="16" type="text" value="" readonly>
+                <span class="input-group-addon"><span class="glyphicon glyphicon-remove"></span></span>
+                <span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
+            </div>
+            <input type="hidden" id="dtp_input2" name="date" value="" />
+            <button class="btn btn-primary" type="submit" style="margin: 0 0 0 10px;">搜索</button>
+        </div>
+    </form>
+    <table class="table table-striped">
+        <thead>
+        <tr>
+            <th>访问地址</th>
+            <th>访问次数</th>
+            <th>最大响应时间(ms)</th>
+            <th>最小响应时间(ms)</th>
+            <th>平均响应时间(ms)</th>
+            <th>调用成功次数</th>
+            <th>调用失败次数</th>
+            <th>操作</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for apiInfo in apiList %}
+        <tr>
+            <td>{{ apiInfo.path }}</td>
+            <td>{{ apiInfo.called }}</td>
+            <td>{{ apiInfo.maxCost|round(2) }}</td>
+            <td>{{ apiInfo.minCost|round(2) }}</td>
+            <td>{{ (apiInfo.totalCost/apiInfo.called)|round(2) }}</td>
+            <td>{{ apiInfo.successed }}</td>
+            <td>{{ apiInfo.failed }}</td>
+            <td>
+                <a href="{{ path('dwd_tongji_analyse_dashboard_urichart', { uri: apiInfo.path, type: 'day', startTime: startTimestamp - 86400*6, endTime: startTimestamp, duration: 86400, regionId : 2 }) }}" class="btn btn-sm btn-default" target="_blank">
+                    查看历史趋势图
+                </a>
+            </td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}
+
+{% block javascripts %}
+
+    <script src="{{ asset('bundles/dwdtongji/js/bootstrap-datetimepicker.min.js') }}"></script>
+    <script src="{{ asset('bundles/dwdtongji/js/locales/bootstrap-datetimepicker.zh-CN.js') }}"></script>
+
+    <script type="text/javascript">
+        $('.form_date').datetimepicker({
+            language:  'zh-CN',
+            weekStart: 1,
+            todayBtn:  1,
+            autoclose: 1,
+            todayHighlight: 1,
+            startView: 2,
+            minView: 2,
+            forceParse: 0
+        });
+    </script>
+{% endblock %}
