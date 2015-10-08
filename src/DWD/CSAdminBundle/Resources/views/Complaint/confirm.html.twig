@@ -65,7 +65,7 @@
 
                         <div class="form-group has-feedback">
                             <label class="control-label">活动</label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                            <input readonly=readonly value="{{param['item']}}" type="text" class="form-control">
+                            <input readonly=readonly value="{{param['itemName']}}" type="text" class="form-control">
                         </div> <br /><br />
 
                         <div class="form-group has-feedback">
@@ -143,7 +143,7 @@
                    default: 
                        break;
                 }  
-                $("#divTel").append("<br /><br /><div class="form-group lockUser has-feedback"><label class='control-label'>封号原因</label>&nbsp;&nbsp;" + reason + " <a href='#' id='lock-user-btn' >&nbsp;&nbsp;&nbsp;[确认封号]</a></div>");
+                $("#divTel").append("<br /><br /><div class='form-group lockUser has-feedback'><label class='control-label'>封号原因</label>&nbsp;&nbsp;" + reason + " <a href='#' id='lock-user-btn' >&nbsp;&nbsp;&nbsp;[确认封号]</a></div>");
             }
         });
     }

@@ -96,10 +96,37 @@ class ComplaintController extends Controller
                                ) ;
     
         if( false == empty( $complaint['branchs'] ) ){
-           $branch['branch']    =  $complaint['branchs'][0]['name'];  
+           $branch['branch']          =  $complaint['branchs'][0]['name'];
+           $data                      =  array(
+                                            array(
+                                                'url'    => '/saler/salerinfo', 
+                                                'data'   => array(
+                                                               'branchId'    => $complaint['branchs'][0]['id'],
+                                                            ),
+                                                'method' => 'get',
+                                                'key'    => 'salerinfo',
+                                            ),  
+                                         ); 
+
+           $data                      = $dataHttp->MutliCall($data);
+           $branch['saler']           = $data['salerinfo']['data']['name'];
         } else if( false == empty( $complaint['orders'] ) ){
-           $branch['branch']    =  isset($complaint['orders'][0]['branchName']) ? $complaint['orders'][0]['branchName'] : '';
-           $branch['itemName']  =  isset($complaint['orders'][0]['itemName']) ? $complaint['orders'][0]['itemName'] : '';
+           $branch['branch']          =  isset($complaint['orders'][0]['branchName']) ? $complaint['orders'][0]['branchName'] : '';
+           $branch['itemName']        =  isset($complaint['orders'][0]['itemName']) ? $complaint['orders'][0]['itemName'] : '';
+           $data                      =  array(
+                                            array(
+                                                'url'    => '/saler/salerinfo', 
+                                                'data'   => array(
+                                                               'orderId'    => $complaint['orders'][0]['id'],
+                                                            ),
+                                                'method' => 'get',
+                                                'key'    => 'salerinfo',
+                                            ),  
+                                         ); 
+
+           $data                      = $dataHttp->MutliCall($data);
+
+           $branch['saler']           = $data['salerinfo']['data']['name'];
         }
         
         $complaint['id']        =  strval($complaint['_id']);
@@ -125,8 +152,9 @@ class ComplaintController extends Controller
            $data                = $dataHttp->MutliCall( $data ); 
            $salerinfo           = $data['salerinfo']['data'];
         }
-        $branch['saler']        = $salerinfo['name'];      
-
+        if( empty( $branch['saler'] ) ){
+            $branch['saler']    = $salerinfo['name'];
+        }      
 
         return $this->render('DWDCSAdminBundle:complaint:confirm.html.twig', array(
                 'complaintTags'   => $complaintTags,
@@ -421,7 +449,7 @@ class ComplaintController extends Controller
         $userId               = $this->getRequest()->get('userId');
         $branchId             = $this->getRequest()->get('branchId');
         $users                = $this->getRequest()->get('users');
-        var_dump( $users );
+         
         $now                  = time();
         $dm                   = $this->get('doctrine_mongodb')->getManager();
         $complaint            = $dm->getRepository('DWDDataBundle:Complaint')->findOneBy( array( '_id' => $complaintId) );
@@ -649,15 +677,29 @@ class ComplaintController extends Controller
         if( !empty( $users ) ){
 
             foreach ($users as $user) {
+
+                $data                 = array(
+                                            array(
+                                                'url'    => '/user/userinfo', 
+                                                'data'   => array(
+                                                                'userId' => $user['id'],
+                                                            ),
+                                                'method' => 'get',
+                                                'key'    => 'userinfo',
+                                            ),  
+                                        ); 
+                $dataHttp             = $this->get('dwd.data.http');
+                $data                 = $dataHttp->MutliCall($data);
+                $username             = $data['userinfo']['data']['username'];
                 switch ($user['op']) {
                     case 'resetPwd':
-                        $str   .= "<tr><td>重置密码</td><td>" . $user['id'] . "</td></tr>";
+                        $str   .= "<tr><td>重置密码</td><td>" . $username . "</td></tr>";
                         break;
                     case 'lock':
-                        $str   .= "<tr><td>封号</td><td>" . $user['id'] . "</td></tr>";
+                        $str   .= "<tr><td>封号</td><td>" . $username . "</td></tr>";
                         break;
                     case 'unbindDevice':
-                        $str   .= "<tr><td>解绑设备</td><td>" . $user['id'] . "</td></tr>";
+                        $str   .= "<tr><td>解绑设备</td><td>" . $username . "</td></tr>";
                         break; 
                     default:
                         break;
