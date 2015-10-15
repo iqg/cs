@@ -28,25 +28,37 @@ class ComplaintController extends Controller
        switch ( $op ) {
 
          case 'branchOffline':
+            $complaintInfo['reason']           = $this->getRequest()->get('reason');
+            break;
          case 'lockUser':
-            $complaintInfo['reason']            = $this->getRequest()->get('reason');
+            $complaintInfo['reason']           = $this->getRequest()->get('reason');
+            if( intval( $this->getRequest()->get('locked') ) == 1 ){
+                $complaintInfo['locked']       = 1;
+            }
             break;
          case 'redeem':
-            $complaintInfo['orderId']           = intval( $this->getRequest()->get('orderId') );
+            $complaintInfo['orderId']          = intval( $this->getRequest()->get('orderId') );
             break;
          case 'orderCorrect':
+            $complaintInfo['orderId']          = intval( $this->getRequest()->get('orderId') );
             $complaintInfo['content']          = $this->getRequest()->get('content');
             $complaintInfo['needOffline']      = intval( $this->getRequest()->get('needOffline') );
             $complaintInfo['campaignBranchId'] = $this->getRequest()->get('campaignBranchId');
-            $complaintInfo['offlined']         = intval( $this->getRequest()->get('offlined') ); 
+            if( intval( $this->getRequest()->get('offlined') ) == 1 ){
+                $complaintInfo['offlined']     = 1; 
+            }
+             
             break;
          case 'updateBranch':
             $complaintInfo['address']          = $this->getRequest()->get('address');
             $complaintInfo['redeemTels']       = intval( $this->getRequest()->get('redeemTels') );
             $complaintInfo['redeemTime']       = $this->getRequest()->get('redeemTime');
-            $complaintInfo['branchTel']         = intval( $this->getRequest()->get('branchTel') );  
+            $complaintInfo['branchTel']        = intval( $this->getRequest()->get('branchTel') );  
             break;
-         default: 
+        case 'viewInfo':
+            $complaintInfo['view']             = $this->getRequest()->get('view');
+            break;
+         default:
            break;
        }
 
@@ -184,6 +196,97 @@ class ComplaintController extends Controller
         $response->setContent( json_encode( $complaint->getId() ) );
         return $response;
     }
+
+
+    /**
+     *
+     * @Route("/complaint/save",name="dwd_csadmin_complaint_save")
+     */
+    public function saveAction(Request $request)
+    { 
+        $complaintId          = $this->getRequest()->get('id');
+        $mobile               = $this->getRequest()->get('mobile');
+        $status               = $this->getRequest()->get('status');
+        $method               = $this->getRequest()->get('method'); 
+        $note                 = $this->getRequest()->get('note');
+        $tags                 = $this->getRequest()->get('tags'); 
+
+        if( !empty( $tags ) ){
+            $tags             = explode( ',', $tags );
+            foreach ($tags as $key => $value) {
+                $tags[$key]   = intval($value);
+            }
+        }  else {
+            $tags             = array();
+        }
+
+        $now                  = time();   
+        $dm                   = $this->get('doctrine_mongodb')->getManager();
+        $complaint            = $dm->getRepository('DWDDataBundle:Complaint')->findOneBy( array( '_id' => $complaintId) );
+ 
+        $complaint->setTags( $tags );
+        $complaint->setMobile( $mobile );
+        $complaint->setMethod( intval( $method ) );
+        $complaint->setStatus( intval( $status ) );
+        $complaint->setNote( $note );     
+
+        if( intval( $status ) != self::UNSOLVED ){
+            $complaint->setResolvedAt( $now );
+        }
+   //     var_dump( $complaint );
+    //    var_dump( $complaint->getOp() );
+        $complaintDetail       = $dm->getRepository('DWDDataBundle:Complaint')->getComplaint( $complaintId );
+    //    var_dump( $complaintDetail );
+
+        switch ( $complaintDetail['op'] ) {
+            case 'lockUser':
+                $complaintInfo = $complaintDetail['complaintInfo']; 
+                if( false == isset( $complaintInfo['locked'] ) && 1 == intval( $this->getRequest()->get('locked') ) )
+                {
+                    $complaintInfo['locked']  = 1;
+                }
+                $complaint->setComplaintInfo( $complaintInfo );  
+                break; 
+            case 'orderCorrect':
+                $complaintInfo = $complaintDetail['complaintInfo']; 
+
+                if( false == isset( $complaintInfo['offlined'] )  )
+                {
+                    $complaintInfo['needOffline']  = intval( $this->getRequest()->get('needOffline') );
+                }
+
+                if( false == isset( $complaintInfo['offlined'] ) && 1 == intval( $complaintInfo['needOffline'] )  && 1 == intval( $this->getRequest()->get('offlined') ) )
+                {
+                    $complaintInfo['offlined']  = 1;
+                }
+                $complaint->setComplaintInfo( $complaintInfo );  
+                break; 
+            default: 
+                break;
+        }
+
+        $dm->flush($complaint);
+
+        $logRecord            = array(
+                                  'route'    => $this->getRequest()->get('_route'),
+                                  'res'      => true,
+                                  'adminId'  => $this->getUser()->getId(),
+                                  'ext'      => array(
+                                                  'tags'         => $tags,
+                                                  'mobile'       => $mobile,
+                                                  'status'       => $status,
+                                                  'note'         => $note, 
+                                                  'complaintWay' => $method,
+                                                  'complaintId'  => $complaintId,
+                                                ),
+                                );
+        $this->get('dwd.oplogger')->addCommonLog( $logRecord );
+
+        $response             = new Response();
+        $response->setContent( json_encode( $complaint->getId() ) );
+        return $response;
+    }
+
  
     /** 
      *
@@ -202,35 +305,20 @@ class ComplaintController extends Controller
         $dm                   = $this->get('doctrine_mongodb')->getManager();
         $conditions           = array();
         if( $city != 0 ){
-            $conditions['zones']    = intval($city);    
+            $conditions['zoneId']    = intval($city);    
         }
 
         if( $saler != 0 ){
-            $conditions['salers']   = intval($saler);
+            $conditions['salerId']   = intval($saler);
         }
 
         if( $branchId != 0 ){
-            $conditions['branchId'] = intval($branchId);
+            $conditions['branchId']  = intval($branchId);
         }
  
         $complaintList        = $dm->getRepository('DWDDataBundle:Complaint')->getAll( $conditions );
         $complaintCnt         = $dm->getRepository('DWDDataBundle:Complaint')->getCount( $conditions );
- 
-        $dataHttp             = $this->get('dwd.data.http');
-        $tagsList             = array();
-        $data                 = array(
-                                    array(
-                                        'url'    => '/complaint/taglist', 
-                                        'method' => 'get',
-                                        'key'    => 'complaintTags',
-                                    ),  
-                                ); 
-
-        $data                      = $dataHttp->MutliCall($data);
- 
-        foreach ($data['complaintTags']['data']['list'] as  $tag) {
-            $tagsList[$tag['id']]  = $tag['name'];
-        } 
+  
 
         $aaData                    = array();
     
@@ -238,10 +326,8 @@ class ComplaintController extends Controller
             $tags                  = array();
 
             if( isset( $complaint['tags'] ) ){
-                foreach ($complaint['tags'] as $tagId) {
-                    if( isset( $tagsList[$tagId] ) ){
-                        $tags[]        = $tagsList[$tagId];
-                    } 
+                foreach ($complaint['tags'] as $tagId) { 
+                    $tags[]        = $this->get('dwd.util')->getComplaintTag( $tagId ); 
                 }
             }
           
@@ -283,4 +369,84 @@ class ComplaintController extends Controller
         $response->setContent( json_encode( $complaint ) );
         return $response; 
     } 
+
+    /**
+     *
+     * @Route("/complaint/complaintlog",name="dwd_csadmin_complaint_log")
+     */
+    public function logAction(Request $request)
+    {    
+        $complaintId       = $this->getRequest()->get('id');
+        $dm                = $this->get('doctrine_mongodb')->getManager(); 
+        $complaint         = $dm->getRepository('DWDDataBundle:Complaint')->getComplaint( $complaintId );
+       
+        $str               = '<table class="table table-striped table-bordered"><tr><th>管理员</th><th>内容</th><th>时间</th></tr>';
+        $dataHttp          = $this->get('dwd.data.http');
+        foreach( $complaint['oplog'] as $log ){ 
+            $data          =  array( 
+                                    array(
+                                        'url'    => '/user/userinfo',
+                                        'data'   => array(
+                                            'userId'  => $log['adminId'], 
+                                        ),
+                                        'method' => 'get',
+                                        'key'    => 'userinfo',
+                                    )
+                                );
+            $data          =  $dataHttp->MutliCall($data); 
+            $userInfo      =  $data['userinfo']['data'];
+            $op            =  '';
+
+            switch ( $log['op'] ) {
+                case 'branchOffline':
+                    $op    = '商户下线';
+                    break;
+                case 'unbindUser':
+                    $op    = '解绑用户';
+                    break;
+                case 'lockUser':
+                    $op    = '用户封号';
+                    break;
+                case 'redeem':
+                    $op    = '订单验证';
+                    break;
+                case 'orderCorrect':
+                    $op    = '信息纠错';
+                    break;
+                case 'updateBranch':
+                    $op    = '编辑商户';
+                    break;
+                case 'viewInfo':
+                    $op    = '查看信息';
+                    break;
+                case 'resetPwd':
+                    $op    = '重置密码';
+                    break;
+                case 'ask':
+                    $op    = '咨询';
+                    break;
+                case 'tech-error':
+                    $op    = '技术故障';
+                    break;
+                case 'other':
+                    $op    = '其他';
+                    break;
+                default: 
+                  break;
+            }
+
+            $str          .= "</tr><td>" . $userInfo['username'] . "</td><td>$op</td><td>" . date("Y-m-d H:i:s", $log['timestamp']) . "</td></tr>";
+        }
+        
+        $str              .= "</table>";
+
+        $res               = array(
+                                'result'  => true,
+                                'content' => $str,
+                             );
+
+        $response          = new Response();
+        $response->setContent( json_encode( $res ) );
+        return $response;  
+    }
 }

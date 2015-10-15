@@ -289,4 +289,39 @@ class ComplaintFormController extends Controller
             'source'          => $source,
         )); 
     }
+
+    /**
+     *
+     * @Route("/viewinfo",name="dwd_csadmin_complaintform_viewinfo")
+     */
+    public function viewinfo()
+    {
+        $userId               = $this->getRequest()->get('userId');
+        $view                 = $this->getRequest()->get('view');
+        $note                 = '';
+        
+        switch( $view ){
+            case 'smsrecords':
+                $note         = '查看短信记录';
+                break;
+            case 'recommendrecords':
+                $note         = '查看推荐记录';
+                break;
+            case 'coinrecords':
+                $note         = '查看金币记录'; 
+                break;
+            case 'balancerecords':
+                $note         = '查看余额记录'; 
+                break;
+            case 'lockuserrecords':
+                $note         = '查看封号记录'; 
+                break;  
+        }
+
+        return $this->render('DWDCSAdminBundle:ComplaintForm:viewinfo.html.twig', array( 
+            'userId'          => $userId, 
+            'note'            => $note,
+            'view'            => $view,
+        )); 
+    }
 }

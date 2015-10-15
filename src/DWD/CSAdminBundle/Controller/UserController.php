@@ -24,6 +24,8 @@ class UserController extends Controller
         $userId          = $this->getRequest()->get('userId');
         $type            = $this->getRequest()->get('type');
         $source          = $this->getRequest()->get('source');
+        $searchType      = $this->getRequest()->get('searchType');
+        $searchKey       = $this->getRequest()->get('searchKey');
         $dataHttp        = $this->get('dwd.data.http');
 
         if( false == is_numeric( $userId ) ){
@@ -54,20 +56,42 @@ class UserController extends Controller
             ), 
         );
 
+        if( $searchType == 'redeemNumber' ){
+            $data[]     =  array(
+                                'url'    => '/order/orderinfo',
+                                'data'   => array(
+                                    'redeemNumber'      => $searchKey, 
+                                ),
+                                'method' => 'get',
+                                'key'    => 'orderinfo',
+                           );
+        }
+
+
+
         $orderListTypes =  $this->get('dwd.util')->getOrderTableInfo( 0 );
 
-        $data           = $dataHttp->MutliCall($data); 
+        $data           =  $dataHttp->MutliCall($data); 
 
         if( empty( $data['user']['data'] ) ){
             return $this->render('DWDCSAdminBundle:Dashboard:index.html.twig', array(
              'errMsg'    => '用户不存在'
           ));
         }
+
+        $needDealOrder     = '';
+        if( $searchType == 'redeemNumber' ){
+           $orderInfo      = $data['orderinfo']['data'];
+           $needDealOrder  = '<table class="table table-striped table-bordered"><tr><th>商品</th><th>门店</th><th>兑换码</th><th>状态</th><th>操作</th></tr>';
+           $needDealOrder .= "<tr><td>" . $orderInfo['item_name'] . "</td><td>" . $orderInfo['branch_name'] . "</td><td>" . $orderInfo['redeem_number'] . "</td><td>" . $this->get('dwd.util')->getOrderStatusLabel( $orderInfo['status'] ) . "</td><td><a href='#' class='order-correct-btn' data-rel='" . $orderInfo['id'] .  "'>[纠错]</a></td></tr>";
+           $needDealOrder .= "</table>"; 
+        }
       
         return $this->render('DWDCSAdminBundle:User:index.html.twig', array(
             'jsonUserInfo'     => json_encode( $data['user']['data'] ),
             'balancerecords'   => $data['balancerecords']['data']['list'],
             'userinfo'         => $data['user']['data'],
+            'needDealOrder'    => $needDealOrder,
             'orderlistTypes'   => $orderListTypes,
             'userId'           => $userId,
             'type'             => $type,
@@ -207,15 +231,15 @@ class UserController extends Controller
     { 
         $dataHttp        = $this->get('dwd.data.http');
         $data            =  array(
-            array(
-                'url'    => '/order/orderinfo',
-                'data'   => array(
-                    'redeemNumber'      => $redeemNumber, 
-                ),
-                'method' => 'get',
-                'key'    => 'orderinfo',
-            )
-        );
+                                array(
+                                    'url'    => '/order/orderinfo',
+                                    'data'   => array(
+                                        'redeemNumber'      => $redeemNumber, 
+                                    ),
+                                    'method' => 'get',
+                                    'key'    => 'orderinfo',
+                                )
+                            );
         $data            =  $dataHttp->MutliCall($data);
         $orderInfo       =  $data['orderinfo']['data'];
         $orderList       =  array(

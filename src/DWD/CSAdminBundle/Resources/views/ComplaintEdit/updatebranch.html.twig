@@ -25,44 +25,52 @@
                     <form class="form-inline" role="form">
 
                         <div class="form-group has-feedback">
-                            <label class="control-label" for="inputSuccess4">来源</label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 商户下线
+                            <label class="control-label" for="inputSuccess4">来源</label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 编辑商户信息
                         </div> <br /><br />
                     
                         <div class="form-group has-feedback">
                             <label class="control-label" for="inputSuccess4">标签</label>
                             &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
-                                <button id=9 readonly=readonly class="btn btn-default btn-sm complaint-label">取消合作</button>&nbsp;&nbsp;<button id=17 readonly=readonly class="btn btn-default btn-sm complaint-label">没有合作</button>
+                                <button id=9 name="tag_9" readonly=readonly class="btn btn-default btn-sm complaint-label">取消合作</button>&nbsp;&nbsp;<button id=17 name="tag_17" readonly=readonly class="btn btn-default btn-sm complaint-label">没有合作</button>
                         </div> <br /><br />
  
                         <div class="form-group has-feedback">
                             <label class="control-label">来电电话</label>&nbsp;&nbsp;
-                            <input type="text" id="mobile" class="form-control">
+                            <input type="text" id="mobile" class="form-control" value="{{mobile}}">
                         </div> <br /><br />
 
                         <div class="form-group has-feedback">
-                            <label class="control-label">商户名称</label>&nbsp;&nbsp;
-                            <input type="text" id="branchName" value="{{branchName}}" readonly=readonly class="form-control">
+                            <label class="control-label">地址</label>&nbsp;&nbsp;
+                            <input type="text" id="address" value="{{address}}" readonly=readonly class="form-control">
                         </div> <br /><br />
 
                         <div class="form-group has-feedback">
-                            <label class="control-label">跟进销售</label>&nbsp;&nbsp;
-                            <input type="text" id="salerName" value="{{salerName}}" readonly=readonly class="form-control">
+                            <label class="control-label">验证电话</label>&nbsp;&nbsp;
+                            <input type="text" id="redeemTels" value="{{redeemTels}}" readonly=readonly class="form-control">
+                        </div> <br /><br />
+
+                        <div class="form-group has-feedback">
+                            <label class="control-label">验证时间</label>&nbsp;&nbsp;
+                            <input type="text" id="redeemTime" value="{{redeemTime}}" readonly=readonly class="form-control">
+                        </div> <br /><br />
+
+                        <div class="form-group has-feedback">
+                            <label class="control-label">门店电话</label>&nbsp;&nbsp;
+                            <input type="text" id="branchTel" value="{{branchTel}}" readonly=readonly class="form-control">
                         </div> <br /><br />
 
                         <div class="form-group has-feedback">
                             <label class="control-label">投诉方式</label>&nbsp;&nbsp;
                             <label class="checkbox-inline">
-                                <input type="radio" name="complaintWay" checked=checked id="complaintWay" value=1> 客服电话 
+                                <input type="radio" name="complaintWay" {% if 1 == method %} checked=checked {% endif %} id="complaintWay" value=1> 客服电话 
                             </label>
                             <label class="checkbox-inline">
-                                <input type="radio" name="complaintWay" id="complaintWay" value=2> 在线客服 
+                                <input type="radio" name="complaintWay" {% if 2 == method %} checked=checked {% endif %} id="complaintWay" value=2> 在线客服 
                             </label>
                             <label class="checkbox-inline">
-                                <input type="radio" name="complaintWay" id="complaintWay" value=3> 其他 
+                                <input type="radio" name="complaintWay" {% if 3 == method %} checked=checked {% endif %} id="complaintWay" value=3> 其他 
                             </label> 
                         </div>  <br /><br />  
-
-                        <div class='form-group lockUser has-feedback'><label class='control-label'>下线原因</label>&nbsp;&nbsp;{{reason}}<br /><br />
                         
                         <div class="form-group has-feedback">
                             <label class="control-label">备注</label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
@@ -72,16 +80,14 @@
                         <div class="form-group has-feedback">
                             <label class="control-label">投诉状态</label>&nbsp;&nbsp;
                             <label class="checkbox-inline">
-                                <input type="radio" id="status" checked=checked name="status" value=0> 待跟进 
+                                <input type="radio" id="status" {% if 0 == status %} checked=checked {% endif %} name="status" value=0> 待跟进 
                             </label>
                             <label class="checkbox-inline">
-                                <input type="radio" id="status" name="status" value=1> 已解决 
-                            </label> 
+                                <input type="radio" id="status" {% if 1 == status %} checked=checked {% endif %} name="status" value=1> 已解决 
+                            </label>
                         </div>  <br /><br /><br /><br /><br />
                         <div class="form-group has-feedback" style="margin-left: 32%">
-                            <button type="button" id="confirm-back-btn" class="btn btn-primary">保存并继续</button>&nbsp;&nbsp;
-                            <button type="button" id="confirm-index-btn" class="btn btn-primary">保存返回首页</button>&nbsp;&nbsp;
-                            <button type="button" id="cancel-btn" class="btn btn-default">取消</button>
+                            <button type="button" id="confirm-index-btn" class="btn btn-primary">保存</button>
                         </div>
                     </form>
                 </div>
@@ -92,7 +98,6 @@
 
 <script type="text/javascript" >
     tags     =  [];
-
     function submit(){
         method         = $("#complaintWay:checked").val();
         status         = $("#status:checked").val();
@@ -114,9 +119,9 @@
         res            = false;
         $.ajax({    
             type:'post',        
-            url:'/complaint/submit',
+            url:'/complaint/save',
             async:false,
-            data: { branchId:{{branchId}}, op: 'branchOffline', source: 2, mobile:mobile, status: status, method: method, note: note, tags: tags.join(','), reason: "{{reason}}" },
+            data: { id:"{{complaintId}}", mobile:mobile, status: status, method: method, note: note, tags: tags.join(',') },
             dataType:'json',    
             success:function(data){ 
                         if( data != 'null' ){
@@ -150,17 +155,12 @@
             return false;
         });
 
-        $("#confirm-back-btn").click(function (e) {
-
-            if(!confirm("确认提交?")){
-                return ;
-            } 
-            res = submit();
-            if( res ){
-               history.back();
-            }
-        });
-
+        {% for tagId in tags %}
+            $("button[name='tag_{{tagId}}']").removeClass("btn-default");
+            $("button[name='tag_{{tagId}}']").addClass("btn-primary");
+            tags.push( {{tagId}} );
+        {% endfor %}
+ 
         $("#confirm-index-btn").click(function (e) {
 
             if(!confirm("确认提交?")){
@@ -170,13 +170,6 @@
             if( res ){
                location.href = '/';
             } 
-        });
-
-        $("#cancel-btn").click(function (e) {
-            if(!confirm("确认取消?")){
-                return ;
-            }
-            history.back();
         }); 
     });
 </script>

@@ -25,28 +25,18 @@
                     <form class="form-inline" role="form">
 
                         <div class="form-group has-feedback">
-                            <label class="control-label" for="inputSuccess4">来源</label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 商户下线
+                            <label class="control-label" for="inputSuccess4">来源</label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 查看记录
                         </div> <br /><br />
                     
                         <div class="form-group has-feedback">
                             <label class="control-label" for="inputSuccess4">标签</label>
                             &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
-                                <button id=9 readonly=readonly class="btn btn-default btn-sm complaint-label">取消合作</button>&nbsp;&nbsp;<button id=17 readonly=readonly class="btn btn-default btn-sm complaint-label">没有合作</button>
+                                <button id=24 readonly=readonly class="btn btn-primary btn-sm complaint-label">查看记录</button>
                         </div> <br /><br />
  
                         <div class="form-group has-feedback">
                             <label class="control-label">来电电话</label>&nbsp;&nbsp;
                             <input type="text" id="mobile" class="form-control">
-                        </div> <br /><br />
-
-                        <div class="form-group has-feedback">
-                            <label class="control-label">商户名称</label>&nbsp;&nbsp;
-                            <input type="text" id="branchName" value="{{branchName}}" readonly=readonly class="form-control">
-                        </div> <br /><br />
-
-                        <div class="form-group has-feedback">
-                            <label class="control-label">跟进销售</label>&nbsp;&nbsp;
-                            <input type="text" id="salerName" value="{{salerName}}" readonly=readonly class="form-control">
                         </div> <br /><br />
 
                         <div class="form-group has-feedback">
@@ -60,10 +50,8 @@
                             <label class="checkbox-inline">
                                 <input type="radio" name="complaintWay" id="complaintWay" value=3> 其他 
                             </label> 
-                        </div>  <br /><br />  
-
-                        <div class='form-group lockUser has-feedback'><label class='control-label'>下线原因</label>&nbsp;&nbsp;{{reason}}<br /><br />
-                        
+                        </div>  <br /><br /> 
+                       
                         <div class="form-group has-feedback">
                             <label class="control-label">备注</label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                             <textarea id="note" class="autogrow">{{note}}</textarea>
@@ -90,20 +78,19 @@
     </div>  
 </div>
 
-<script type="text/javascript" >
-    tags     =  [];
-
+<script type="text/javascript" > 
     function submit(){
         method         = $("#complaintWay:checked").val();
         status         = $("#status:checked").val();
         mobile         = $("#mobile").val();
         note           = $("#note").val();
+        tags           = [24];
 
         if( tags.length == 0 ){
             alert("请选择标签");
             return false;
         }
-
+ 
         phoneReg       = /^((0\d{2,3})-)(\d{7,8})(-(\d{3,}))?$/;
         telReg         = /^1[34875]\d{9}$/;
 
@@ -111,12 +98,13 @@
             alert("请输入正确的手机号码");
             return false;
         }
-        res            = false;
+        res           = false;
+        
         $.ajax({    
             type:'post',        
-            url:'/complaint/submit',
             async:false,
-            data: { branchId:{{branchId}}, op: 'branchOffline', source: 2, mobile:mobile, status: status, method: method, note: note, tags: tags.join(','), reason: "{{reason}}" },
+            url:'/complaint/submit',
+            data: { userId:{{userId}}, op: 'viewInfo', source: 1, mobile:mobile, status: status, method: method, note: note, tags: tags.join(','), view: "{{view}}"},
             dataType:'json',    
             success:function(data){ 
                         if( data != 'null' ){
@@ -134,19 +122,9 @@
         return res;
     }
 
-    $(document).ready(function() { 
- 
-        $(".complaint-label").click(function (e) {
-            if( $(this).hasClass("btn-default") ){
-                $(this).removeClass("btn-default");
-                $(this).addClass("btn-primary");
-                tags.push( $(this).attr("id") );
-            } else {
-                $(this).removeClass("btn-primary"); 
-                $(this).addClass("btn-default");
-                tags.splice($.inArray($(this).attr("id"),tags),1);
-            }
- 
+    $(document).ready(function() {  
+
+        $(".complaint-label").click(function (e) { 
             return false;
         });
 

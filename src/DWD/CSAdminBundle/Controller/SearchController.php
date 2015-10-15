@@ -47,6 +47,7 @@ class SearchController extends Controller
             }
             $branchInfo           = array();
             $branchInfo['id']     = $record->getBranchId();
+            $branchInfo['type']   = 'branch';
             $branchInfo['label']  = $record->getName(); 
             $arrayResult[]        = $branchInfo;
             $resultHash[$record->getBranchId()] = True;
@@ -104,6 +105,7 @@ class SearchController extends Controller
         if( false == empty( $data['redeemNumber']['data'] ) && $data['redeemNumber']['errno'] == 0 ){
             $branchInfo    = array(
                                 'id'       => $data['redeemNumber']['data']['id'],
+                                'type'     => 'redeemNumber',
                                 'label'    => '兑换码搜索: ' . $data['redeemNumber']['data']['name'],
                              );
             $arrayResult[] = $branchInfo;
@@ -113,6 +115,7 @@ class SearchController extends Controller
         if( false == empty( $data['branchId']['data'] ) && $data['branchId']['errno'] == 0 ){
             $branchInfo    = array(
                                 'id'       => $data['branchId']['data']['id'],
+                                'type'     => 'branchId',
                                 'label'    => '门店id搜索: ' . $data['branchId']['data']['name'],
                              );
             $arrayResult[] = $branchInfo;
@@ -124,6 +127,7 @@ class SearchController extends Controller
             }
             $branchInfo           = array();
             $branchInfo['id']     = $record->getBranchId();
+            $branchInfo['type']   = 'branch';
             $branchInfo['label']  = '门店模糊搜索: ' . $record->getName(); 
             $arrayResult[]        = $branchInfo;
             $resultHash[$record->getBranchId()] = True;
@@ -177,6 +181,7 @@ class SearchController extends Controller
         if( false == empty( $data['userId']['data'] ) && $data['userId']['errno'] == 0 ){
             $userInfo      = array(
                                 'id'       => $data['userId']['data']['id'],
+                                'type'     => 'userId',
                                 'label'    => '用户id搜索: ' . $data['userId']['data']['username'],
                              );
             $arrayResult[] = $userInfo;
@@ -186,6 +191,7 @@ class SearchController extends Controller
         if( false == empty( $data['mobile']['data'] ) && $data['userId']['errno'] == 0 ){
             $userInfo      = array(
                                 'id'       => $data['mobile']['data']['id'],
+                                'type'     => 'mobile',
                                 'label'    => '手机号码搜索: ' . $data['mobile']['data']['username'],
                              );
             $arrayResult[] = $userInfo;
@@ -194,6 +200,7 @@ class SearchController extends Controller
         if( false == empty( $data['redeem']['data'] ) && $data['userId']['errno'] == 0 ){
             $userInfo      = array(
                                 'id'       => $data['redeem']['data']['id'],
+                                'type'     => 'redeemNumber',
                                 'label'    => '兑换码搜索: ' . $data['redeem']['data']['username'],
                              );
             $arrayResult[] = $userInfo;

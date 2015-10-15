@@ -25,18 +25,23 @@
                     <form class="form-inline" role="form">
 
                         <div class="form-group has-feedback">
-                            <label class="control-label" for="inputSuccess4">来源</label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 商户下线
+                            <label class="control-label" for="inputSuccess4">来源</label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 信息纠错
                         </div> <br /><br />
                     
                         <div class="form-group has-feedback">
                             <label class="control-label" for="inputSuccess4">标签</label>
-                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
-                                <button id=9 readonly=readonly class="btn btn-default btn-sm complaint-label">取消合作</button>&nbsp;&nbsp;<button id=17 readonly=readonly class="btn btn-default btn-sm complaint-label">没有合作</button>
+                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                            <button id=19 name="tag_19" readonly=readonly class="btn btn-primary btn-sm complaint-label">信息纠错</button>
                         </div> <br /><br />
  
                         <div class="form-group has-feedback">
                             <label class="control-label">来电电话</label>&nbsp;&nbsp;
-                            <input type="text" id="mobile" class="form-control">
+                            <input type="text" id="mobile" class="form-control" value="{{mobile}}">
+                        </div> <br /><br />
+
+                        <div class="form-group has-feedback">
+                            <label class="control-label">活动名称</label>&nbsp;&nbsp;
+                            <input type="text" id="itemName" value="{{itemName}}" readonly=readonly class="form-control">
                         </div> <br /><br />
 
                         <div class="form-group has-feedback">
@@ -50,20 +55,26 @@
                         </div> <br /><br />
 
                         <div class="form-group has-feedback">
+                            <label class="control-label">活动是否需下线</label>&nbsp;&nbsp;
+                            <label class="control-label">下线</label>&nbsp;&nbsp;
+                            <input type="checkbox" id="needOffline" {% if 0 != needOffline %} checked=checked {% endif %} class="form-control">
+                        </div> <br /><br />
+ 
+                        <div class="form-group has-feedback">
                             <label class="control-label">投诉方式</label>&nbsp;&nbsp;
                             <label class="checkbox-inline">
-                                <input type="radio" name="complaintWay" checked=checked id="complaintWay" value=1> 客服电话 
+                                <input type="radio" name="complaintWay" {% if 1 == method %} checked=checked {% endif %} id="complaintWay" value=1> 客服电话 
                             </label>
                             <label class="checkbox-inline">
-                                <input type="radio" name="complaintWay" id="complaintWay" value=2> 在线客服 
+                                <input type="radio" name="complaintWay" {% if 2 == method %} checked=checked {% endif %} id="complaintWay" value=2> 在线客服 
                             </label>
                             <label class="checkbox-inline">
-                                <input type="radio" name="complaintWay" id="complaintWay" value=3> 其他 
-                            </label> 
-                        </div>  <br /><br />  
+                                <input type="radio" name="complaintWay" {% if 3 == method %} checked=checked {% endif %} id="complaintWay" value=3> 其他 
+                            </label>
+                        </div>  <br /><br /> 
 
-                        <div class='form-group lockUser has-feedback'><label class='control-label'>下线原因</label>&nbsp;&nbsp;{{reason}}<br /><br />
-                        
+                        <div class='form-group lockUser has-feedback'><label class='control-label'>纠错原因</label>&nbsp;&nbsp;{{content}}</div><br /><br />
+                       
                         <div class="form-group has-feedback">
                             <label class="control-label">备注</label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                             <textarea id="note" class="autogrow">{{note}}</textarea>
@@ -72,16 +83,14 @@
                         <div class="form-group has-feedback">
                             <label class="control-label">投诉状态</label>&nbsp;&nbsp;
                             <label class="checkbox-inline">
-                                <input type="radio" id="status" checked=checked name="status" value=0> 待跟进 
+                                <input type="radio" id="status" {% if 0 == status %} checked=checked {% endif %} name="status" value=0> 待跟进 
                             </label>
                             <label class="checkbox-inline">
-                                <input type="radio" id="status" name="status" value=1> 已解决 
+                                <input type="radio" id="status" {% if 1 == status %} checked=checked {% endif %} name="status" value=1> 已解决 
                             </label> 
                         </div>  <br /><br /><br /><br /><br />
                         <div class="form-group has-feedback" style="margin-left: 32%">
-                            <button type="button" id="confirm-back-btn" class="btn btn-primary">保存并继续</button>&nbsp;&nbsp;
-                            <button type="button" id="confirm-index-btn" class="btn btn-primary">保存返回首页</button>&nbsp;&nbsp;
-                            <button type="button" id="cancel-btn" class="btn btn-default">取消</button>
+                            <button type="button" id="confirm-index-btn" class="btn btn-primary">保存</button>
                         </div>
                     </form>
                 </div>
@@ -91,13 +100,18 @@
 </div>
 
 <script type="text/javascript" >
-    tags     =  [];
-
+    tags        =  [19];
+    offlined    =  {{offlined}};
+    needOffline = {{needOffline}};
     function submit(){
         method         = $("#complaintWay:checked").val();
         status         = $("#status:checked").val();
         mobile         = $("#mobile").val();
         note           = $("#note").val();
+        
+        if( 'on' == $("#needOffline").val() ){
+           needOffline = 1;
+        }
 
         if( tags.length == 0 ){
             alert("请选择标签");
@@ -114,9 +128,9 @@
         res            = false;
         $.ajax({    
             type:'post',        
-            url:'/complaint/submit',
+            url:'/complaint/save',
             async:false,
-            data: { branchId:{{branchId}}, op: 'branchOffline', source: 2, mobile:mobile, status: status, method: method, note: note, tags: tags.join(','), reason: "{{reason}}" },
+            data: { id:"{{complaintId}}", mobile:mobile, status: status, method: method, note: note, tags: tags.join(','), offlined: offlined, needOffline:needOffline},
             dataType:'json',    
             success:function(data){ 
                         if( data != 'null' ){
@@ -136,31 +150,10 @@
 
     $(document).ready(function() { 
  
-        $(".complaint-label").click(function (e) {
-            if( $(this).hasClass("btn-default") ){
-                $(this).removeClass("btn-default");
-                $(this).addClass("btn-primary");
-                tags.push( $(this).attr("id") );
-            } else {
-                $(this).removeClass("btn-primary"); 
-                $(this).addClass("btn-default");
-                tags.splice($.inArray($(this).attr("id"),tags),1);
-            }
- 
+        $(".complaint-label").click(function (e) { 
             return false;
-        });
-
-        $("#confirm-back-btn").click(function (e) {
-
-            if(!confirm("确认提交?")){
-                return ;
-            } 
-            res = submit();
-            if( res ){
-               history.back();
-            }
-        });
-
+        }); 
+        
         $("#confirm-index-btn").click(function (e) {
 
             if(!confirm("确认提交?")){
@@ -170,13 +163,6 @@
             if( res ){
                location.href = '/';
             } 
-        });
-
-        $("#cancel-btn").click(function (e) {
-            if(!confirm("确认取消?")){
-                return ;
-            }
-            history.back();
         }); 
     });
 </script>

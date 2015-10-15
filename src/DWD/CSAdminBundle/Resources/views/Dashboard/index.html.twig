@@ -129,6 +129,7 @@
 	var    city     = 0;
 	var    branchId = 0;
 	var    saler    = 0;
+    var  searchType = '';
     $(document).ready(function() {
 		$(".complaint-type").click(function (e) { 
             if( $(this).hasClass("btn-default") ){
@@ -211,24 +212,21 @@
 	                source: "/autocomplete-branch/search",
 	                minLength:3,
 	                select: function(e, ui) {
-				     id = ui.item.id;
+				     id         = ui.item.id;
+                     searchType = ui.item.type;
+                     searchKey  = $(this).val();
 				    }
 		});
 
 		$("#searchUserBox").autocomplete({
 	                source: "/autocomplete-user/search",
 	                select: function(e, ui) {
-				      id = ui.item.id;
+				      id         = ui.item.id;
+                      searchType = ui.item.type;
+                      searchKey  = $(this).val();
 				    } 
 		});  
 
-		$("#searchOtherBox").autocomplete({
-	                source: "/autocomplete-other/search",
-	                select: function(e, ui) {
-				      id     = ui.item.id;
-				      idType = ui.item.type;
-				    } 
-		});
 
 		$("#searchBranchNameBox").autocomplete({
 	                source: "/autocomplete-branchname/search",
@@ -252,10 +250,10 @@
 
 		   switch(type){ 
 			case 'user':  
-			  location.href='/user?userId=' + id + '&type=' + type + '&source=' + source;
+			  location.href='/user?userId=' + id + '&type=' + type + '&source=' + source + '&searchType=' + searchType + '&searchKey=' + searchKey;
 			  break; 
 			case 'branch': 
-			  location.href='/branch?branchId=' + id + '&type=' + type + '&source=' + source;
+			  location.href='/branch?branchId=' + id + '&type=' + type + '&source=' + source + '&searchType=' + searchType + '&searchKey=' + searchKey;
 			  break;
 		   } 
 		});
@@ -290,7 +288,7 @@
 
         $("#complaintrecords-table").on("click", ".complaint-edit-btn", function (e) {
         	complaintId  =  $(this).attr("data-rel");
-            location.href = "/complaint/confirm?id=" + complaintId;
+            location.href = "/complaint/edit?id=" + complaintId;
         });
 
 		$("#user").click();

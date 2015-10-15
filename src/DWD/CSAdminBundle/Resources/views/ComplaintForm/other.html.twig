@@ -77,6 +77,45 @@
 </div>
 
 <script type="text/javascript" >
+    
+    function submit(){
+        method         = $("#complaintWay:checked").val();
+        status         = $("#status:checked").val();
+        mobile         = $("#mobile").val();
+        note           = $("#note").val(); 
+
+        phoneReg       = /^((0\d{2,3})-)(\d{7,8})(-(\d{3,}))?$/;
+        telReg         = /^1[34875]\d{9}$/;
+
+        if( false == phoneReg.test( mobile ) && false == telReg.test( mobile ) ){
+            alert("请输入正确的手机号码");
+            return false;
+        }
+
+        res            = false;
+        tags           = [{{tagId}}];
+        $.ajax({    
+            type:'post',         
+            async:false,
+            url:'/complaint/submit',    
+            data: {tags: tags.join(','), mobile:mobile, op:"{{type}}", status: status, method: method, note:note, source:{{source}}},
+            dataType:'json',    
+            success:function(data){ 
+                        if( data != 'null' ){
+                            alert('提交成功'); 
+                            res = true;
+                        } else {
+                            alert('提交失败'); 
+                        }
+                    },
+            error:function (req,err) { 
+                    alert('提交失败'); 
+                  } 
+        });
+
+        return res;
+    }
+
     $(document).ready(function() { 
  
         $(".complaint-label").click(function (e) {
@@ -89,31 +128,10 @@
                 return false;
             }
  
-            method         = $("#complaintWay:checked").val();
-            status         = $("#status:checked").val();
-            mobile         = $("#mobile").val();
-            note           = $("#note").val(); 
-
-            phoneReg       = /^((0\d{2,3})-)(\d{7,8})(-(\d{3,}))?$/;
-            telReg         = /^1[34875]\d{9}$/;
-
-            if( false == phoneReg.test( mobile ) && false == telReg.test( mobile ) ){
-                alert("请输入正确的手机号码");
-                return false;
-            }
-            tags           = [{{tagId}}];
-            $.ajax({    
-                type:'post',        
-                url:'/complaint/othersubmit',    
-                data: {tags: tags.join(','), mobile:mobile, op:"{{tag}}", status: status, method: method, note:note, source:{{source}}},
-                dataType:'json',    
-                success:function(data){ 
-                            if( data == 'ok' ){
-                                alert('提交成功');
-                                location.href = '/';
-                            }
-                        }  
-            });
+            res = submit();
+            if( res ){
+               location.href = '/';
+            } 
         });
     });
 </script>

@@ -32,13 +32,33 @@
                             <strong>{{ 'label.coin'|trans }}&nbsp;:&nbsp;</strong><span id='info-coin'></span><br><br>
                             <strong>{{ 'label.last_login'|trans }}&nbsp;:&nbsp;</strong><span id='info-lastLogin'></span><br><br>
                             <strong>{{ 'label.created_at'|trans }}&nbsp;:&nbsp;</strong><span id='info-createdAt'></span><br><br>
+
                         </li>
                     <ul>
                 </div>
             </div>
         </div>
     </div> 
- 
+
+    {% if '' != needDealOrder %}
+    <div class="row">
+        <div class="box col-md-12">
+            <div class="box-inner">
+                <div class="box-header well" data-original-title="">
+                    <h2>待处理订单</h2>
+
+                    <div class="box-icon"> 
+                        <a href="#" class="btn btn-minimize btn-round btn-default"><i
+                                class="glyphicon glyphicon-chevron-up"></i></a> 
+                    </div>
+                </div> 
+                <div class="box-content" id="needDealOrderContent"> 
+                    {{needDealOrder|raw}}
+                </dib>
+        </div>
+    </div>
+    {% endif %}
+
     <div class="row">
         <div class="box col-md-12">
             <div class="box-inner">
@@ -105,7 +125,7 @@
                     </thead>
                     <tbody>
                     </tbody>
-                    </table>
+                    </table> 
              </div>
         </div>
     </div>
@@ -133,6 +153,7 @@
                     </table>
                 </div>
                 <div class="modal-footer">
+                    <a href="#" id="viewCoinRecords-submit" class="btn btn-primary" data-dismiss="modal">投诉</a> 
                     <a href="#" class="btn btn-default" data-dismiss="modal">关闭</a>
                 </div>
             </div>
@@ -163,6 +184,7 @@
                     </table>
                 </div>
                 <div class="modal-footer">
+                    <a href="#" id="viewBalanceRecords-submit" class="btn btn-primary" data-dismiss="modal">投诉</a> 
                     <a href="#" class="btn btn-default" data-dismiss="modal">关闭</a>
                 </div>
             </div>
@@ -193,6 +215,7 @@
                     </table>
                 </div>
                 <div class="modal-footer">
+                    <a href="#" id="viewLockUserRecords-submit" class="btn btn-primary" data-dismiss="modal">投诉</a> 
                     <a href="#" class="btn btn-default" data-dismiss="modal">关闭</a>
                 </div>
             </div>
@@ -220,6 +243,7 @@
                     </table>
                 </div>
                 <div class="modal-footer">
+                    <a href="#" id="viewRecommendRecords-submit" class="btn btn-primary" data-dismiss="modal">投诉</a> 
                     <a href="#" class="btn btn-default" data-dismiss="modal">关闭</a>
                 </div>
             </div>
@@ -248,6 +272,7 @@
                     </table>
                 </div>
                 <div class="modal-footer">
+                    <a href="#" id="viewSMSRecords-submit" class="btn btn-primary" data-dismiss="modal">投诉</a> 
                     <a href="#" class="btn btn-default" data-dismiss="modal">关闭</a>
                 </div>
             </div>
@@ -266,7 +291,7 @@
                     <span>重置密码, 并发送新密码至手机号: {{ userinfo['mobile'] }}?</span>
                 </div>
                 <div class="modal-footer">
-                    <a href="#" id="resetPwd-submit-btn" class="btn btn-default">确认</a>
+                    <a href="#" id="resetPwd-submit-btn" class="btn btn-primary">确认</a>
                     <a href="#" class="btn btn-default" data-dismiss="modal">关闭</a>
                 </div>
             </div>
@@ -296,7 +321,7 @@
                      </div><br /> 
                 </div>
                 <div class="modal-footer">
-                    <a href="#" id="deviceUnbind-submit-btn" class="btn btn-default">解绑</a>
+                    <a href="#" id="deviceUnbind-submit-btn" class="btn btn-primary">解绑</a>
                     <a href="#" class="btn btn-default" data-dismiss="modal">关闭</a>
                 </div>
             </div>
@@ -332,7 +357,7 @@
                      </div><br /> 
                 </div>
                 <div class="modal-footer">
-                    <a href="#" id="lockUser-submit-btn" class="btn btn-default">封号</a>
+                    <a href="#" id="lockUser-submit-btn" class="btn btn-primary">封号</a>
                     <a href="#" class="btn btn-default" data-dismiss="modal">关闭</a>
                 </div>
             </div>
@@ -373,7 +398,7 @@
                      </div><br /> 
                 </div>
                 <div class="modal-footer">
-                    <a href="#" id="correct-submit-btn" class="btn btn-default">保存</a>
+                    <a href="#" id="correct-submit-btn" class="btn btn-primary">保存</a>
                     <a href="#" class="btn btn-default" data-dismiss="modal">关闭</a>
                 </div>
             </div>
@@ -424,7 +449,7 @@
                 </div>
                 <div id="complaintRecordTable" class="modal-body">
                 </div>
-                <div class="modal-footer"> 
+                <div class="modal-footer">
                     <a href="#" class="btn btn-default" data-dismiss="modal">关闭</a>
                 </div>
             </div>
@@ -872,6 +897,18 @@
             $("#correctBranchName").val($(this).parent().prev().prev().text());
         });
 
+        {% if '' != needDealOrder %}
+        $("#needDealOrderContent").on("click", ".order-correct-btn", function (e) {
+            e.preventDefault();
+            $('#correctModal').modal('show');
+            $("#campaignNeedOffline").attr("checked", false);
+            $('#correctNote').val("");
+            $("#correctOrderId").val( $(this).attr("data-rel") );
+            $("#correctItemName").val($(this).parent().prev().prev().prev().text());
+            $("#correctBranchName").val($(this).parent().prev().prev().text());
+        }); 
+        {% endif %}
+
         $("#orderListTabContent").on("click", ".order-log-btn", function (e) { 
             $("#orderLogTable").html("");
             e.preventDefault();
@@ -953,6 +990,26 @@
                    alert( '提交失败' ); 
                 },   
             });  
+        });
+
+        $("#viewSMSRecords-submit").click(function (e) {
+            location.href = "/complaintform/viewinfo?userId={{userId}}&view=smsrecords";
+        });
+
+        $("#viewRecommendRecords-submit").click(function (e) {
+            location.href = "/complaintform/viewinfo?userId={{userId}}&view=recommendrecords";
+        });
+
+        $("#viewLockUserRecords-submit").click(function (e) {
+            location.href = "/complaintform/viewinfo?userId={{userId}}&view=lockuserrecords";
+        });
+
+        $("#viewBalanceRecords-submit").click(function (e) {
+            location.href = "/complaintform/viewinfo?userId={{userId}}&view=balancerecords";
+        });
+
+        $("#viewCoinRecords-submit").click(function (e) {
+            location.href = "/complaintform/viewinfo?userId={{userId}}&view=coinrecords";
         });
     });
  

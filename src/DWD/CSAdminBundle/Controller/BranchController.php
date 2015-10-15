@@ -285,7 +285,7 @@ class BranchController extends Controller
                   $tdValue       = $orderInfo['refunded_at'];
                   break;
                 case 'expiredTime':
-                  $tdValue       = $orderInfo['expire_time'];
+                  $tdValue       = $orderInfo['expire_date'];
                   break;
                 case 'redeemTime':
                   $tdValue       = $orderInfo['redeem_time'];

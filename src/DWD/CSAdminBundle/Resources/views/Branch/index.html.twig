@@ -664,7 +664,7 @@
                      alert('验证成功');
                      $('#orderRedeemModal').modal('hide');
                      waitredeemTable.fnDraw();
-                     location.href = '/complaintform/redeem?orderId=' + orderId;
+                     location.href = '/complaintform/redeem?branchId={{branchId}}&orderId=' + orderId;
                    } else {
                      record.res = false;
                      record.err = data;

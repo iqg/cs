@@ -119,6 +119,10 @@
 
     $(document).ready(function() { 
 
+        $(".complaint-label").click(function (e) { 
+            return false;
+        });
+
         $("#confirm-back-btn").click(function (e) {
 
             if(!confirm("确认提交?")){

@@ -102,13 +102,18 @@
 </div>
 
 <script type="text/javascript" >
-    tags     =  [19];
-    offlined =  0;
+    tags        =  [19];
+    offlined    =  0;
+    needOffline =  {{needOffline}};
     function submit(){
         method         = $("#complaintWay:checked").val();
         status         = $("#status:checked").val();
         mobile         = $("#mobile").val();
-        note           = $("#note").val();
+        note           = $("#note").val(); 
+        
+        if( 'on' == $("#needOffline").val() ){
+           needOffline = 1;
+        }
 
         if( tags.length == 0 ){
             alert("请选择标签");
@@ -127,7 +132,7 @@
             type:'post',        
             url:'/complaint/submit',
             async:false,
-            data: { userId:{{userId}},orderId:{{orderId}}, op: 'orderCorrect', source: 1, mobile:mobile, status: status, method: method, note: note, tags: tags.join(','), content: "{{correctContent}}", needOffline: {{needOffline}}, campaignBranchId: {{campaignBranchId}}, offlined: offlined },
+            data: { userId:{{userId}},orderId:{{orderId}}, op: 'orderCorrect', source: 1, mobile:mobile, status: status, method: method, note: note, tags: tags.join(','), content: "{{correctContent}}", needOffline: needOffline, campaignBranchId: {{campaignBranchId}}, offlined: offlined },
             dataType:'json',    
             success:function(data){ 
                         if( data != 'null' ){
@@ -147,17 +152,7 @@
 
     $(document).ready(function() { 
  
-        $(".complaint-label").click(function (e) {
-            if( $(this).hasClass("btn-default") ){
-                $(this).removeClass("btn-default");
-                $(this).addClass("btn-primary");
-                tags.push( $(this).attr("id") );
-            } else {
-                $(this).removeClass("btn-primary"); 
-                $(this).addClass("btn-default");
-                tags.splice($.inArray($(this).attr("id"),tags),1);
-            }
- 
+        $(".complaint-label").click(function (e) { 
             return false;
         });
 
