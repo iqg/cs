@@ -176,7 +176,12 @@ class BranchController extends Controller
         $branchInfo['brandName']     =  $brandInfo['name'];
         $branchInfo['brandTel']      =  $brandInfo['tel'];
         $branchInfo['zoneName']      =  $zoneInfo['name'];
-        $branchInfo['salerName']     =  $salerInfo['name'];
+        if( isset( $salerInfo['name'] ) ){
+          $branchInfo['salerName']   =  $salerInfo['name'];
+        } else {
+          $branchInfo['salerName']   =  '';
+        }
+         
         $redeemTypes                 =  self::_getRedeemTypes( $branchInfo['redeem_type'] );
         $branchInfo['redeemTypes']   =  implode( ", ", $redeemTypes[0]); //self::_getRedeemTypes( $branchInfo['redeem_type'] );
         $branchInfo['redeemTypeIds'] =  $redeemTypes[1];
@@ -213,16 +218,16 @@ class BranchController extends Controller
                 $orderTypeId = 2;
                 break;
             case 'refund':
-                $orderTypeId = 3;
+                $orderTypeId = 6;
                 break;
             case 'expired': 
-                $orderTypeId = 4;
+                $orderTypeId = 3;
                 break;
             case 'finish': 
-                $orderTypeId = 5;
+                $orderTypeId = 4;
                 break;
             case 'processing': 
-                $orderTypeId = 6;
+                $orderTypeId = 11;
                 break;
             default: 
                 break;
@@ -333,20 +338,19 @@ class BranchController extends Controller
                                 'total' => 0,
                             );
        
+        $operation       = array(
+                             '纠错','日志','详情'
+                           ); 
+
         if( !empty( $orderInfo ) &&  $branchInfo['id'] ==  $branchId ){ 
             $orderList   =  array(
                                 'list' => 
                                     array(
                                         array(
-                                           $orderInfo['id'],
-                                           $orderInfo['campaign_branch_id'],
-                                           $orderInfo['user_id'],
-                                           $orderInfo['price'],
-                                           $this->get('dwd.util')->getOrderStatusLabel( $orderInfo['status'] ),
-                                           $this->get('dwd.util')->getOrderTypeLabel($orderInfo['type']),
-                                           $orderInfo['trade_number'],
-                                           $orderInfo['created_at'],
-                                           $orderInfo['updated_at'],
+                                           $orderInfo['item_name'], 
+                                           $orderInfo['branch_name'], 
+                                           $orderInfo['redeem_number'], 
+                                           $this->_getOperation( $operation, $orderInfo['id'] ),
                                        ),    
                                     ), 
                                 "total" => 1,

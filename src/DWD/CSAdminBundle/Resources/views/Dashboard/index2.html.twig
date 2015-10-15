@@ -11,36 +11,70 @@
 	{% endif %}
 
      <div class="row">  
-        <div class="box col-md-12">
+        <div class="box col-md-4">
             <div class="box-inner">
                 <div class="box-header well" data-original-title="">
-                    <h2><i class="glyphicon glyphicon-th"></i>投诉分类</h2>
+                    <h2><i class="glyphicon glyphicon-th"></i>用户投诉</h2>
                 </div>
                 <div class="box-content">
                     <div class="row">
-                        <div class="col-md-1"></div>
-                        <div class="col-md-2"><button id="user" class="btn btn-default complaint-type">用户投诉</button></div>
-                        <div class="col-md-2"><button id="branch" class="btn btn-default complaint-type">商户投诉</button></div>
-                        <div class="col-md-2"><button id="ask" class="btn btn-default complaint-type">咨询</button></div>
-                        <div class="col-md-2"><button id="tech-error" class="btn btn-default complaint-type">技术故障</button></div>
-                        <div class="col-md-2"><button id="other" class="btn btn-default complaint-type">其他</button></div>
+                        <div class="col-md-4"><button id="usage" class="btn btn-default complaint-type">领用问题</button></div>
+                        <div class="col-md-4"><button id="refund" class="btn btn-default complaint-type">订单退款</button></div>
+                        <div class="col-md-4"><button id="correction" class="btn btn-default complaint-type">信息纠错</button></div>
                     </div>
-                    <br />
-                    <div class="row">
-                        <div class="col-md-1"></div>
-                        <div class="col-md-8"> 
-                            <input type="searchBranch" id="searchBranchBox" value="" name="search" class="form-control hide searchBox" placeholder="请输入名称,拼音缩写,验证码" required>
-                            <input type="searchUser" id="searchUserBox" value="" name="search" class="form-control searchBox hide" placeholder="请输入手机号,验证码,用户id" required> 
-                        </div>
-                        <div class="col-md-3">
-                            <button id="processBtn" class="btn hide btn-primary">处理</button>
-                        </div>
-                    </div> 
-
                 </div>
             </div>
         </div> 
+        <!--/span-->
+
+        <div class="box col-md-4">
+            <div class="box-inner">
+                <div class="box-header well" data-original-title="">
+                    <h2><i class="glyphicon glyphicon-th"></i>商户投诉</h2>
+                </div>
+                <div class="box-content">
+                    <div class="row">
+                        <div class="col-md-4"><button id="redeem" class="btn btn-default complaint-type">订单验证</button></div>
+                        <div class="col-md-4"><button id="offline" class="btn btn-default complaint-type">要求下线</button></div>
+                        <div class="col-md-4"><button id="modifyBranch" class="btn btn-default complaint-type">修改信息</button></div>
+                    </div>
+                </div>
+            </div>
+        </div>
         <!--/span--> 
+
+
+        <div class="box col-md-4">
+            <div class="box-inner">
+                <div class="box-header well" data-original-title="">
+                    <h2><i class="glyphicon glyphicon-th"></i>其他投诉</h2>
+                </div>
+                <div class="box-content">
+                    <div class="row">
+                        <div class="col-md-4"><button id="ask" class="btn btn-default complaint-type">咨询</button></div>
+                        <div class="col-md-4"><button id="tech-error" class="btn btn-default complaint-type">技术故障</button></div> 
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!--/span--> 
+
+        <div class="box col-md-12">
+    		<div class="box-inner"> 
+                <div class="box-content">
+                    <div class="row">
+                        <div class="col-md-8">
+                        	<input type="searchBranch" id="searchBranchBox" value="" name="search" class="form-control hide searchBox" placeholder="请输入名称,拼音缩写,验证码" required>
+                        	<input type="searchUser" id="searchUserBox" value="" name="search" class="form-control searchBox hide" placeholder="请输入手机号,验证码,用户id" required>
+                        	<input type="searchOther" id="searchOtherBox" value="" name="search" class="form-control searchBox hide" placeholder="请输入手机号,用户id,商户名称" required> 
+                        </div>
+                        <div class="col-md-4">
+                        	<button id="processBtn" class="btn btn-primary">处理</button>
+                        </div>
+                    </div> 
+                </div>
+            </div>
+    	</div> 
     	
     </div> 
 
@@ -138,29 +172,37 @@
                 $(this).addClass("btn-primary"); 
                 type    = $(this).attr('id');
                 switch(type){ 
-					case 'user': 
+					case 'usage':
+					case 'refund':
+					case 'correction': 
 					  $("#searchBranchBox").addClass('hide');
 					  $("#searchOtherBox").addClass('hide');
 					  $("#searchUserBox").removeClass('hide');
 					  $("#searchUserBox").val("");
-                      $("#processBtn").removeClass('hide');
 					  source = 1;
-					  break;  
-					case 'branch': 
+					  break; 
+					case 'redeem':
+					case 'offline':
+					case 'modifyBranch': 
 					  $("#searchUserBox").addClass('hide');
 					  $("#searchOtherBox").addClass('hide');
 					  $("#searchBranchBox").removeClass('hide');
 					  $("#searchBranchBox").val("");
-                      $("#processBtn").removeClass('hide');
 					  source = 2;
 					  break;
 					case 'ask':
 					case 'tech-error':
-                    case 'other':
-					  location.href='/complaintform/other?type='+type;
+					  $("#searchUserBox").addClass('hide');
+					  $("#searchBranchBox").addClass('hide');
+					  $("#searchOtherBox").removeClass('hide');
+					  $("#searchOtherBox").val("");
+					  source = 3;
 					  break;
 				} 
-            } else { 
+            } else {
+            	$(this).removeClass("btn-primary");
+            	$(this).addClass("btn-default");
+            	type    = '';
             }
 
             return false;
@@ -251,12 +293,20 @@
 		   }
 
 		   switch(type){ 
-			case 'user':  
+			case 'usage':
+			case 'refund':
+			case 'correction': 
 			  location.href='/user?userId=' + id + '&type=' + type + '&source=' + source;
 			  break; 
-			case 'branch': 
+			case 'redeem':
+			case 'offline':
+			case 'modifyBranch': 
 			  location.href='/branch?branchId=' + id + '&type=' + type + '&source=' + source;
 			  break;
+			case 'ask':
+			case 'tech-error':
+			  location.href='/complaint/other?type=' + type + '&source=' + source + '&id=' + id + '&idType=' + idType;
+			  break; 
 		   } 
 		});
 
@@ -293,7 +343,7 @@
             location.href = "/complaint/confirm?id=" + complaintId;
         });
 
-		$("#user").click();
+		$("#usage").click();
 	});
  
 </script>

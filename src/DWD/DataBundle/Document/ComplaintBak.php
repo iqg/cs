@@ -7,7 +7,7 @@ use Doctrine\ODM\MongoDB\Mapping\Annotations as MongoDB;
 /**
  * @MongoDB\Document(collection="Complaint", repositoryClass="DWD\DataBundle\Repository\ComplaintRepository")
  */
-class Complaint
+class ComplaintBak
 {
     /**
      * @MongoDB\Id
@@ -45,24 +45,44 @@ class Complaint
     protected $platform;
 
     /**
-     * @MongoDB\String
-     */
-    protected $op;
-
-    /**
-     * @MongoDB\Int
-     */
-    protected $branchId; 
-
-    /**
      * @MongoDB\Int
      */
     protected $userId;
 
     /**
-     * @MongoDB\Hash
+     * @MongoDB\Int
      */
-    protected $complaintInfo;
+    protected $branchId;
+
+    /**
+     * @MongoDB\Collection
+     */
+    protected $salers;
+
+    /**
+     * @MongoDB\Collection
+     */
+    protected $zones;
+
+    /**
+     * @MongoDB\Collection
+     */
+    protected $campaigns;
+
+    /**
+     * @MongoDB\Collection
+     */
+    protected $branchs;
+
+    /**
+     * @MongoDB\Collection
+     */
+    protected $users;
+
+    /**
+     * @MongoDB\Collection
+     */
+    protected $orders;
 
     /**
      * @MongoDB\Int
@@ -77,27 +97,14 @@ class Complaint
     /**
      * @MongoDB\Int
      */
-    protected $salerId;
-
-    /**
-     * @MongoDB\Int
-     */
-    protected $zoneId;
-
-    /**
-     * @MongoDB\Int
-     */
     protected $createdAt;
+
 
     /**
      * @MongoDB\Int
      */
     protected $resolvedAt;
 
-    /**
-     * @MongoDB\Collection
-     */
-    protected $oplog;
 
     /**
      * Get id
@@ -108,6 +115,7 @@ class Complaint
     {
         return $this->id;
     }
+ 
 
     /**
      * Set source
@@ -220,50 +228,6 @@ class Complaint
     }
 
     /**
-     * Set salerId
-     *
-     * @param int $salerId
-     * @return self
-     */
-    public function setSalerId($salerId)
-    {
-        $this->salerId = $salerId;
-        return $this;
-    }
-
-    /**
-     * Get salerId
-     *
-     * @return int $salerId
-     */
-    public function getSalerId()
-    {
-        return $this->salerId;
-    }
-
-    /**
-     * Set method
-     *
-     * @param int $method
-     * @return self
-     */
-    public function setZoneId($zoneId)
-    {
-        $this->zoneId = $zoneId;
-        return $this;
-    }
-
-    /**
-     * Get zoneId
-     *
-     * @return int $zoneId
-     */
-    public function getZoneId()
-    {
-        return $this->zoneId;
-    }
-
-    /**
      * Set platform
      *
      * @param int $platform
@@ -286,71 +250,93 @@ class Complaint
     }
 
     /**
-     * Set op
+     * Set campaigns
      *
-     * @param string $op
+     * @param collection $campaigns
      * @return self
      */
-    public function setOp($op)
+    public function setCampaigns($campaigns)
     {
-        $this->op = $op;
+        $this->campaigns = $campaigns;
         return $this;
     }
 
     /**
-     * Get op
+     * Get campaigns
      *
-     * @return string $op
+     * @return collection $campaigns
      */
-    public function getOp()
+    public function getCampaigns()
     {
-        return $this->op;
+        return $this->campaigns;
     }
 
     /**
-     * Set branchId
+     * Set branchs
      *
-     * @param int $branchId
+     * @param collection $branchs
      * @return self
      */
-    public function setBranchId($branchId)
+    public function setBranchs($branchs)
     {
-        $this->branchId = $branchId;
+        $this->branchs = $branchs;
         return $this;
     }
 
     /**
-     * Get branchId
+     * Get branchs
      *
-     * @return int $branchId
+     * @return collection $branchs
      */
-    public function getBranchId()
+    public function getBranchs()
     {
-        return $this->branchId;
+        return $this->branchs;
     }
 
     /**
-     * Set userId
+     * Set users
      *
-     * @param int $userId
+     * @param collection $users
      * @return self
      */
-    public function setUserId($userId)
+    public function setUsers($users)
     {
-        $this->userId = $userId;
+        $this->users = $users;
         return $this;
     }
 
     /**
-     * Get userId
+     * Get users
      *
-     * @return int $userId
+     * @return collection $users
      */
-    public function getUserId()
+    public function getUsers()
     {
-        return $this->userId;
+        return $this->users;
     }
- 
+
+    /**
+     * Set orders
+     *
+     * @param collection $orders
+     * @return self
+     */
+    public function setOrders($orders)
+    {
+        $this->orders = $orders;
+        return $this;
+    }
+
+    /**
+     * Get orders
+     *
+     * @return collection $orders
+     */
+    public function getOrders()
+    {
+        return $this->orders;
+    }
+
     /**
      * Set status
      *
@@ -371,28 +357,6 @@ class Complaint
     public function getStatus()
     {
         return $this->status;
-    }
-
-    /**
-     * Set note
-     *
-     * @param string $note
-     * @return self
-     */
-    public function setNote($note)
-    {
-        $this->note = $note;
-        return $this;
-    }
-
-    /**
-     * Get note
-     *
-     * @return string $note
-     */
-    public function getNote()
-    {
-        return $this->note;
     }
 
     /**
@@ -440,46 +404,112 @@ class Complaint
     }
 
     /**
-     * Set oplog
+     * Set note
      *
-     * @param collection $oplog
+     * @param string $note
      * @return self
      */
-    public function setOplog($oplog)
+    public function setNote($note)
     {
-        $this->oplog = $oplog;
+        $this->note = $note;
         return $this;
     }
 
     /**
-     * Get oplog
+     * Get note
      *
-     * @return collection $oplog
+     * @return string $note
      */
-    public function getOplog()
+    public function getNote()
     {
-        return $this->oplog;
+        return $this->note;
     }
 
     /**
-     * Set complaintInfo
+     * Set userId
      *
-     * @param hash $complaintInfo
+     * @param int $userId
      * @return self
      */
-    public function setComplaintInfo($complaintInfo)
+    public function setUserId($userId)
     {
-        $this->complaintInfo = $complaintInfo;
+        $this->userId = $userId;
         return $this;
     }
 
     /**
-     * Get complaintInfo
+     * Get userId
      *
-     * @return hash $complaintInfo
+     * @return int $userId
      */
-    public function getComplaintInfo()
+    public function getUserId()
     {
-        return $this->complaintInfo;
+        return $this->userId;
+    }
+
+    /**
+     * Set branchId
+     *
+     * @param int $branchId
+     * @return self
+     */
+    public function setBranchId($branchId)
+    {
+        $this->branchId = $branchId;
+        return $this;
+    }
+
+    /**
+     * Get branchId
+     *
+     * @return int $branchId
+     */
+    public function getBranchId()
+    {
+        return $this->branchId;
+    }
+
+    /**
+     * Set salers
+     *
+     * @param collection $salers
+     * @return self
+     */
+    public function setSalers($salers)
+    {
+        $this->salers = $salers;
+        return $this;
+    }
+
+    /**
+     * Get salers
+     *
+     * @return collection $salers
+     */
+    public function getSalers()
+    {
+        return $this->salers;
+    }
+
+    /**
+     * Set zones
+     *
+     * @param collection $zones
+     * @return self
+     */
+    public function setZones($zones)
+    {
+        $this->zones = $zones;
+        return $this;
+    }
+
+    /**
+     * Get zones
+     *
+     * @return collection $zones
+     */
+    public function getZones()
+    {
+        return $this->zones;
     }
 }

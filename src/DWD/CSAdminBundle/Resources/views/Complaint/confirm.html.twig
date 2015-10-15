@@ -37,7 +37,7 @@
                         </div> <br /><br />
  
                         <div  id="divTel" class="form-group has-feedback">
-                            <label class="control-label">电话号码</label>&nbsp;&nbsp;
+                            <label class="control-label">来电电话</label>&nbsp;&nbsp;
                             <input type="text" id="mobile" class="form-control" value="{{mobile}}" >
                         </div> <br /><br />
 
@@ -209,15 +209,24 @@
             if(!confirm("确认提交?")){
                 return ;
             }
+            mobile                   = $("#mobile").val();
             complaint.platform       = $("#selectPlatform option:selected").val();
             complaint.method         = $("#complaintWay:checked").val();
             complaint.status         = $("#status:checked").val();
-            complaint.mobile         = $("#mobile").val();
+            complaint.mobile         = mobile;
             complaint.note           = $("#note").val();
             if( tags.length == 0 ){
-                alert("请选择分类");
+                alert("请选择标签");
                 return ;
             }
+            phoneReg                 = /^((0\d{2,3})-)(\d{7,8})(-(\d{3,}))?$/;
+            telReg                   = /^1[34875]\d{9}$/;
+
+            if( false == phoneReg.test( mobile ) && false == telReg.test( mobile ) ){
+                alert("请输入正确的手机号码");
+                return ;
+            }
+
             complaint.tags           = tags.join(",");
 
             $.ajax({    
@@ -227,6 +236,7 @@
                 dataType:'json',    
                 success:function(data){ 
                            alert("提交成功");
+                           location.href = "/";
                         }  
             });
         });

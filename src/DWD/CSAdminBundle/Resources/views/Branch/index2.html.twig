@@ -47,6 +47,7 @@
             <div class="box-inner">
                 <div class="box-header well" data-original-title="">
                     <h2>{{ 'title.order_list'|trans }}</h2>
+
                     <div class="box-icon"> 
                         <a href="#" class="btn btn-minimize btn-round btn-default"><i
                                 class="glyphicon glyphicon-chevron-up"></i></a> 
@@ -498,7 +499,6 @@
                 dataType:'json',    
                 success:function(data){ 
                    if( data == true ){
-                     location.href      = "/complaintform/branchoffline?branchId={{branchId}}" + "&reason=" + offlineReason + "&note=" + offlineNote;
                      record.res = true;
                      alert('下线成功');
                      branchinfo.enabled = 0;
@@ -573,10 +573,9 @@
                       alert('更新成功');
                       branchinfo.redeemTypes = redeemTypes;
                       branchinfo.address     = address;
-                      branchinfo.redeem_time = redeemTime;
-                      branchinfo.redeem_type = redeemTypes;
-                      branchinfo.tel         = tel; 
-                      location.href = "/complaintform/updatebranch?branchId={{branchId}}&address=" + address + "&redeemTels=" + redeemTels + "&redeemTime=" + redeemTime + "&tel=" + tel;
+                      branchinfo.redeem_time = $redeemTime;
+                      branchinfo.redeem_type = $tel;
+                      branchinfo.tel = $redeemTime; 
                     } else {
                       record.res = false;
                       alert('更新失败');
@@ -662,9 +661,8 @@
                    if( data == true ){
                      record.res = true;
                      alert('验证成功');
-                     $('#orderRedeemModal').modal('hide');
+                     $('#orderRedeemModal').modal('hide'); 
                      waitredeemTable.fnDraw();
-                     location.href = '/complaintform/redeem?orderId=' + orderId;
                    } else {
                      record.res = false;
                      record.err = data;
@@ -719,8 +717,8 @@
                 dataType:'json',    
                 success:function(data){
                    if( true == data.result ){ 
-                      alert('重置成功')
-                      location.href = '/complaintform/resetpwd?userId=' + record.userId;
+                       alert('重置成功')
+                      record.res = true;
                    } else {
                       alert( '重置失败');
                       record.res = false;

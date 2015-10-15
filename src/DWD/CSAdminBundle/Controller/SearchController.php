@@ -163,7 +163,7 @@ class SearchController extends Controller
             array(
                 'url'    => '/user/userInfo',
                 'data'   => array(
-                    'redeemNum'      => $q, 
+                    'redeemNumber'      => $q, 
                 ),
                 'method' => 'get',
                 'key'    => 'redeem',

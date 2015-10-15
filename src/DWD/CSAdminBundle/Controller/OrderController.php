@@ -85,7 +85,7 @@ class OrderController extends Controller
         $data                 = array( 
                                     array(
                                         'url'    => '/order/orderlog',
-                                        'data'   =>  array( 
+                                        'data'   =>  array(
                                                         'orderId'        => $orderId,
                                                         'needPagination' => 2,
                                                         'pageNum'        => 1,
@@ -98,12 +98,12 @@ class OrderController extends Controller
 
         $data              = $dataHttp->MutliCall($data);
      
-        $str               = '<table class="table table-striped table-bordered"><tr><th>状态</th><th>备注</th><th>创建时间</th></tr>';
+        $str               = '<table class="table table-striped table-bordered"><tr><th>状态</th><th>创建时间</th></tr>';
        
         foreach( $data['orderlog']['data']['list'] as $logrecord ){
-            $str          .= "<tr><td>" . $this->get('dwd.util')->getOrderLogStatusLabel( $logrecord['status'] ). "</td><td>" . $logrecord['remark'] . "</td><td>" . $logrecord['created_at'] . "</td></tr>";
+            $str          .= "<tr><td>" . $this->get('dwd.util')->getOrderLogStatusLabel( $logrecord['status'] ). "</td><td>" . $logrecord['created_at'] . "</td></tr>";
         } 
-        $str              .= "</table》";
+        $str              .= "</table>";
         $res               = array(
                                 'result'  => true,
                                 'content' => $str,
@@ -130,7 +130,7 @@ class OrderController extends Controller
 
         if( $password != $this->getUser()->getPassword() ){
             $response         = new Response();
-            $response->setContent( json_encode( '管理员密码错误' ) );
+            $response->setContent( json_encode( '密码错误' ) );
             return $response;     
         }
   
@@ -185,17 +185,24 @@ class OrderController extends Controller
                                         'url'    => '/order/orderinfo',
                                         'data'   =>  array( 
                                                         'orderId'        => $orderId,
-                                                        'needPagination' => 2,
-                                                        'pageNum'        => 1,
-                                                        'pageLimit'      => 100, 
                                                      ),
                                         'method' =>  'get',
                                         'key'    =>  'orderinfo',
+                                    ),  
+                                    array(
+                                        'url'    => '/order/paymentinfo',
+                                        'data'   =>  array( 
+                                                        'orderId'        => $orderId,
+                                                        'realPay'        => 1, 
+                                                     ),
+                                        'method' =>  'get',
+                                        'key'    =>  'paymentinfo',
                                     ),  
                                 );
 
         $data                 = $dataHttp->MutliCall($data);
         $orderinfo            = $data['orderinfo']['data'];
+        $paymentinfo          = $data['paymentinfo']['data'];
 
         $data                 = array( 
                                     array(
@@ -228,13 +235,13 @@ class OrderController extends Controller
         $str              .= "<tr><td>商品</td><td>" . $orderinfo['item_name'] . "</td></tr>";
         $str              .= "<tr><td>门店</td><td>" . $orderinfo['branch_name'] . "</td></tr>";
         $str              .= "<tr><td>兑换码</td><td>" . $orderinfo['redeem_number'] . "</td></tr>";
-        $str              .= "<tr><td>支付信息</td><td>" . $orderinfo['trade_number'] . "</td></tr>";
-        $str              .= "<tr><td>订单类型</td><td>" . $orderinfo['type'] . "</td></tr>";
+        $str              .= "<tr><td>支付信息</td><td>" . $paymentinfo['amount'] . '元(' . $this->get('dwd.util')->getPaymentTypeLabel( $paymentinfo['payment_method'] ) . ")</td></tr>";
+        $str              .= "<tr><td>订单类型</td><td>" . $this->get('dwd.util')->getOrderTypeLabel($orderinfo['type']) . "</td></tr>";
         $str              .= "<tr><td>跟进销售</td><td>" . $salerinfo['name'] . "</td></tr>";
         $str              .= "<tr><td>下单时间</td><td>" . $orderinfo['created_at'] . "</td></tr>";
         $str              .= "<tr><td>过期时间</td><td>" . $orderinfo['expire_date'] . "</td></tr>";
         $str              .= "<tr><td>兑换时间</td><td>" . $orderinfo['redeem_time'] . "</td></tr>";
-        $str              .= "<tr><td>退款帐号</td><td>" . $orderinfo['user_id'] . "</td></tr>";
+        $str              .= "<tr><td>退款帐号</td><td>" . $orderinfo['third_party_account'] . "</td></tr>";
         $str              .= "<tr><td>状态</td><td>" . $this->get('dwd.util')->getOrderStatusLabel($orderinfo['status']) . "</td></tr>";
    
         $str              .= "</table>";

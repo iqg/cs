@@ -348,7 +348,7 @@
                     <h3>纠错</h3>
                 </div>
                 <div class="modal-body">  
-                     <div class="control-group">
+                     <div class="control-group"> 
                          <div class="input-group col-md-4">
                             <span class="input-group-addon">纠错内容</span>
                             <select id="correctContent" >
@@ -365,10 +365,6 @@
                             <input id="correctOrderId" type="hidden" />
                             <input id="correctItemName" type="hidden" />
                             <input id="correctBranchName" type="hidden" />
-                         </div><br /> 
-                         <div class="input-group col-md-4">
-                            <span class="input-group-addon">门店是否需要下线</span> 
-                            <input id="campaignNeedOffline" type="checkbox" /> 
                          </div><br /> 
                      </div><br /> 
                 </div>
@@ -717,7 +713,6 @@
                    if( true == data.result ){ 
                        alert('重置成功')
                       record.res = true;
-                      location.href = "/complaintform/resetpwd?userId={{userId}}";
                    } else {
                       alert( '重置失败');
                       record.res = false;
@@ -744,13 +739,33 @@
             record.type      = "封号";
             record.reason    = selectlockReason;
             record.userId    = {{userId}};  
-            record.note      = lockNote; 
-            
+            record.note      = lockNote;
+
+           /* $.ajax({    
+                type:'post',        
+                url:'/user/lock',    
+                data:{userId:{{userId}},selectlockReason:selectlockReason,lockNote:lockNote},
+                dataType:'json',    
+                success:function(data){
+                   if( true == data.result ){
+                      record.res      = true;
+                      userinfo.locked = 1;  
+                      __init();
+                   } else {
+                      record.res    = false;
+                      alert( '封号失败');
+                   }
+                },
+                error:function (req,err) {
+                   record.res = false;
+                   record.err = err;  
+                   alert( '封号失败' ); 
+                } 
+            }); */
             operator.push(record);
             alert('提交成功');
             $("#lock-user-btn").addClass('hide');
             $('#lockUserModal').modal('hide');
-            location.href = "/complaintform/lockuser?userId={{userId}}&reason=" + selectlockReason + "&note=" + lockNote;
         }); 
 
         $("#deviceUnbind-submit-btn").click(function(e){
@@ -772,7 +787,7 @@
                    if( true == data.result ){
                       record.res  = true;
                       alert( '解绑成功' );
-                      location.href = "/complaintform/unbinduser?userId={{userId}}&reason=" + reason;
+                      
                    } else {
                       record.res  = false;
                       alert( '解绑失败' );
@@ -805,13 +820,30 @@
             record.itemName   = $("#correctItemName").val();
             record.branchName = $("#correctBranchName").val();
 
-            
+           /* $.ajax({    
+                type:'post',        
+                url:'/order/feedback',    
+                data:{type:1,orderId:correctOrderId,feedback:correctContent,status:0},
+                dataType:'json',    
+                success:function(data){
+                   if( true == data.result ){
+                      record.res = true;
+                      alert( '提交成功' );
+                   } else {
+                      record.res = false;
+                      alert( '提交失败' );
+                   }
+                },
+                error:function (req,err) {
+                   record.res = false;
+                   record.err = err;  
+                   alert( '提交失败' ); 
+                }
+            }); */
             operator.push(record);
             alert('提交成功'); 
             $(this).removeClass('disabled');
             $('#correctModal').modal('hide');
-            needOffline   = $("#campaignNeedOffline").val();
-            location.href = "/complaintform/ordercorrect?orderId=" + correctOrderId + "&correctContent=" + correctContent + "&correctNote" + correctNote + "&needOffline=" + needOffline;
         }); 
          
  
@@ -865,7 +897,6 @@
         $("#orderListTabContent").on("click", ".order-correct-btn", function (e) {
             e.preventDefault();
             $('#correctModal').modal('show');
-            $("#campaignNeedOffline").attr("checked", false);
             $('#correctNote').val("");
             $("#correctOrderId").val( $(this).attr("data-rel") );
             $("#correctItemName").val($(this).parent().prev().prev().prev().text());

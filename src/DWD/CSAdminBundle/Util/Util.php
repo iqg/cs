@@ -11,6 +11,28 @@ namespace DWD\CSAdminBundle\Util;
  
 class Util
 {
+   public function getComplaintTagTypeId( $typeId ){
+      $typeLabel          =  array(
+                                 1    => 1,
+                                 2    => 2,
+                                 3    => 4,
+                               );
+        return  isset( $typeLabel[$typeId] ) ? $typeLabel[$typeId] : 0;
+   }
+
+   public function getPaymentTypeLabel( $typeId )
+   { 
+        $typeLabel          =  array(
+                                 1    => '余额支付',
+                                 2    => '支付宝钱包支付',
+                                 3    => '微信支付',
+                                 4    => '支付宝网页支付', 
+                                 5    => '百川支付', 
+                                 999  => '老系统支付', 
+                               );
+        return  isset( $typeLabel[$typeId] ) ? $typeLabel[$typeId] : '';
+   }
+
    public function getOrderTypeLabel( $typeId )
    { 
         $typeLabel          =  array(
@@ -19,7 +41,7 @@ class Util
                                  3    => '倒计时',
                                  4    => '活动赠送', 
                                );
-        return $typeLabel[$typeId];
+        return  isset( $typeLabel[$typeId] ) ? $typeLabel[$typeId] : '';
    }
 
    public function getOrderStatusLabel( $statusId )
@@ -171,7 +193,7 @@ class Util
                                );
         return $typeLabel[$typeId];
    }
-
+   
    public function getOrderTableInfo( $typeId )
    {
       $tableInfo            =  array(
@@ -196,7 +218,7 @@ class Util
                                                             '详情',
                                                           ),
                                          ),
-                                 3    => array(
+                                 6    => array(
                                             'label'     => '已退款',
                                             'code'      => 'refund',
                                             'head'      => array(
@@ -215,7 +237,7 @@ class Util
                                                             '详情',
                                                           ),
                                          ),
-                                 4    => array(
+                                 3    => array(
                                             'label'     => '已过期',
                                             'code'      => 'expired',
                                             'head'      => array(
@@ -235,7 +257,7 @@ class Util
                                                             '详情',
                                                           ),
                                          ),
-                                 5    => array(
+                                 4    => array(
                                             'label'     => '已完成',
                                             'code'      => 'finish',
                                             'head'      => array(
@@ -254,7 +276,7 @@ class Util
                                                             '详情',
                                                           ),
                                          ),
-                                 6    => array(
+                                 11    => array(
                                             'label'     => '待处理',
                                             'code'      => 'processing',
                                             'head'      => array(
@@ -281,7 +303,7 @@ class Util
    public function getComplaintStatusLabel( $statusId )
    {
         $statusLabel        =  array( 
-                                 0    => '未解决',
+                                 0    => '待跟进',
                                  1    => '已解决',
                                  10   => '已解决（退款处理）',
                                  11   => '已解决（延期处理）',
@@ -295,7 +317,9 @@ class Util
         $sourceLabel        =  array( 
                                  1    => '用户投诉',
                                  2    => '商户投诉',
-                                 3    => '其他',
+                                 3    => '咨询',
+                                 4    => '技术故障',
+                                 5    => '其他',
                                );
         return isset( $sourceLabel[$sourceId] ) ?  $sourceLabel[$sourceId] : '' ;
    }
@@ -303,16 +327,39 @@ class Util
    public function getComplaintTypesLabel( $typeId )
    {
         $typeLabel          =  array( 
-                                 'usage'        => '领用问题',
-                                 'refund'       => '订单退款',
-                                 'correction'   => '信息纠错',
-                                 'redeem'       => '订单验证',
-                                 'offline'      => '要求下线',
-                                 'modifyBranch' => '修改信息',
-                                 'ask'          => '咨询',
-                                 'tech-error'   => '技术故障', 
+                                 'usage'         => '领用问题',
+                                 'refund'        => '订单退款',
+                                 'correction'    => '信息纠错',
+                                 'redeem'        => '订单验证',
+                                 'offline'       => '要求下线',
+                                 'modifyBranch'  => '修改信息',
+                                 'ask'           => '咨询',
+                                 'tech-error'    => '技术故障', 
+                                 'user'          => '用户咨询', 
+                                 'branch'        => '商户咨询', 
+                                 'other'         => '其他', 
+                                 'branchOffline' => '商户下线',
                                );
+        
         return isset( $typeLabel[$typeId] ) ?  $typeLabel[$typeId] : '' ;
+   }
+
+   public function getComplaintTag( $tagId )
+   {
+        $tagLabel           =  array( 
+                                  5        => '无法验证',
+                                  9        => '取消合作',
+                                  15       => '用户要求',
+                                  16       => '违规',
+                                  17       => '没有合作',
+                                  18       => '验证有误',
+                                  19       => '信息纠错',
+                                  20       => '重置密码',
+                                  21       => '解绑设备',
+                                  22       => '咨询',
+                                  23       => '其他',
+                               );
+        return isset( $tagLabel[$tagId] ) ?  $tagLabel[$tagId] : '' ;
    }
 
    public function getCampaignBranchTypeLabel( $typeId )
@@ -329,7 +376,47 @@ class Util
         return isset( $typeLabel[$typeId] ) ?  $typeLabel[$typeId] : '' ;
    }
 
-   public function getEnabledLabel( $enabled ){
-      return intval( $enabled ) == 0 ? '已下线' : '在线'; 
+
+   public function getCampaignBranchCategoryLabel( $categoryId )
+   {
+        $categoryLabel      =  array( 
+                                  1        => '饮料甜品',
+                                  2        => '生活服务',
+                                  3        => '日用商品',
+                                  5        => '快餐小食',
+                                  6        => '服装饰品', 
+                               );
+        return isset( $categoryLabel[$categoryId] ) ?  $categoryLabel[$categoryId] : '' ;
    }
+
+   public function getEnabledLabel( $enabled )
+   {
+      return intval( $enabled ) == 0 ? '已下线' : '在线'; 
+   } 
+
+   public function getUnbindReasonLabel( $reasonId )
+   {
+      $reasonLabel          =  array( 
+                                  1        => '别人帐号在我手机上登录了',
+                                  2        => '原来的手机号不用了',
+                                  3        => '一个帐号在好几个设备上登录了',
+                                  4        => '其他原因', 
+                               );
+      return isset( $reasonLabel[$reasonId] ) ?  $reasonLabel[$reasonId] : '' ; 
+   }
+
+   public function getBranchOfflineReasonLabel( $reasonId )
+   {
+      $reasonLabel          =  array( 
+                                  1        => '推广效果不好',
+                                  2        => '用户质量差',
+                                  3        => '操作太麻烦',
+                                  4        => '不结算成本太高',
+                                  5        => '合作到期了',
+                                  6        => '做了别的推广，不需要爱抢购了',
+                                  7        => '门店要转让/倒闭/装修了', 
+                               );
+      return isset( $reasonLabel[$reasonId] ) ?  $reasonLabel[$reasonId] : '' ; 
+   }                             
+    
 }

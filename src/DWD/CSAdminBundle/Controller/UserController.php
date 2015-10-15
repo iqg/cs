@@ -83,16 +83,16 @@ class UserController extends Controller
                     $orderTypeId = 2;
                     break;
                 case 'refund':
-                    $orderTypeId = 3;
+                    $orderTypeId = 6;
                     break;
                 case 'expired': 
-                    $orderTypeId = 4;
+                    $orderTypeId = 3;
                     break;
                 case 'finish': 
-                    $orderTypeId = 5;
+                    $orderTypeId = 4;
                     break;
                 case 'processing': 
-                    $orderTypeId = 6;
+                    $orderTypeId = 11;
                     break;
                 default: 
                     break;
@@ -179,7 +179,7 @@ class UserController extends Controller
                   $tdValue       = $orderInfo['refunded_at'];
                   break;
                 case 'expiredTime':
-                  $tdValue       = $orderInfo['expire_time'];
+                  $tdValue       = $orderInfo['expire_date'];
                   break;
                 case 'redeemTime':
                   $tdValue       = $orderInfo['redeem_time'];
@@ -222,25 +222,25 @@ class UserController extends Controller
                                 'list'  => array(),
                                 'total' => 0,
                             );
-        if( !empty( $orderInfo ) && $userId == $orderInfo['user_id'] ){ 
-            $orderList       =  array(
-                                  'list' => 
-                                      array(
-                                          array(
-                                           $orderInfo['id'],
-                                           $orderInfo['campaign_branch_id'],
-                                           $orderInfo['user_id'],
-                                           $orderInfo['price'],
-                                           $this->get('dwd.util')->getOrderStatusLabel($orderInfo['status']),
-                                           $this->get('dwd.util')->getOrderTypeLabel($orderInfo['type']),
-                                           $orderInfo['trade_number'],
-                                           $orderInfo['created_at'],
-                                           $orderInfo['updated_at'],
-                                         ),    
-                                      ), 
-                                  "total" => 1,
-                              );
-        } 
+
+        $operation       = array(
+                            '纠错','日志','详情'
+                           ); 
+
+        if( !empty( $orderInfo ) && $userId == $orderInfo['user_id'] ){
+            $orderList   =  array(
+                                'list' => 
+                                    array(
+                                        array(
+                                           $orderInfo['item_name'], 
+                                           $orderInfo['branch_name'], 
+                                           $orderInfo['redeem_number'], 
+                                           $this->_getOperation( $operation, $orderInfo['id'] ),
+                                       ),    
+                                    ), 
+                                "total" => 1,
+                            );
+        }  
 
         return $orderList;
     }
