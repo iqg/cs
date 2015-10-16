@@ -36,7 +36,7 @@
  
                         <div class="form-group has-feedback">
                             <label class="control-label">来电电话</label>&nbsp;&nbsp;
-                            <input type="text" id="mobile" class="form-control">
+                            <input type="text" id="mobile" class="form-control" value="{{mobile}}">
                         </div> <br /><br />
 
                         <div class="form-group has-feedback">
@@ -56,7 +56,7 @@
                        
                         <div class="form-group has-feedback">
                             <label class="control-label">备注</label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                            <textarea id="note" class="autogrow"></textarea>
+                            <textarea id="note" class="autogrow">{{note}}</textarea>
                         </div> <br /><br />
 
                         <div class="form-group has-feedback">
@@ -78,11 +78,31 @@
             </div>
         </div>
     </div>  
+
+    <div class="modal fade" id="lockUserDateModal" tabindex="-1" role="dialog" aria-labelledby="lockUserDateModal" aria-hidden="true">
+
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">×</button>
+                    <h3>用户封号</h3>
+                </div>
+                <div class="modal-body"> 
+                    <span>封号天数: </span><input type="text" id="lockDays"/> 
+                </div>
+                <div class="modal-footer">
+                    <a href="#" id="lockDays-submit-btn" class="btn btn-default">确认</a>
+                    <a href="#" class="btn btn-default" data-dismiss="modal">关闭</a>
+                </div>
+            </div>
+        </div>
+    </div> 
+
 </div>
 
 <script type="text/javascript" >
     tags     =  [];
-    locked   =  false;
+    locked   =  0;
     function submit(){
         method         = $("#complaintWay:checked").val();
         status         = $("#status:checked").val();
@@ -169,18 +189,32 @@
             history.back();
         });
 
-        $("#lock-user-btn").click(function (e) {
+        $("#lock-user-btn").click(function(e){ 
+            e.preventDefault();
+            $('#lockUserDateModal').modal('show');
+        });
+
+        $("#lockDays-submit-btn").click(function (e) { 
+            inputDays  = $("#lockDays").val();
+
+            reg        = /^[0-9]*[1-9][0-9]*$/;
+            if( false == reg.test( inputDays ) ){
+                alert('请输入正确天数!');
+                return ;
+            }
 
             $.ajax({    
                 type:'post',        
                 url:'/user/lock',    
-                data:{userId:{{userId}},selectlockReason:"{{reason}}"},
+                data:{userId:{{userId}},selectlockReason:"{{reason}}",lockDays: parseInt(inputDays)},
                 dataType:'json',    
                 success:function(data){
                    if( true == data.result ){  
                       alert('封号成功');
-                      locked = true;
+                      locked = 1;
                       $("#lock-user-btn").hide();
+                      e.preventDefault();
+                      $('#lockUserDateModal').modal('hide');
                    } else {
                       alert( '封号失败');
                    }    

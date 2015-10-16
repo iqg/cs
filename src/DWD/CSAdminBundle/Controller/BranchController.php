@@ -447,7 +447,7 @@ class BranchController extends Controller
                                         $this->get('dwd.util')->getComplaintSourceLabel( $complaint['source'] ),
                                         implode(",", $tags),
                                         $this->get('dwd.util')->getComplaintStatusLabel( $complaint['status'] ),
-                                        "<a href='/complaint/confirm?id=" . $complaint['_id'] . "' target='_blank' >[详情]</a>",
+                                        "<a href='/complaint/edit?id=" . $complaint['_id'] . "' target='_blank' >[详情]</a>",
                                      );
         }
 

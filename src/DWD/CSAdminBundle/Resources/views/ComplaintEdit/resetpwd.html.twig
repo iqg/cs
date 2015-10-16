@@ -95,9 +95,9 @@
 
         $.ajax({    
             type:'post',        
-            url:'/complaint/submit',
+            url:'/complaint/save',
             async:false,
-            data: { id:{{complaintId}}, mobile:mobile, status: status, method: method, note: note, tags: tags.join(',') },
+            data: { id:"{{complaintId}}", mobile:mobile, status: status, method: method, note: note, tags: tags.join(',') },
             dataType:'json',    
             success:function(data){ 
                         if( data != 'null' ){

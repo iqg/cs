@@ -178,7 +178,7 @@ class Util
                                );
         return $typeLabel[$typeId];
    }
-
+ 
    public function getLockReasonTypeLabel( $typeId )
    {
         $typeLabel          =  array( 

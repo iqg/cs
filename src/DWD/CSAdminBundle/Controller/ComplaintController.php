@@ -298,8 +298,8 @@ class ComplaintController extends Controller
         $city                 = $this->getRequest()->get('city', 0);
         $saler                = $this->getRequest()->get('saler', 0);
         $branchId             = $this->getRequest()->get('branchId', 0);
-        $iDisplayStart        = $this->getRequest()->get('iDisplayStart');
-        $iDisplayLength       = $this->getRequest()->get('iDisplayLength');   
+        $iDisplayStart        = $this->getRequest()->get('iDisplayStart', 0);
+        $iDisplayLength       = $this->getRequest()->get('iDisplayLength', 20);   
         $sSearch              = $this->getRequest()->get('sSearch', null);
 
         $dm                   = $this->get('doctrine_mongodb')->getManager();
@@ -315,8 +315,13 @@ class ComplaintController extends Controller
         if( $branchId != 0 ){
             $conditions['branchId']  = intval($branchId);
         }
+
+        $options              = array(
+                                  'skip'  => $iDisplayStart,
+                                  'limit' => $iDisplayLength,
+                                );
  
-        $complaintList        = $dm->getRepository('DWDDataBundle:Complaint')->getAll( $conditions );
+        $complaintList        = $dm->getRepository('DWDDataBundle:Complaint')->getAll( $conditions, $options );
         $complaintCnt         = $dm->getRepository('DWDDataBundle:Complaint')->getCount( $conditions );
   
 

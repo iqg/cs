@@ -668,7 +668,7 @@ class UserController extends Controller
                                         $branchName,
                                         $itemName,
                                         date("Y-m-d H:i:s", $complaint['createdAt']),
-                                        "<a href='/complaint/confirm?id=" . $complaint['_id'] . "' target='_blank' >[详情]</a>",
+                                        "<a href='/complaint/edit?id=" . $complaint['_id'] . "' target='_blank' >[详情]</a>",
                                      );
         }
 
@@ -797,14 +797,15 @@ class UserController extends Controller
     { 
         $dataHttp             = $this->get('dwd.data.http'); 
         $userId               = $this->getRequest()->get('userId');
+        $lockDays             = $this->getRequest()->get('lockDays', 30);
+        $reasonType           = $this->getRequest()->get('selectlockReason', 2); 
 
         if( false == empty( $userPassword ) ){
           $params['password'] = $userPassword;
         }
-
-        $reasonType           = 2;
+  
         $type                 = 1;
-        $unlcokDate           = date( 'Y-m-d H:i:s',  3600 * 24 * 30 + time() );
+        $unlcokDate           = date( 'Y-m-d H:i:s',  3600 * 24 * $lockDays + time() );
 
         $data                 = array( 
                                     array(

@@ -23,6 +23,7 @@ class ComplaintFormController extends Controller
     {
         $userId          = $this->getRequest()->get('userId'); 
         $branchId        = $this->getRequest()->get('branchId', 0); 
+        $mobile          = $this->getRequest()->get('mobile', ''); 
         $dataHttp        = $this->get('dwd.data.http');
 
         $data            = array(
@@ -44,9 +45,10 @@ class ComplaintFormController extends Controller
           ));
         }
 
-        return $this->render('DWDCSAdminBundle:ComplaintForm:resetPwd.html.twig', array(
+        return $this->render('DWDCSAdminBundle:ComplaintForm:resetpwd.html.twig', array(
                 'userId'         => $userId,
                 'branchId'       => $branchId,
+                'mobile'         => $mobile,
         ));
     }
 
@@ -58,6 +60,7 @@ class ComplaintFormController extends Controller
     {
         $orderId              = $this->getRequest()->get('orderId');
         $branchId             = $this->getRequest()->get('branchId');
+        $mobile               = $this->getRequest()->get('mobile', ''); 
 
         $dataHttp             = $this->get('dwd.data.http');  
   
@@ -90,6 +93,7 @@ class ComplaintFormController extends Controller
             'redeemNumber'    => $orderinfo['redeem_number'],   
             'orderId'         => $orderId,
             'branchId'        => $branchId,
+            'mobile'          => $mobile,
         ));
     }
 
@@ -104,13 +108,15 @@ class ComplaintFormController extends Controller
         $redeemTime      = $this->getRequest()->get('redeemTime');
         $tel             = $this->getRequest()->get('tel');
         $branchId        = $this->getRequest()->get('branchId');
+        $mobile          = $this->getRequest()->get('mobile', ''); 
         
         return $this->render('DWDCSAdminBundle:ComplaintForm:updatebranch.html.twig', array( 
             'address'         => $address,
             'redeemTels'      => $redeemTels,
             'redeemTime'      => $redeemTime,
             'tel'             => $tel,
-            'branchId'        => $branchId
+            'branchId'        => $branchId,
+            'mobile'          => $mobile,
         ));
     }
 
@@ -122,7 +128,9 @@ class ComplaintFormController extends Controller
     {
         $userId          = $this->getRequest()->get('userId'); 
         $reason          = $this->getRequest()->get('reason'); 
+        $note            = $this->getRequest()->get('note');  
         $dataHttp        = $this->get('dwd.data.http');
+        $mobile          = $this->getRequest()->get('mobile', ''); 
 
         $data            = array(
                                 array(
@@ -146,6 +154,8 @@ class ComplaintFormController extends Controller
         return $this->render('DWDCSAdminBundle:ComplaintForm:lockuser.html.twig', array( 
                 'userId'         => $userId,
                 'reason'         => $this->get('dwd.util')->getLockReasonTypeLabel( $reason ),
+                'mobile'         => $mobile,
+                'note'           => $note,
         ));
     }
 
@@ -157,10 +167,12 @@ class ComplaintFormController extends Controller
     {
         $userId              = $this->getRequest()->get('userId'); 
         $reason              = $this->getRequest()->get('reason');
+        $mobile              = $this->getRequest()->get('mobile', ''); 
         
         return $this->render('DWDCSAdminBundle:ComplaintForm:unbinduser.html.twig', array( 
             'userId'         => $userId,
             'reason'         => $this->get('dwd.util')->getUnbindReasonLabel( $reason ), 
+            'mobile'         => $mobile,
         ));
     }
 
@@ -174,6 +186,7 @@ class ComplaintFormController extends Controller
         $correctContent       = $this->getRequest()->get('correctContent'); 
         $correctNote          = $this->getRequest()->get('correctNote'); 
         $needOffline          = $this->getRequest()->get('needOffline', 0);
+        $mobile               = $this->getRequest()->get('mobile', ''); 
 
         if( $needOffline == 'on' ){
             $needOffline      = 1;
@@ -214,6 +227,7 @@ class ComplaintFormController extends Controller
             'salerName'        => isset( $salerinfo['name'] ) ? $salerinfo['name'] : '',
             'itemName'         => $orderinfo['item_name'],
             'branchName'       => $orderinfo['branch_name'],     
+            'mobile'           => $mobile,
         ));
     }
 
@@ -226,6 +240,7 @@ class ComplaintFormController extends Controller
         $branchId             = $this->getRequest()->get('branchId'); 
         $reason               = $this->getRequest()->get('reason');
         $note                 = $this->getRequest()->get('note');
+        $mobile               = $this->getRequest()->get('mobile', ''); 
         $dataHttp             = $this->get('dwd.data.http');
         $data                 = array(
                                     array(
@@ -256,6 +271,7 @@ class ComplaintFormController extends Controller
             'reason'          => $this->get('dwd.util')->getBranchOfflineReasonLabel( $reason ), 
             'salerName'       => isset( $salerinfo['name'] ) ? $salerinfo['name'] : '',
             'branchName'      => $branchinfo['name'],  
+            'mobile'          => $mobile,
         ));
     }
 
@@ -298,6 +314,7 @@ class ComplaintFormController extends Controller
     {
         $userId               = $this->getRequest()->get('userId');
         $view                 = $this->getRequest()->get('view');
+        $mobile               = $this->getRequest()->get('mobile', ''); 
         $note                 = '';
         
         switch( $view ){
@@ -322,6 +339,7 @@ class ComplaintFormController extends Controller
             'userId'          => $userId, 
             'note'            => $note,
             'view'            => $view,
+            'mobile'          => $mobile,
         )); 
     }
 }
