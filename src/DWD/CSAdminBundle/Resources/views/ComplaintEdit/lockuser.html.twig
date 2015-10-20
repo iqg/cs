@@ -196,7 +196,7 @@
             $.ajax({    
                 type:'post',        
                 url:'/user/lock',    
-                data:{userId:{{userId}},selectlockReason:"{{reason}}",lockDays: parseInt(inputDays)},
+                data:{userId:{{userId}},selectlockReason:{{reasonId}},lockDays: parseInt(inputDays)},
                 dataType:'json',    
                 success:function(data){
                    if( true == data.result ){  

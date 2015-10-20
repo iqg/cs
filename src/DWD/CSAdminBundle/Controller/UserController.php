@@ -622,21 +622,6 @@ class UserController extends Controller
         $complaintList        = $dm->getRepository('DWDDataBundle:Complaint')->getUserComplaints( $userId, $options );
         $complaintCnt         = $dm->getRepository('DWDDataBundle:Complaint')->getUserCount( $userId );
  
-        $dataHttp             = $this->get('dwd.data.http'); 
-        $tagsList             = array();
-        $data                 = array(
-                                    array(
-                                        'url'    => '/complaint/taglist', 
-                                        'method' => 'get',
-                                        'key'    => 'complaintTags',
-                                    ),  
-                                ); 
-
-        $data                      = $dataHttp->MutliCall($data);
- 
-        foreach ($data['complaintTags']['data']['list'] as  $tag) {
-            $tagsList[$tag['id']]  = $tag['name'];
-        } 
 
         $aaData                    = array();
     
@@ -645,9 +630,7 @@ class UserController extends Controller
 
             if( isset( $complaint['tags'] ) ){
               foreach ($complaint['tags'] as $tagId) {
-                  if( isset( $tagsList[$tagId] ) ){
-                      $tags[]        = $tagsList[$tagId];   
-                  } 
+                  $tags[]          = $this->get('dwd.util')->getComplaintTag( $tagId );  
               }
             } 
 

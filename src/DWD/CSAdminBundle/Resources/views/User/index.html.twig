@@ -833,7 +833,7 @@
             $(this).removeClass('disabled');
             $('#correctModal').modal('hide');
             needOffline   = $("#campaignNeedOffline").val();
-            location.href = "/complaintform/ordercorrect?orderId=" + correctOrderId + "&correctContent=" + correctContent + "&correctNote" + correctNote + "&needOffline=" + needOffline + "&mobile={{ userinfo['mobile'] }}";
+            location.href = "/complaintform/ordercorrect?orderId=" + correctOrderId + "&correctContent=" + correctContent + "&correctNote=" + correctNote + "&needOffline=" + needOffline + "&mobile={{ userinfo['mobile'] }}";
         }); 
          
  

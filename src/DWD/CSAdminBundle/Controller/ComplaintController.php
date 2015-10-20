@@ -32,6 +32,7 @@ class ComplaintController extends Controller
             break;
          case 'lockUser':
             $complaintInfo['reason']           = $this->getRequest()->get('reason');
+            $complaintInfo['reasonId']         = $this->getRequest()->get('reasonId');
             if( intval( $this->getRequest()->get('locked') ) == 1 ){
                 $complaintInfo['locked']       = 1;
             }
