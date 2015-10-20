@@ -333,6 +333,8 @@ class BranchController extends Controller
         $data            =  $dataHttp->MutliCall($data);
         $orderInfo       =  $data['orderinfo']['data'];
         $branchInfo      =  $data['branchinfo']['data']; 
+        var_dump( $branchId );
+        var_dump( $branchInfo );
         $orderList       =  array(
                                 'list'  => array(),
                                 'total' => 0,
@@ -413,33 +415,15 @@ class BranchController extends Controller
                                 );
         $complaintList        = $dm->getRepository('DWDDataBundle:Complaint')->getBranchComplaints( $branchId, $options );
         $complaintCnt         = $dm->getRepository('DWDDataBundle:Complaint')->getBranchCount( $branchId );
- 
-        $dataHttp             = $this->get('dwd.data.http'); 
-        $tagsList             = array();
-        $data                 = array(
-                                    array(
-                                        'url'    => '/complaint/taglist', 
-                                        'method' => 'get',
-                                        'key'    => 'complaintTags',
-                                    ),  
-                                ); 
-
-        $data                      = $dataHttp->MutliCall($data);
- 
-        foreach ($data['complaintTags']['data']['list'] as  $tag) {
-            $tagsList[$tag['id']]  = $tag['name'];
-        } 
-
+  
         $aaData                    = array();
     
         foreach( $complaintList as $complaint ){
             $tags                  = array();
 
             if( isset( $complaint['tags'] ) ){
-              foreach ($complaint['tags'] as $tagId) {
-                  if( isset( $tagsList[$tagId] ) ){
-                      $tags[]      = $tagsList[$tagId];   
-                  } 
+              foreach ($complaint['tags'] as $tagId) { 
+                  $tags[]          = $this->get('dwd.util')->getComplaintTag( $tagId );  
               }
             } 
         
@@ -583,17 +567,31 @@ class BranchController extends Controller
                              );
         foreach( $data['campaignbranchs']['data']['list'] as $campaignbranch )
         {  
+
+            $tmpData       = array( 
+                                array(
+                                    'url'    => '/campaignbranch/iteminfo',
+                                    'data'   => array(
+                                        'campaignBranchId'       => $campaignbranch['id'], 
+                                    ), 
+                                    'method' => 'get',
+                                    'key'    => 'iteminfo',
+                                ),
+                            ); 
+
+            $tmpData       = $dataHttp->MutliCall($tmpData);
+ 
             $campaignbranchs['list'][] = array(
-                                             $campaignbranch['campaign_id'],
+                                             $tmpData['iteminfo']['data']['name'],
                                              $campaignbranch['start_time'],
                                              $campaignbranch['end_time'], 
                                              $this->get('dwd.util')->getCampaignBranchTypeLabel( $campaignbranch['type'] ), 
                                              '<a href="#" data-rel=' . $campaignbranch['id'] . ' class="campaignbranch-detail">[详情]</a>'
                                         );
+        
         }
- 
-        $res             = array
-                           (
+
+        $res             = array(
                                 "sEcho"                => $sEcho, 
                                 "aaData"               => $campaignbranchs['list'],
                                 "iTotalRecords"        => $data['campaignbranchs']['data']['totalCnt'],

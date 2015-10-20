@@ -154,6 +154,7 @@ class ComplaintFormController extends Controller
         return $this->render('DWDCSAdminBundle:ComplaintForm:lockuser.html.twig', array( 
                 'userId'         => $userId,
                 'reason'         => $this->get('dwd.util')->getLockReasonTypeLabel( $reason ),
+                'reasonId'       => $reason,
                 'mobile'         => $mobile,
                 'note'           => $note,
         ));

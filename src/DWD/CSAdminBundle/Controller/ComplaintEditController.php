@@ -83,6 +83,7 @@ class ComplaintEditController extends Controller
             'locked'          => $locked,
             'userId'          => $complaint['userId'],
             'reason'          => $complaint['complaintInfo']['reason'],
+            'reasonId'        => $complaint['complaintInfo']['reasonId'],
         ));
     }
 

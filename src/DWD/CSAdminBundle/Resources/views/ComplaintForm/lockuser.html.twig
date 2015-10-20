@@ -126,7 +126,7 @@
             type:'post',        
             async:false,
             url:'/complaint/submit',
-            data: { userId:{{userId}}, op: 'lockUser', source: 1, mobile:mobile, status: status, method: method, note: note, tags: tags.join(','), reason: "{{reason}}", locked: locked},
+            data: { userId:{{userId}}, op: 'lockUser', source: 1, mobile:mobile, status: status, method: method, note: note, tags: tags.join(','), reason: "{{reason}}", reasonId:{{reasonId}}, locked: locked},
             dataType:'json',    
             success:function(data){ 
                         if( data != 'null' ){
@@ -206,7 +206,7 @@
             $.ajax({    
                 type:'post',        
                 url:'/user/lock',    
-                data:{userId:{{userId}},selectlockReason:"{{reason}}",lockDays: parseInt(inputDays)},
+                data:{userId:{{userId}},selectlockReason:{{reasonId}},lockDays: parseInt(inputDays)},
                 dataType:'json',    
                 success:function(data){
                    if( true == data.result ){  
