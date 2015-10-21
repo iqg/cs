@@ -39,10 +39,10 @@
                             <input type="text" id="mobile" class="form-control" value="{{mobile}}">
                         </div> <br /><br />
 
-                        <div class="form-group has-feedback">
+             <!--           <div class="form-group has-feedback">
                             <label class="control-label">地址</label>&nbsp;&nbsp;
                             <input type="text" id="address" value="{{address}}" readonly=readonly class="form-control">
-                        </div> <br /><br />
+                        </div> <br /><br />  -->
 
                         <div class="form-group has-feedback">
                             <label class="control-label">验证电话</label>&nbsp;&nbsp;
@@ -168,7 +168,7 @@
             } 
             res = submit();
             if( res ){
-               history.back();
+               location.href = "{{referer|raw}}";
             }
         });
 

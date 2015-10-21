@@ -788,8 +788,8 @@ class UserController extends Controller
         }
   
         $type                 = 1;
-        $unlcokDate           = date( 'Y-m-d H:i:s',  3600 * 24 * $lockDays + time() );
-
+        $unlockDate           = date( 'Y-m-d H:i:s',  3600 * 24 * $lockDays + time() );
+ 
         $data                 = array( 
                                     array(
                                         'url'    => '/user/locked',
@@ -797,7 +797,7 @@ class UserController extends Controller
                                                         'userId'     => $userId,
                                                         'opUserId'   => $this->getUser()->getId(),
                                                         'reasonType' => $reasonType,
-                                                        'unlcokDate' => $unlcokDate,
+                                                        'unlockDate' => $unlockDate,
                                                         'type'       => $type,
                                                         'note'       => '后台封号',
                                                     ),
@@ -821,7 +821,7 @@ class UserController extends Controller
                               'ext'      => array( 
                                               'userId'        => $userId,
                                               'reasonType'    => $reasonType,
-                                              'unlcokDate'    => $unlcokDate, 
+                                              'unlockDate'    => $unlockDate, 
                                               'type'          => $type,
                                             ),
                            );

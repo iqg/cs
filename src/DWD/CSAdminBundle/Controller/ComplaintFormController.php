@@ -49,6 +49,7 @@ class ComplaintFormController extends Controller
                 'userId'         => $userId,
                 'branchId'       => $branchId,
                 'mobile'         => $mobile,
+                'referer'        => isset( $_SERVER['HTTP_REFERER'] ) ? $_SERVER['HTTP_REFERER'] : '/',
         ));
     }
 
@@ -94,6 +95,7 @@ class ComplaintFormController extends Controller
             'orderId'         => $orderId,
             'branchId'        => $branchId,
             'mobile'          => $mobile,
+            'referer'         => isset( $_SERVER['HTTP_REFERER'] ) ? $_SERVER['HTTP_REFERER'] : '/',
         ));
     }
 
@@ -117,6 +119,7 @@ class ComplaintFormController extends Controller
             'tel'             => $tel,
             'branchId'        => $branchId,
             'mobile'          => $mobile,
+            'referer'         => isset( $_SERVER['HTTP_REFERER'] ) ? $_SERVER['HTTP_REFERER'] : '/',
         ));
     }
 
@@ -125,7 +128,7 @@ class ComplaintFormController extends Controller
      * @Route("/lockuser",name="dwd_csadmin_complaintform_lockuser")
      */
     public function lockuser()
-    {
+    { 
         $userId          = $this->getRequest()->get('userId'); 
         $reason          = $this->getRequest()->get('reason'); 
         $note            = $this->getRequest()->get('note');  
@@ -157,6 +160,7 @@ class ComplaintFormController extends Controller
                 'reasonId'       => $reason,
                 'mobile'         => $mobile,
                 'note'           => $note,
+                'referer'        => isset( $_SERVER['HTTP_REFERER'] ) ? $_SERVER['HTTP_REFERER'] : '/',
         ));
     }
 
@@ -174,6 +178,7 @@ class ComplaintFormController extends Controller
             'userId'         => $userId,
             'reason'         => $this->get('dwd.util')->getUnbindReasonLabel( $reason ), 
             'mobile'         => $mobile,
+            'referer'        => isset( $_SERVER['HTTP_REFERER'] ) ? $_SERVER['HTTP_REFERER'] : '/',
         ));
     }
 
@@ -229,6 +234,7 @@ class ComplaintFormController extends Controller
             'itemName'         => $orderinfo['item_name'],
             'branchName'       => $orderinfo['branch_name'],     
             'mobile'           => $mobile,
+            'referer'          => isset( $_SERVER['HTTP_REFERER'] ) ? $_SERVER['HTTP_REFERER'] : '/',
         ));
     }
 
@@ -273,6 +279,7 @@ class ComplaintFormController extends Controller
             'salerName'       => isset( $salerinfo['name'] ) ? $salerinfo['name'] : '',
             'branchName'      => $branchinfo['name'],  
             'mobile'          => $mobile,
+            'referer'         => isset( $_SERVER['HTTP_REFERER'] ) ? $_SERVER['HTTP_REFERER'] : '/',
         ));
     }
 
@@ -341,6 +348,7 @@ class ComplaintFormController extends Controller
             'note'            => $note,
             'view'            => $view,
             'mobile'          => $mobile,
+            'referer'         => isset( $_SERVER['HTTP_REFERER'] ) ? $_SERVER['HTTP_REFERER'] : '/',
         )); 
     }
 }

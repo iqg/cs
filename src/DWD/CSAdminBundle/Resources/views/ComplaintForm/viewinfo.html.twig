@@ -135,7 +135,7 @@
             } 
             res = submit();
             if( res ){
-               history.back();
+               location.href = "{{referer|raw}}";
             }
         });
 

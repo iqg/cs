@@ -227,6 +227,12 @@ class OrderController extends Controller
         $userinfo             = $data['userinfo']['data'];
         $salerinfo            = $data['salerinfo']['data'];
 
+        $payInfo              = '无';
+        if( isset( $paymentinfo['amount'] ) ){
+
+            $payInfo          = $paymentinfo['amount'] . '元(' . $this->get('dwd.util')->getPaymentTypeLabel( $paymentinfo['payment_method'] ) . ")";
+        }
+
 
         $str               = '<table class="table table-striped table-bordered"><tr></tr>';
         $str              .= "<tr><td>订单id</td><td>" . $orderinfo['id'] . "</td></tr>";
@@ -235,7 +241,7 @@ class OrderController extends Controller
         $str              .= "<tr><td>商品</td><td>" . $orderinfo['item_name'] . "</td></tr>";
         $str              .= "<tr><td>门店</td><td>" . $orderinfo['branch_name'] . "</td></tr>";
         $str              .= "<tr><td>兑换码</td><td>" . $orderinfo['redeem_number'] . "</td></tr>";
-        $str              .= "<tr><td>支付信息</td><td>" . $paymentinfo['amount'] . '元(' . $this->get('dwd.util')->getPaymentTypeLabel( $paymentinfo['payment_method'] ) . ")</td></tr>";
+        $str              .= "<tr><td>支付信息</td><td>" . $payInfo . "</td></tr>";
         $str              .= "<tr><td>订单类型</td><td>" . $this->get('dwd.util')->getOrderTypeLabel($orderinfo['type']) . "</td></tr>";
         $str              .= "<tr><td>跟进销售</td><td>" . $salerinfo['name'] . "</td></tr>";
         $str              .= "<tr><td>下单时间</td><td>" . $orderinfo['created_at'] . "</td></tr>";
