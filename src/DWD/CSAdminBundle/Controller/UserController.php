@@ -53,7 +53,15 @@ class UserController extends Controller
                 ),
                 'method' => 'get',
                 'key'    => 'balancerecords',
-            ), 
+            ),
+            array(
+                'url'    => '/user/userdevices',
+                'data'   => array(
+                    'userId'         => $userId
+                ),
+                'method' => 'get',
+                'key'    => 'userdevices'
+            )
         );
 
         if( $searchType == 'redeemNumber' ){
@@ -79,6 +87,8 @@ class UserController extends Controller
           ));
         }
 
+        $userDevicesCount  = count( $data['userdevices']['data']['list'] );
+
         $needDealOrder     = '';
         if( $searchType == 'redeemNumber' ){
            $orderInfo      = $data['orderinfo']['data'];
@@ -96,6 +106,7 @@ class UserController extends Controller
             'userId'           => $userId,
             'type'             => $type,
             'source'           => $source,
+            'userDevicesCount' => $userDevicesCount
         ));
     }
 

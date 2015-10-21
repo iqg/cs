@@ -460,6 +460,7 @@
 <script type="text/javascript" >
     operator      = new Array();
     userinfo      = {{jsonUserInfo|raw}};
+    userDevicesCount = parseInt({{userDevicesCount}});
 
     function __init(){
         $("#info-userid").html( userinfo.id );
@@ -479,7 +480,12 @@
         }
         lockedinfo     += "&nbsp;&nbsp;&nbsp;<a id='lockedrecords-btn' href='#'>[封号记录]</a>";
         $("#info-locked").html( lockedinfo );
-        mobileinfo      = userinfo.mobile + "&nbsp;&nbsp;&nbsp;<a id='unbind-device-btn' href='#'>[解绑设备]</a>&nbsp;&nbsp;&nbsp;";
+        mobileinfo      = userinfo.mobile;
+        if ( userDevicesCount ) {
+            mobileinfo += "&nbsp;&nbsp;&nbsp;<a id='unbind-device-btn' href='#'>[解绑设备]</a>&nbsp;&nbsp;&nbsp;";
+        } else {
+            mobileinfo += "&nbsp;&nbsp;&nbsp;未绑定设备&nbsp;&nbsp;&nbsp;";
+        }
         $("#info-mobile").html( mobileinfo ); 
         balanceinfo     = userinfo.balance + "元&nbsp;&nbsp;&nbsp;<a id='balancerecords-btn' href='#'>[余额记录]</a>"; 
         $("#info-balance").html( balanceinfo );
