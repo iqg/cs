@@ -235,7 +235,8 @@
                     <thead>
                     <tr> 
                         <th>{{ 'label.recommend_user_id'|trans }}</th>
-                        <th>{{ 'label.created_at'|trans }}</th> 
+                        <th>{{ 'label.created_at'|trans }}</th>
+                        <th>{{ 'label.note'|trans }}</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -497,10 +498,12 @@
 
     $(document).ready(function() {
         __init();
+        {% set bFilterFlag = true %}
         {% for typeLabel in orderlistTypes %}
             $('#{{typeLabel['code']}}-orderlist-table').dataTable({
                 "bProcessing": true,
                 "bStateSave": true,
+                "bFilter": parseInt({{ bFilterFlag }}),
                 "bServerSide":  true,
                 "sAjaxSource": "/user/orderlist?userId={{userId}}&type={{typeLabel['code']}}",
                 "sDom": "<'row'<'col-md-6'l><'col-md-6'f>r>t<'row'<'col-md-12'i><'col-md-12 center-block'p>>",
@@ -526,6 +529,7 @@
                         {"bSortable": false, "aTargets": [1, 2]},
                     ],
             });
+        {% set bFilterFlag = false %}
         {% endfor %}
 
         $('#complaintrecords-table').dataTable({
@@ -683,7 +687,8 @@
                 },
                 "aoColumns": [ 
                         {"mData": 'recommend_user_id'}, 
-                        {"mData": 'created_at'}, 
+                        {"mData": 'created_at'},
+                        {"mData": 'note'}
                     ], 
         });
 
@@ -1014,6 +1019,8 @@
         $("#viewCoinRecords-submit").click(function (e) {
             location.href = "/complaintform/viewinfo?userId={{userId}}&view=coinrecords&mobile={{ userinfo['mobile'] }}";
         });
+
+        $('div.dataTables_filter input').attr('placeholder', '请输入兑换码');
     });
  
  </script>

@@ -224,12 +224,16 @@ class ComplaintController extends Controller
         $now                  = time();   
         $dm                   = $this->get('doctrine_mongodb')->getManager();
         $complaint            = $dm->getRepository('DWDDataBundle:Complaint')->findOneBy( array( '_id' => $complaintId) );
+        $opLog                = self::_packageOpLog();
+        $opLog[0]['op']       = $complaint->getOp();
  
         $complaint->setTags( $tags );
         $complaint->setMobile( $mobile );
         $complaint->setMethod( intval( $method ) );
         $complaint->setStatus( intval( $status ) );
         $complaint->setNote( $note );     
+        $complaint->setOpLog( array_merge( $complaint->getOpLog(), $opLog ) );
+
 
         if( intval( $status ) != self::UNSOLVED ){
             $complaint->setResolvedAt( $now );
@@ -383,7 +387,7 @@ class ComplaintController extends Controller
     public function logAction(Request $request)
     {    
         $complaintId       = $this->getRequest()->get('id');
-        $dm                = $this->get('doctrine_mongodb')->getManager(); 
+        $dm                = $this->get('doctrine_mongodb')->getManager();
         $complaint         = $dm->getRepository('DWDDataBundle:Complaint')->getComplaint( $complaintId );
        
         $str               = '<table class="table table-striped table-bordered"><tr><th>管理员</th><th>内容</th><th>时间</th></tr>';

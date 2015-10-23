@@ -379,10 +379,12 @@
 
     $(document).ready(function() {
         __init();
+        {% set bFilterFlag = true %}
         {% for  typeLabel in orderlistTypes %}
            var {{typeLabel['code']}}Table = $('#{{typeLabel['code']}}-orderlist-table').dataTable({
                 "bProcessing": true,
                 "bStateSave": true,
+                "bFilter": parseInt({{ bFilterFlag }}),
                 "bServerSide":  true,
                 "sAjaxSource": "/branch/orderlist?branchId={{branchId}}&type={{typeLabel['code']}}",
                 "sDom": "<'row'<'col-md-6'l><'col-md-6'f>r>t<'row'<'col-md-12'i><'col-md-12 center-block'p>>",
@@ -395,7 +397,7 @@
                     "sInfoEmpty" : "记录数为0",    
                     "sInfoFiltered" : "(全部记录数 _MAX_ 条)",    
                     "sInfoPostFix" : "",    
-                    "sSearch" : "搜索订单",    
+                    "sSearch" : "搜索订单",
                     "sUrl" : "", 
                     "oPaginate": {    
                         "sFirst" : "第一页",    
@@ -408,6 +410,7 @@
                         {"bSortable": false, "aTargets": [1, 2, 3]},
                     ],
             });
+        {% set bFilterFlag = false %}
         {% endfor %} 
          
         $('#campaignbranch-table').dataTable({
@@ -779,6 +782,8 @@
                 },   
             });  
         });
+
+        $('div.dataTables_filter input').attr('placeholder', '请输入兑换码');
     });
 </script>
 {% endblock %}

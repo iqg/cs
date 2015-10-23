@@ -238,7 +238,7 @@ class BranchController extends Controller
                 'url'    => '/branch/orderlist',
                 'data'   => array(
                     'branchId'       => $branchId,
-                    'needPagination' => 1, 
+                    'needPagination' => 1,
                     'type'           => $orderTypeId,
                     'pageNum'        => $pageNum,
                     'pageLimit'      => $pageLimit,
@@ -332,9 +332,7 @@ class BranchController extends Controller
                             );
         $data            =  $dataHttp->MutliCall($data);
         $orderInfo       =  $data['orderinfo']['data'];
-        $branchInfo      =  $data['branchinfo']['data']; 
-        var_dump( $branchId );
-        var_dump( $branchInfo );
+        $branchInfo      =  $data['branchinfo']['data'];
         $orderList       =  array(
                                 'list'  => array(),
                                 'total' => 0,
@@ -350,8 +348,9 @@ class BranchController extends Controller
                                     array(
                                         array(
                                            $orderInfo['item_name'], 
-                                           $orderInfo['branch_name'], 
-                                           $orderInfo['redeem_number'], 
+                                           $orderInfo['branch_name'],
+                                           $orderInfo['redeem_number'],
+                                           $this->get('dwd.util')->getOrderStatusLabel($orderInfo['status']),
                                            $this->_getOperation( $operation, $orderInfo['id'] ),
                                        ),    
                                     ), 

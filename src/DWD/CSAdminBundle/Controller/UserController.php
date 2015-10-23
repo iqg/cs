@@ -245,14 +245,15 @@ class UserController extends Controller
                                 array(
                                     'url'    => '/order/orderinfo',
                                     'data'   => array(
-                                        'redeemNumber'      => $redeemNumber, 
+                                        'redeemNumber'      => $redeemNumber,
+
                                     ),
                                     'method' => 'get',
                                     'key'    => 'orderinfo',
                                 )
                             );
         $data            =  $dataHttp->MutliCall($data);
-        $orderInfo       =  $data['orderinfo']['data'];
+        $orderListAll    =  $data['orderinfo']['data'];
         $orderList       =  array(
                                 'list'  => array(),
                                 'total' => 0,
@@ -262,20 +263,19 @@ class UserController extends Controller
                             '纠错','日志','详情'
                            ); 
 
-        if( !empty( $orderInfo ) && $userId == $orderInfo['user_id'] ){
-            $orderList   =  array(
-                                'list' => 
-                                    array(
-                                        array(
-                                           $orderInfo['item_name'], 
-                                           $orderInfo['branch_name'], 
-                                           $orderInfo['redeem_number'], 
-                                           $this->_getOperation( $operation, $orderInfo['id'] ),
-                                       ),    
-                                    ), 
-                                "total" => 1,
-                            );
-        }  
+        foreach( $orderListAll as $orderInfo )
+        {
+            if( !empty( $orderInfo ) && $userId == $orderInfo['user_id'] ){
+                $orderList['list'] []= array(
+                    $orderInfo['item_name'],
+                    $orderInfo['branch_name'],
+                    $orderInfo['redeem_number'],
+                    $this->get('dwd.util')->getOrderStatusLabel($orderInfo['status']),
+                    $this->_getOperation( $operation, $orderInfo['id'] ),
+                );
+                $orderList['total'] += 1;
+            }
+        }
 
         return $orderList;
     }
@@ -524,6 +524,7 @@ class UserController extends Controller
             $recommendrecords['list'][] = array( 
                                                $recommendrecord['recommend_user_id'],
                                                $recommendrecord['created_at'],
+                                               $this->get('dwd.util')->getRecommendRecordNoteLabel($recommendrecord['amount']),
                                           );
             $recommendUserIds[]         = $recommendrecord['recommend_user_id'];
         }

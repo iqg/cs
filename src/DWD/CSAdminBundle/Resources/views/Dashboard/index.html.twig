@@ -14,7 +14,7 @@
         <div class="box col-md-12">
             <div class="box-inner">
                 <div class="box-header well" data-original-title="">
-                    <h2><i class="glyphicon glyphicon-th"></i>投诉分类</h2>
+                    <h2><i class="glyphicon glyphicon-th"></i>创建投诉</h2>
                 </div>
                 <div class="box-content">
                     <div class="row">
@@ -289,6 +289,12 @@
         $("#complaintrecords-table").on("click", ".complaint-edit-btn", function (e) {
         	complaintId  =  $(this).attr("data-rel");
             location.href = "/complaint/edit?id=" + complaintId;
+        });
+
+        $("#searchBranchNameBox").keyup(function() {
+            if( !this.value ){
+                location.reload();
+            }
         });
 
 		$("#user").click();
