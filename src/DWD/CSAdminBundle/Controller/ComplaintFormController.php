@@ -222,6 +222,21 @@ class ComplaintFormController extends Controller
         $data                 = $dataHttp->MutliCall($data);
         $orderinfo            = $data['orderinfo']['data'];
         $salerinfo            = $data['salerinfo']['data'];
+
+        $data              = array(
+            array(
+                'url'    => '/campaignbranch/detail',
+                'data'   => array(
+                    'campaignBranchId'    => $orderinfo['campaign_branch_id'],
+                ),
+                'method' => 'get',
+                'key'    => 'detail',
+            ),
+        );
+
+        $data              = $dataHttp->MutliCall( $data );
+        $campaignBranch    = $data['detail']['data'];
+
           
         return $this->render('DWDCSAdminBundle:ComplaintForm:ordercorrect.html.twig', array( 
             'correctContent'   => $correctContent,
@@ -235,9 +250,74 @@ class ComplaintFormController extends Controller
             'branchName'       => $orderinfo['branch_name'],     
             'mobile'           => $mobile,
             'referer'          => isset( $_SERVER['HTTP_REFERER'] ) ? $_SERVER['HTTP_REFERER'] : '/',
+            'campaignBranchEnabled'   => $campaignBranch['enabled'],
         ));
     }
 
+    /**
+     *
+     * @Route("/orderrefund",name="dwd_csadmin_complaintform_orderrefund")
+     */
+    public function orderrefund()
+    {
+        $orderId              = $this->getRequest()->get('orderId');
+        $orderRefundReason    = $this->getRequest()->get('orderRefundReason');
+        $needOffline          = $this->getRequest()->get('needOffline', 0);
+        $mobile               = $this->getRequest()->get('mobile', '');
+
+        $dataHttp             = $this->get('dwd.data.http');
+
+        $data                 = array(
+                                    array(
+                                        'url'    => '/order/orderinfo',
+                                        'data'   =>  array(
+                                                        'orderId'  => $orderId,
+                                        ),
+                                        'method' =>  'get',
+                                        'key'    =>  'orderinfo',
+                                    ),
+                                    array(
+                                        'url'    => '/saler/salerinfo',
+                                        'data'   =>  array(
+                                                        'orderId'  => $orderId,
+                                        ),
+                                        'method' =>  'get',
+                                        'key'    =>  'salerinfo',
+                                    ),
+        );
+
+        $data                 = $dataHttp->MutliCall($data);
+        $orderinfo            = $data['orderinfo']['data'];
+        $salerinfo            = $data['salerinfo']['data'];
+
+        $data              = array(
+            array(
+                'url'    => '/campaignbranch/detail',
+                'data'   => array(
+                    'campaignBranchId'    => $orderinfo['campaign_branch_id'],
+                ),
+                'method' => 'get',
+                'key'    => 'detail',
+            ),
+        );
+
+        $data              = $dataHttp->MutliCall( $data );
+        $campaignBranch    = $data['detail']['data'];
+
+        return $this->render('DWDCSAdminBundle:ComplaintForm:orderrefund.html.twig', array(
+            'orderRefundReason'=> $orderRefundReason,
+            'needOffline'      => $needOffline,
+            'orderId'          => $orderId,
+            'userId'           => $orderinfo['user_id'],
+            'campaignBranchId' => $orderinfo['campaign_branch_id'],
+            'salerName'        => isset( $salerinfo['name'] ) ? $salerinfo['name'] : '',
+            'itemName'         => $orderinfo['item_name'],
+            'branchName'       => $orderinfo['branch_name'],
+            'mobile'           => $mobile,
+            'referer'          => isset( $_SERVER['HTTP_REFERER'] ) ? $_SERVER['HTTP_REFERER'] : '/',
+            'campaignBranchEnabled'   => $campaignBranch['enabled'],
+        ));
+    }
 
     /**
      * @Route("/branchoffline",name="dwd_csadmin_complaintform_branchoffline")

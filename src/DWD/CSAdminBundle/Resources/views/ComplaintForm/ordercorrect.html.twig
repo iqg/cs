@@ -55,9 +55,18 @@
                         </div> <br /><br />
 
                         <div class="form-group has-feedback">
-                            <label class="control-label">活动是否需下线</label>&nbsp;&nbsp;
-                            <label class="control-label">下线</label>&nbsp;&nbsp;
-                            <input type="checkbox" id="needOffline" {% if 0 != needOffline %} checked=checked {% endif %} class="form-control">
+                            {% if 1 == campaignBranchEnabled %}
+                            <label class="control-label">活动需下线</label>&nbsp;&nbsp;
+                            <label class="radio-inline">
+                                <input type="radio" name="correctOffline" id="offline1" value="1" {% if 0 != needOffline %} checked=checked {% endif %}> 是
+                            </label>
+                            <label class="radio-inline">
+                                <input type="radio" name="correctOffline" id="offline2" value="0" {% if 0 == needOffline %} checked=checked {% endif %}>  否
+                            </label>
+                            {% endif %}
+                            {% if 0 == campaignBranchEnabled %}
+                            <span>活动已下线</span>
+                            {% endif %}
                         </div> <br /><br />
  
                         <div class="form-group has-feedback">
@@ -103,17 +112,15 @@
 
 <script type="text/javascript" >
     tags        =  [19];
-    offlined    =  0;
+    offlined    =  1 - {{ campaignBranchEnabled }};
     needOffline =  {{needOffline}};
     function submit(){
         method         = $("#complaintWay:checked").val();
         status         = $("#status:checked").val();
         mobile         = $("#mobile").val();
-        note           = $("#note").val(); 
-        
-        if( 'on' == $("#needOffline").val() ){
-           needOffline = 1;
-        }
+        note           = $("#note").val();
+
+        needOffline   = $('input[name="correctOffline"]:checked').val();
 
         if( tags.length == 0 ){
             alert("请选择标签");

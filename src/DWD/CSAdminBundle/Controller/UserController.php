@@ -135,16 +135,16 @@ class UserController extends Controller
         return $orderTypeId;
     }
 
-    private function _getOperation( $operation, $orderId )
+    private function _getOperation( $operation, $orderId, $offlineEnabled = 0 )
     {
         $opStr               = '';
         foreach ($operation as $operator) {
           switch ( $operator ) {
-             /*case '退款':
-                    $opStr  .= "&nbsp;&nbsp;&nbsp;<a href='#' class='order-refund-btn' data-rel='$orderId'>[退款]</a>";
-                    break;*/
+             case '退款':
+                    $opStr  .= "&nbsp;&nbsp;&nbsp;<a href='#' class='order-refund-btn' data-rel='$orderId' data-campaign-branch-enabled-rel='$offlineEnabled'>[退款]</a>";
+                    break;
              case '纠错':
-                    $opStr  .= "&nbsp;&nbsp;&nbsp;<a href='#' class='order-correct-btn' data-rel='$orderId'>[纠错]</a>";
+                    $opStr  .= "&nbsp;&nbsp;&nbsp;<a href='#' class='order-correct-btn' data-rel='$orderId' data-campaign-branch-enabled-rel='$offlineEnabled'>[纠错]</a>";
                     break;
              case '日志': 
                     $opStr  .= "&nbsp;&nbsp;&nbsp;<a href='#' class='order-log-btn' data-rel='$orderId'>[日志]</a>";
@@ -230,7 +230,22 @@ class UserController extends Controller
               }
               $tdValues[]        = $tdValue;
            }
-           $tdValues[]           = $this->_getOperation( $tableInfo['operation'], $orderInfo['id'] );
+
+            $data              = array(
+                array(
+                    'url'    => '/campaignbranch/detail',
+                    'data'   => array(
+                        'campaignBranchId'    => $orderInfo['campaign_branch_id'],
+                    ),
+                    'method' => 'get',
+                    'key'    => 'detail',
+                ),
+            );
+
+            $data              = $dataHttp->MutliCall( $data );
+            $campaignBranch    = $data['detail']['data'];
+
+           $tdValues[]           = $this->_getOperation( $tableInfo['operation'], $orderInfo['id'], $campaignBranch['enabled'] );
            $orderList['list'][]  = $tdValues; 
         }
 
@@ -636,7 +651,9 @@ class UserController extends Controller
  
 
         $aaData                    = array();
-    
+
+        $dataHttp             = $this->get('dwd.data.http');
+
         foreach( $complaintList as $complaint ){
             $tags                  = array();
 
@@ -649,19 +666,38 @@ class UserController extends Controller
             $branchName = '';
             $itemName   = '';
 
-            if( isset( $complaint['branchs'] ) ){
-              $branchName = $complaint['branchs'][0]['name'];
-              $itemName   = isset( $complaint['branchs'][0]['itemName'] ) ? $complaint['branchs'][0]['itemName'] : '';
-            } else if( isset( $complaint['orders'] ) ) {
-              $branchName = isset( $complaint['orders'][0]['branchName'] ) ? $complaint['orders'][0]['branchName'] : '';
-              $itemName   = isset( $complaint['orders'][0]['itemName'] ) ? $complaint['orders'][0]['itemName'] : '';
+//            if( isset( $complaint['branchs'] ) ){
+//              $branchName = $complaint['branchs'][0]['name'];
+//              $itemName   = isset( $complaint['branchs'][0]['itemName'] ) ? $complaint['branchs'][0]['itemName'] : '';
+//            } else if( isset( $complaint['orders'] ) ) {
+//              $branchName = isset( $complaint['orders'][0]['branchName'] ) ? $complaint['orders'][0]['branchName'] : '';
+//              $itemName   = isset( $complaint['orders'][0]['itemName'] ) ? $complaint['orders'][0]['itemName'] : '';
+//            }
+
+            if( isset($complaint['complaintInfo']['orderId']) ) {
+                $data       = array(
+                    array(
+                        'url'    => '/order/orderinfo',
+                        'data'   =>  array(
+                            'orderId'  => $complaint['complaintInfo']['orderId'],
+                        ),
+                        'method' =>  'get',
+                        'key'    =>  'orderinfo',
+                    ),
+                );
+
+
+                $data                 = $dataHttp->MutliCall($data);
+                $orderinfo            = $data['orderinfo']['data'];
+                $branchName           = $orderinfo['branch_name'];
+                $itemName             = $orderinfo['item_name'];
             }
 
             $aaData[]              = array(
                                         $this->get('dwd.util')->getComplaintSourceLabel( $complaint['source'] ),
                                         implode(",", $tags),
-                                        $branchName,
                                         $itemName,
+                                        $branchName,
                                         date("Y-m-d H:i:s", $complaint['createdAt']),
                                         "<a href='/complaint/edit?id=" . $complaint['_id'] . "' target='_blank' >[详情]</a>",
                                      );

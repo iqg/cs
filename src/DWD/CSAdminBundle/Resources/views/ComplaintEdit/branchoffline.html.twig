@@ -138,11 +138,11 @@
             if( $(this).hasClass("btn-default") ){
                 $(this).removeClass("btn-default");
                 $(this).addClass("btn-primary");
-                tags.push( $(this).attr("id") );
+                tags.push( parseInt($(this).attr("id")) );
             } else {
-                $(this).removeClass("btn-primary"); 
+                $(this).removeClass("btn-primary");
                 $(this).addClass("btn-default");
-                tags.splice($.inArray($(this).attr("id"),tags),1);
+                tags.splice($.inArray(parseInt($(this).attr("id")),tags),1);
             }
  
             return false;

@@ -77,7 +77,7 @@ class CampaignBranchController extends Controller
         $str              .= "<tr><td>使用方式</td><td>" . $campaignBranch['allow_take_out'] . "</td></tr>";
         $str              .= "<tr><td>周几营业</td><td>" . $campaignBranch['week'] . "</td></tr>";
         $str              .= "<tr><td>特别提示</td><td>" . $campaignBranch['tips'] . "</td></tr>";
-        $str              .= "<tr><td>状态</td><td>" . $this->get('dwd.util')->getEnabledLabel( $campaignBranch['enabled'] ) . "</td></tr>"; 
+        $str              .= "<tr><td>状态</td><td>" . $this->get('dwd.util')->getEnabledLabel( $campaignBranch['enabled'] ) . "</td></tr>";
         $str              .= "</table>";
 
         $res               = array(

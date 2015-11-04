@@ -259,5 +259,58 @@ class OrderController extends Controller
         $response->setContent( json_encode( $res ) );
         return $response; 
     }
- 
+
+    /**
+     *
+     * @Route("/order/refund",name="dwd_csadmin_order_refund")
+     */
+    public function refundAction()
+    {
+        $dataHttp             = $this->get('dwd.data.http');
+
+        $orderId              = $this->getRequest()->get('orderId');
+        $feedbackId           = $this->getRequest()->get('feedbackId');
+        $makeup               = $this->getRequest()->get('makeup');
+
+        $params               = array(
+                                    'order_id'      => $orderId,
+                                    'feedback_id'   => $feedbackId,
+                                    'makeup'        => $makeup,
+                                );
+
+        $data                 = array(
+                                    array(
+                                        'host'  => 'http://staging.iqianggou.com',
+                                        'url'   => '/api/order/request_refund',
+                                        'data'  => $params,
+                                        'method'=> 'post',
+                                        'key'   => 'refund',
+                                    ),
+                                );
+
+        $data                 = $dataHttp->MutliCall($data);
+
+        $res                  = array();
+        $res['result']        = false;
+        if( $data['refund']['status']['code'] == 10000 ){
+            $res['result']    = true;
+        }
+
+        $logRecord            = array(
+                                'route'    => $this->getRequest()->get('_route'),
+                                'res'      => $res['result'],
+                                'adminId'  => $this->getUser()->getId(),
+                                'ext'      => array(
+                                                'orderId'        => $orderId,
+                                                'feedback'       => $this->get('dwd.util')->getBranchOfflineReasonLabel( $feedbackId ),
+                                                'makeup'         => $makeup,
+                                              ),
+                            );
+
+        $this->get('dwd.oplogger')->addCommonLog( $logRecord );
+
+        $response          = new Response();
+        $response->setContent( json_encode( $res ) );
+        return $response;
+    }
 }

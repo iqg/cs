@@ -25,13 +25,20 @@
                     <form class="form-inline" role="form">
 
                         <div class="form-group has-feedback">
-                            <label class="control-label" for="inputSuccess4">来源</label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 订单验证
+                            <label class="control-label" for="inputSuccess4">来源</label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 退款
                         </div> <br /><br />
                     
                         <div class="form-group has-feedback">
                             <label class="control-label" for="inputSuccess4">标签</label>
-                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
-                                <button id=5 readonly=readonly class="btn btn-default btn-sm complaint-label">无法验证</button>&nbsp;&nbsp;<button id=18 readonly=readonly class="btn btn-default btn-sm complaint-label">验证有误</button>
+                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                            <button id=4 readonly=readonly class="btn btn-default btn-sm complaint-label">信息错误</button>&nbsp;&nbsp;
+                            <button id=6 readonly=readonly class="btn btn-default btn-sm complaint-label">关门/装修</button>&nbsp;&nbsp;
+                            <button id=10 readonly=readonly class="btn btn-default btn-sm complaint-label">缺货</button>&nbsp;&nbsp;
+                            <button id=7 readonly=readonly class="btn btn-default btn-sm complaint-label">商户活动不详</button>&nbsp;&nbsp;
+                            <button id=8 readonly=readonly class="btn btn-default btn-sm complaint-label">拒绝领用</button>&nbsp;&nbsp;
+                            <button id=5 readonly=readonly class="btn btn-default btn-sm complaint-label">无法验证</button>&nbsp;&nbsp;
+                            <button id=25 readonly=readonly class="btn btn-default btn-sm complaint-label">要求退款</button>&nbsp;&nbsp;
+                            <button id=2 readonly=readonly class="btn btn-default btn-sm complaint-label">技术故障</button>
                         </div> <br /><br />
  
                         <div class="form-group has-feedback">
@@ -45,8 +52,8 @@
                         </div> <br /><br />
 
                         <div class="form-group has-feedback">
-                            <label class="control-label">兑换码</label>&nbsp;&nbsp;
-                            <span id="redeemNumber">{{redeemNumber}}</span>
+                            <label class="control-label">商户名称</label>&nbsp;&nbsp;
+                            <span id="branchName">{{branchName}}</span>
                         </div> <br /><br />
 
                         <div class="form-group has-feedback">
@@ -54,6 +61,21 @@
                             <span id="salerName">{{salerName}}</span>
                         </div> <br /><br />
 
+                        <div class="form-group has-feedback">
+                            {% if 1 == campaignBranchEnabled %}
+                                <label class="control-label">活动需下线</label>&nbsp;&nbsp;
+                                <label class="radio-inline">
+                                    <input type="radio" name="refundOffline" id="offline1" value="1" {% if 0 != needOffline %} checked=checked {% endif %}> 是
+                                </label>
+                                <label class="radio-inline">
+                                    <input type="radio" name="refundOffline" id="offline2" value="0" {% if 0 == needOffline %} checked=checked {% endif %}>  否
+                                </label>
+                            {% endif %}
+                            {% if 0 == campaignBranchEnabled %}
+                                <span>活动已下线</span>
+                            {% endif %}
+                        </div> <br /><br />
+ 
                         <div class="form-group has-feedback">
                             <label class="control-label">投诉方式</label>&nbsp;&nbsp;
                             <label class="checkbox-inline">
@@ -65,8 +87,10 @@
                             <label class="checkbox-inline">
                                 <input type="radio" name="complaintWay" id="complaintWay" value=3> 其他 
                             </label> 
-                        </div>  <br /><br />  
-                        
+                        </div>  <br /><br /> 
+
+                        <div class='form-group lockUser has-feedback'><label class='control-label'>退款原因</label>&nbsp;&nbsp;{{orderRefundReason}}</div><br /><br />
+                       
                         <div class="form-group has-feedback">
                             <label class="control-label">备注</label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                             <textarea id="note" class="autogrow"></textarea>
@@ -78,7 +102,7 @@
                                 <input type="radio" id="status" checked=checked name="status" value=0> 待跟进 
                             </label>
                             <label class="checkbox-inline">
-                                <input type="radio" id="status" name="status" value=1> 已解决 
+                                <input type="radio" id="status" name="status" value=1> 已解决
                             </label> 
                         </div>  <br /><br /><br /><br /><br />
                         <div class="form-group has-feedback" style="margin-left: 32%">
@@ -94,12 +118,16 @@
 </div>
 
 <script type="text/javascript" >
-    tags     =  [];
+    tags        =  [];
+    offlined    =  1 - {{ campaignBranchEnabled }};
+    needOffline =  {{needOffline}};
     function submit(){
         method         = $("#complaintWay:checked").val();
         status         = $("#status:checked").val();
         mobile         = $("#mobile").val();
         note           = $("#note").val();
+
+        needOffline   = $('input[name="refundOffline"]:checked').val();
 
         if( tags.length == 0 ){
             alert("请选择标签");
@@ -118,7 +146,7 @@
             type:'post',        
             url:'/complaint/submit',
             async:false,
-            data: { branchId:{{branchId}}, op: 'redeem', source: 2, mobile:mobile, status: status, method: method, note: note, tags: tags.join(','), orderId:{{orderId}} },
+            data: { userId:{{userId}},orderId:{{orderId}}, op: 'orderRefund', source: 1, mobile:mobile, status: status, method: method, note: note, tags: tags.join(','), reason: "{{orderRefundReason}}", needOffline: needOffline, campaignBranchId: {{campaignBranchId}}, offlined: offlined },
             dataType:'json',    
             success:function(data){ 
                         if( data != 'null' ){

@@ -392,9 +392,7 @@
                             <input id="correctItemName" type="hidden" />
                             <input id="correctBranchName" type="hidden" />
                          </div><br /> 
-                         <div class="input-group col-md-4">
-                            <span class="input-group-addon">门店是否需要下线</span> 
-                            <input id="campaignNeedOffline" type="checkbox" /> 
+                         <div class="input-group col-md-4 campaign-order-list">
                          </div><br /> 
                      </div><br /> 
                 </div>
@@ -455,7 +453,37 @@
                 </div>
             </div>
         </div>
-    </div> 
+    </div>
+
+    <div class="modal fade" id="orderRefundModal" tabindex="-1" role="dialog" aria-labelledby="orderRefundModal" aria-hidden="true">
+
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal">×</button>
+                        <h3>退款</h3>
+                    </div>
+                    <div class="modal-body">
+                        <div class="control-group">
+                            <div class="input-group col-md-4">
+                                <span class="input-group-addon">退款原因</span>
+                                <select id="orderRefundReason" >
+                                    <option value='1'>用户申请退款</option>
+                                    <option value='2'>门店下线退款</option>
+                                </select>
+                            </div><br />
+                            <div class="input-group col-md-4 campaign-order-list">
+                            </div><br />
+                            <input id="refundOrderId" type="hidden" />
+                        </div><br />
+                    </div>
+                    <div class="modal-footer">
+                        <a href="#" id="orderRefund-submit-btn" class="btn btn-primary">保存</a>
+                        <a href="#" class="btn btn-default" data-dismiss="modal">关闭</a>
+                    </div>
+                </div>
+            </div>
+    </div>
  
 </div>
 <script type="text/javascript" >
@@ -843,11 +871,63 @@
             alert('提交成功'); 
             $(this).removeClass('disabled');
             $('#correctModal').modal('hide');
-            needOffline   = $("#campaignNeedOffline").val();
+            needOffline   = $('input[name="correctOffline"]:checked').val();
             location.href = "/complaintform/ordercorrect?orderId=" + correctOrderId + "&correctContent=" + correctContent + "&correctNote=" + correctNote + "&needOffline=" + needOffline + "&mobile={{ userinfo['mobile'] }}";
-        }); 
-         
- 
+        });
+
+        $('#orderRefund-submit-btn').click(function(e){
+            if( $(this).hasClass('disabled') ){
+                alert('请勿重复提交');
+                return ;
+            }
+            $(this).addClass('disabled');
+
+            if(!confirm("确认退款?")){
+                $(this).removeClass('disabled');
+                $('#correctModal').modal('hide');
+                return ;
+            }
+
+            var refundOrderId     = $("#refundOrderId").val();
+            var feedbackId        = $("#orderRefundReason").val();
+            var orderRefundReason = $("#orderRefundReason option[value='" + feedbackId + "']").text();
+            var needOffline       = $('input[name="orderRefundOffline"]:checked').val();
+            var offlined          = 0;
+            var record            = new Object();
+            if($('#orderRefundModal .campaignOfflined').length){
+                offlined          = 1;
+            }
+            record.type           = "退款";
+            record.reason         = orderRefundReason;
+            record.offline        = needOffline;
+
+            operator.push(record);
+
+            $.ajax({
+                type:'post',
+                url:'/order/refund',
+                data:{orderId: refundOrderId, feedbackId: feedbackId, makeup: offlined},
+                dataType:'json',
+                success:function(data){
+                    if( data.result == true ){
+                        alert('退款成功');
+                        $(this).removeClass('disabled');
+                        $('#correctModal').modal('hide');
+                        location.href = "/complaintform/orderrefund?orderId=" + refundOrderId + "&orderRefundReason=" + orderRefundReason + "&needOffline=" + needOffline + "&mobile={{ userinfo['mobile'] }}";
+                    } else{
+                        alert('退款失败');
+                        $(this).removeClass('disabled');
+                        $('#correctModal').modal('hide');
+                    }
+                },
+                error:function (req,err) {
+                    $(this).removeClass('disabled');
+                    $('#correctModal').modal('hide');
+                    alert( '提交失败' );
+                },
+            });
+        });
+
         $('#orderListTab a:first').tab('show');
         $('#orderListTab a').click(function (e) {
             e.preventDefault();
@@ -903,6 +983,12 @@
             $("#correctOrderId").val( $(this).attr("data-rel") );
             $("#correctItemName").val($(this).parent().prev().prev().prev().text());
             $("#correctBranchName").val($(this).parent().prev().prev().text());
+            var campaignBranchEnabled = parseInt($(this).attr("data-campaign-branch-enabled-rel"));
+            if( campaignBranchEnabled ) {
+                $('.campaign-order-list').html('<span class="input-group-addon">活动需下线</span> <label class="radio-inline"> <input type="radio" name="orderRefundOffline" id="offline1" value="1"> 是 </label> <label class="radio-inline"> <input type="radio" name="orderRefundOffline" id="offline2" value="0" checked> 否 </label> ');
+            } else {
+                $('.campaign-order-list').html('<span class="campaignOfflined">活动已下线</span>');
+            }
         });
 
         {% if '' != needDealOrder %}
@@ -914,6 +1000,12 @@
             $("#correctOrderId").val( $(this).attr("data-rel") );
             $("#correctItemName").val($(this).parent().prev().prev().prev().text());
             $("#correctBranchName").val($(this).parent().prev().prev().text());
+            var campaignBranchEnabled = parseInt($(this).attr("data-campaign-branch-enabled-rel"));
+            if( campaignBranchEnabled ) {
+                $('.campaign-order-list').html('<span class="input-group-addon">活动需下线</span> <label class="radio-inline"> <input type="radio" name="orderRefundOffline" id="offline1" value="1"> 是 </label> <label class="radio-inline"> <input type="radio" name="orderRefundOffline" id="offline2" value="0" checked> 否 </label> ');
+            } else {
+                $('.campaign-order-list').html('<span class="campaignOfflined">活动已下线</span>');
+            }
         }); 
         {% endif %}
 
@@ -952,7 +1044,20 @@
                   } 
                 },    
             }); 
-        }); 
+        });
+
+
+        $("#orderListTabContent").on("click", ".order-refund-btn", function (e) {
+            e.preventDefault();
+            $('#orderRefundModal').modal('show');
+            $("#refundOrderId").val( $(this).attr("data-rel") );
+            var campaignBranchEnabled = parseInt($(this).attr("data-campaign-branch-enabled-rel"));
+            if( campaignBranchEnabled ) {
+                $('.campaign-order-list').html('<span class="input-group-addon">活动需下线</span> <label class="radio-inline"> <input type="radio" name="orderRefundOffline" id="offline1" value="1"> 是 </label> <label class="radio-inline"> <input type="radio" name="orderRefundOffline" id="offline2" value="0" checked> 否 </label> ');
+            } else {
+                $('.campaign-order-list').html('<span class="campaignOfflined">活动已下线</span>');
+            }
+        });
 
         $("#complaintrecords-table").on("click", ".complaint-detail-btn", function (e) {
             $("#complaintRecordTable").html("");
@@ -970,7 +1075,7 @@
                   } 
                 },    
             }); 
-        }); 
+        });
 
         $("#process-submit-btn").click(function (e) {
             if( $(this).hasClass('disabled') ){

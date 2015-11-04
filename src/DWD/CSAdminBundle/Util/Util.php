@@ -292,9 +292,6 @@ class Util
                                                              'status',
                                                            ),
                                             'operation' => array(
-                                                            '退款',
-                                                            '纠错',
-                                                            '日志',
                                                             '详情',
                                                           ),
                                          ),
@@ -369,6 +366,7 @@ class Util
                                   22       => '咨询',
                                   23       => '其他',
                                   24       => '查看记录',
+                                  25       => '要求退款',
                                );
         return isset( $tagLabel[$tagId] ) ?  $tagLabel[$tagId] : '' ;
    }

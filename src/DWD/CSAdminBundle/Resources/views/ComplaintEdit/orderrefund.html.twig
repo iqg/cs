@@ -25,13 +25,20 @@
                     <form class="form-inline" role="form">
 
                         <div class="form-group has-feedback">
-                            <label class="control-label" for="inputSuccess4">来源</label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 信息纠错
+                            <label class="control-label" for="inputSuccess4">来源</label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 退款
                         </div> <br /><br />
                     
                         <div class="form-group has-feedback">
                             <label class="control-label" for="inputSuccess4">标签</label>
                             &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                            <button id=19 name="tag_19" readonly=readonly class="btn btn-primary btn-sm complaint-label">信息纠错</button>
+                            <button id=4 name="tag_4" readonly=readonly class="btn btn-default btn-sm complaint-label">信息错误</button>&nbsp;&nbsp;
+                            <button id=6 name="tag_6" readonly=readonly class="btn btn-default btn-sm complaint-label">关门/装修</button>&nbsp;&nbsp;
+                            <button id=10 name="tag_10" readonly=readonly class="btn btn-default btn-sm complaint-label">缺货</button>&nbsp;&nbsp;
+                            <button id=7 name="tag_7" readonly=readonly class="btn btn-default btn-sm complaint-label">商户活动不详</button>&nbsp;&nbsp;
+                            <button id=8 name="tag_8" readonly=readonly class="btn btn-default btn-sm complaint-label">拒绝领用</button>&nbsp;&nbsp;
+                            <button id=5 name="tag_5" readonly=readonly class="btn btn-default btn-sm complaint-label">无法验证</button>&nbsp;&nbsp;
+                            <button id=25 name="tag_25" readonly=readonly class="btn btn-default btn-sm complaint-label">要求退款</button>&nbsp;&nbsp;
+                            <button id=2 name="tag_2" readonly=readonly class="btn btn-default btn-sm complaint-label">技术故障</button>
                         </div> <br /><br />
  
                         <div class="form-group has-feedback">
@@ -59,14 +66,14 @@
                             {% if 0 == offlined %}
                             <label class="control-label">活动需下线</label>&nbsp;&nbsp;
                             <label class="radio-inline">
-                                <input type="radio" name="correctOffline" id="offline1" value="1" {% if 0 != needOffline %} checked=checked {% endif %}> 是
+                                <input type="radio" name="refundOffline" id="offline1" value="1" {% if 0 != needOffline %} checked=checked {% endif %}> 是
                             </label>
                             <label class="radio-inline">
-                                <input type="radio" name="correctOffline" id="offline2" value="0" {% if 0 == needOffline %} checked=checked {% endif %}>  否
+                                <input type="radio" name="refundOffline" id="offline2" value="0" {% if 0 == needOffline %} checked=checked {% endif %}>  否
                             </label>
                             {% endif %}
                             {% if 1 == offlined %}
-                                <span>活动已下线</span>
+                            <span>活动已下线</span>
                             {% endif %}
                         </div> <br /><br />
  
@@ -83,7 +90,7 @@
                             </label>
                         </div>  <br /><br /> 
 
-                        <div class='form-group lockUser has-feedback'><label class='control-label'>纠错原因</label>&nbsp;&nbsp;{{content}}</div><br /><br />
+                        <div class='form-group lockUser has-feedback'><label class='control-label'>退款原因</label>&nbsp;&nbsp;{{reason}}</div><br /><br />
                        
                         <div class="form-group has-feedback">
                             <label class="control-label">备注</label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
@@ -168,13 +175,14 @@
 </div>
 
 <script type="text/javascript" >
-    tags        =  [19];
+    tags        =  [];
     offlined    =  {{offlined}};
     needOffline = {{needOffline}};
 
     if( 1 == offlined ){
         $("#info-campaignStatus").html('');
-    } else {
+    }
+    else{
         $("#info-campaignStatus").html("<a id='offline-btn'>&nbsp;[下线]</a>");
     }
 
@@ -240,10 +248,8 @@
         status         = $("#status:checked").val();
         mobile         = $("#mobile").val();
         note           = $("#note").val();
-        
-        if( 'on' == $("#needOffline").val() ){
-           needOffline = 1;
-        }
+
+        needOffline   = $('input[name="refundOffline"]:checked').val();
 
         if( tags.length == 0 ){
             alert("请选择标签");
@@ -280,11 +286,27 @@
         return res;
     }
 
-    $(document).ready(function() { 
- 
-        $(".complaint-label").click(function (e) { 
+    $(document).ready(function() {
+
+        $(".complaint-label").click(function (e) {
+            if( $(this).hasClass("btn-default") ){
+                $(this).removeClass("btn-default");
+                $(this).addClass("btn-primary");
+                tags.push( parseInt($(this).attr("id")) );
+            } else {
+                $(this).removeClass("btn-primary");
+                $(this).addClass("btn-default");
+                tags.splice($.inArray(parseInt($(this).attr("id")),tags),1);
+            }
+
             return false;
-        }); 
+        });
+
+        {% for tagId in tags %}
+        $("button[name=tag_{{tagId}}]").removeClass("btn-default");
+        $("button[name=tag_{{tagId}}]").addClass("btn-primary");
+        tags.push( {{tagId}} );
+        {% endfor %}
         
         $("#confirm-index-btn").click(function (e) {
 

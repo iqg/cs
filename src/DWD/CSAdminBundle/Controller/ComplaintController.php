@@ -50,6 +50,15 @@ class ComplaintController extends Controller
             }
              
             break;
+         case 'orderRefund':
+             $complaintInfo['orderId']          = intval( $this->getRequest()->get('orderId') );
+             $complaintInfo['reason']           = $this->getRequest()->get('reason');
+             $complaintInfo['needOffline']      = intval( $this->getRequest()->get('needOffline') );
+             $complaintInfo['campaignBranchId'] = $this->getRequest()->get('campaignBranchId');
+             if( intval( $this->getRequest()->get('offlined') ) == 1 ){
+                 $complaintInfo['offlined']     = 1;
+             }
+            break;
          case 'updateBranch':
             $complaintInfo['address']          = $this->getRequest()->get('address');
             $complaintInfo['redeemTels']       = intval( $this->getRequest()->get('redeemTels') );

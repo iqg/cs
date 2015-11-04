@@ -177,6 +177,56 @@ class ComplaintEditController extends Controller
         ));
     }
 
+    private function _editOrderRefund( $complaint )
+    {
+        $offlined             = 0;
+        if( isset( $complaint['complaintInfo']['offlined'] ) ){
+            $offlined         = 1;
+        }
+
+        $dataHttp             = $this->get('dwd.data.http');
+
+        $data                 = array(
+            array(
+                'url'    => '/order/orderinfo',
+                'data'   =>  array(
+                    'orderId'  => $complaint['complaintInfo']['orderId'],
+                ),
+                'method' =>  'get',
+                'key'    =>  'orderinfo',
+            ),
+            array(
+                'url'    => '/saler/salerinfo',
+                'data'   =>  array(
+                    'orderId'  => $complaint['complaintInfo']['orderId'],
+                ),
+                'method' =>  'get',
+                'key'    =>  'salerinfo',
+            ),
+        );
+
+        $data                 = $dataHttp->MutliCall($data);
+        $orderinfo            = $data['orderinfo']['data'];
+        $salerinfo            = $data['salerinfo']['data'];
+
+        return $this->render('DWDCSAdminBundle:ComplaintEdit:orderrefund.html.twig', array(
+            'tags'             => $complaint['tags'],
+            'method'           => $complaint['method'],
+            'mobile'           => $complaint['mobile'],
+            'status'           => $complaint['status'],
+            'note'             => $complaint['note'],
+            'complaintId'      => $complaint['_id'],
+            'needOffline'      => $complaint['complaintInfo']['needOffline'],
+            'offlined'         => $offlined,
+            'reason'          => $complaint['complaintInfo']['reason'],
+            'userId'           => $orderinfo['user_id'],
+            'campaignBranchId' => $complaint['complaintInfo']['campaignBranchId'],
+            'salerName'        => isset( $salerinfo['name'] ) ? $salerinfo['name'] : '',
+            'itemName'         => $orderinfo['item_name'],
+            'branchName'       => $orderinfo['branch_name'],
+        ));
+    }
+
     private function _editUpdateBranch( $complaint )
     { 
         return $this->render('DWDCSAdminBundle:ComplaintEdit:updatebranch.html.twig', array( 
@@ -280,6 +330,9 @@ class ComplaintEditController extends Controller
               break;
            case 'resetPwd':
               return self::_editResetPwd( $complaint );
+              break;
+           case 'orderRefund':
+              return self::_editOrderRefund( $complaint );
               break;
            case 'ask':
            case 'tech-error':
