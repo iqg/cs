@@ -52,6 +52,8 @@ class ComplaintEditController extends Controller
             'status'          => $complaint['status'],
             'note'            => $complaint['note'],
             'complaintId'     => $complaint['_id'],
+            'branchEnabled'   => $branchinfo['enabled'],
+            'branchId'        => $branchinfo['id'],
         ));
     }
 

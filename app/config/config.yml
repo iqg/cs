@@ -9,6 +9,7 @@ parameters:
     locale: zh_CN
     cookie_domain: .iqianggou.dev
     redis_dsn: 'redis://127.0.0.1:6379'
+    iqg_host: http://staging.iqianggou.com
 
 framework:
     #esi:             ~

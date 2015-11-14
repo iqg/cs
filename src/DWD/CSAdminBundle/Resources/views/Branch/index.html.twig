@@ -241,7 +241,7 @@
                      </div><br /> 
                 </div>
                 <div class="modal-footer">
-                    <a href="#" id="offline-submit-btn" class="btn btn-default">下线</a>
+                    <a href="#" id="offline-submit-btn" class="btn btn-default">保存</a>
                     <a href="#" class="btn btn-default" data-dismiss="modal">关闭</a>
                 </div>
             </div>
@@ -489,29 +489,11 @@
             record.branchName = "{{branchinfo['name']}}";
             record.reason     = offlineReason;
             record.note       = offlineNote;
-            $.ajax({
-                type:'post',      
-                url:'/branch/offline',    
-                data:{branchId:{{branchId}},offlineReason:offlineReason,offlineNote:offlineNote},
-                dataType:'json',    
-                success:function(data){ 
-                   if( data == true ){
-                     location.href      = "/complaintform/branchoffline?branchId={{branchId}}" + "&reason=" + offlineReason + "&note=" + offlineNote;
-                     record.res = true;
-                     alert('下线成功');
-                     branchinfo.enabled = 0;
-                     $('#offlineModal').modal('hide');
-                     __init();
-                   } else {
-                     record.res = false;
-                     alert('下线失败');
-                   }
-                },
-                error:function (req,err) {
-                   record.res  = false;
-                   record.err  = err;   
-                }    
-            });
+            location.href     = "/complaintform/branchoffline?branchId={{branchId}}" + "&reason=" + offlineReason + "&note=" + offlineNote;
+            record.res = true;
+            alert('申请下线成功');
+            $('#offlineModal').modal('hide');
+            __init();
             operator.push( record );
             $(this).removeClass("disable");
         });

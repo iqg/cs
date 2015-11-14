@@ -787,7 +787,7 @@ class UserController extends Controller
 
         $data           = array( 
                               array(
-                                  'host'   => 'http://staging.iqianggou.com',
+                                  'host'   => $this->container->getParameter('iqg_host'),
                                   'url'    => '/api/user/update_password',
                                   'data'   =>  $params,
                                   'method' => 'post',

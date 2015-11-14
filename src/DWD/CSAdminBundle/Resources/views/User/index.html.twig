@@ -468,8 +468,12 @@
                             <div class="input-group col-md-4">
                                 <span class="input-group-addon">退款原因</span>
                                 <select id="orderRefundReason" >
-                                    <option value='1'>用户申请退款</option>
-                                    <option value='2'>门店下线退款</option>
+                                    <option value='8'>来不及消费</option>
+                                    <option value='9'>不想要了</option>
+                                    <option value="10">商家停业</option>
+                                    <option value="11">商家拒绝领用</option>
+                                    <option value="6">商家断货</option>
+                                    <option value="7">其他</option>
                                 </select>
                             </div><br />
                             <div class="input-group col-md-4 campaign-order-list">
@@ -776,7 +780,7 @@
                 dataType:'json',    
                 success:function(data){
                    if( true == data.result ){ 
-                       alert('重置成功')
+                       alert('重置成功');
                       record.res = true; 
                       location.href = "/complaintform/resetpwd?userId={{userId}}&mobile={{ userinfo['mobile'] }}";
                    } else {

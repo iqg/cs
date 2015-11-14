@@ -280,7 +280,7 @@ class OrderController extends Controller
 
         $data                 = array(
                                     array(
-                                        'host'  => 'http://staging.iqianggou.com',
+                                        'host'  => $this->container->getParameter('iqg_host'),
                                         'url'   => '/api/order/request_refund',
                                         'data'  => $params,
                                         'method'=> 'post',
