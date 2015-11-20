@@ -171,12 +171,17 @@ class BranchController extends Controller
            $accountInfo['username']  = '该门店不存在帐号';
            $accountInfo['mobile']    = '该门店不存在手机号';
            $accountInfo['id']        = -1;
-        }
+        } 
  
         $branchInfo['brandName']     =  $brandInfo['name'];
         $branchInfo['brandTel']      =  $brandInfo['tel'];
         $branchInfo['zoneName']      =  $zoneInfo['name'];
-        $branchInfo['salerName']     =  $salerInfo['name'];
+        if( isset( $salerInfo['name'] ) ){
+          $branchInfo['salerName']   =  $salerInfo['name'];
+        } else {
+          $branchInfo['salerName']   =  '';
+        }
+         
         $redeemTypes                 =  self::_getRedeemTypes( $branchInfo['redeem_type'] );
         $branchInfo['redeemTypes']   =  implode( ", ", $redeemTypes[0]); //self::_getRedeemTypes( $branchInfo['redeem_type'] );
         $branchInfo['redeemTypeIds'] =  $redeemTypes[1];
@@ -188,6 +193,8 @@ class BranchController extends Controller
         } 
 
         return $this->render('DWDCSAdminBundle:Branch:index.html.twig', array( 
+            'jsonBranchInfo'         => json_encode( $branchInfo ),
+            'jsonAccountInfo'        => json_encode( $accountInfo ),
             'branchinfo'             => $branchInfo,
             'orderlistTypes'         => $orderListTypes,
             'branchId'               => $branchId,
@@ -211,16 +218,16 @@ class BranchController extends Controller
                 $orderTypeId = 2;
                 break;
             case 'refund':
-                $orderTypeId = 3;
+                $orderTypeId = 6;
                 break;
             case 'expired': 
-                $orderTypeId = 4;
+                $orderTypeId = 3;
                 break;
             case 'finish': 
-                $orderTypeId = 5;
+                $orderTypeId = 4;
                 break;
             case 'processing': 
-                $orderTypeId = 6;
+                $orderTypeId = 11;
                 break;
             default: 
                 break;
@@ -231,7 +238,7 @@ class BranchController extends Controller
                 'url'    => '/branch/orderlist',
                 'data'   => array(
                     'branchId'       => $branchId,
-                    'needPagination' => 1, 
+                    'needPagination' => 1,
                     'type'           => $orderTypeId,
                     'pageNum'        => $pageNum,
                     'pageLimit'      => $pageLimit,
@@ -278,7 +285,7 @@ class BranchController extends Controller
                   $tdValue       = $orderInfo['refunded_at'];
                   break;
                 case 'expiredTime':
-                  $tdValue       = $orderInfo['expire_time'];
+                  $tdValue       = $orderInfo['expire_date'];
                   break;
                 case 'redeemTime':
                   $tdValue       = $orderInfo['redeem_time'];
@@ -325,26 +332,26 @@ class BranchController extends Controller
                             );
         $data            =  $dataHttp->MutliCall($data);
         $orderInfo       =  $data['orderinfo']['data'];
-        $branchInfo      =  $data['branchinfo']['data']; 
+        $branchInfo      =  $data['branchinfo']['data'];
         $orderList       =  array(
                                 'list'  => array(),
                                 'total' => 0,
                             );
        
+        $operation       = array(
+                             '纠错','日志','详情'
+                           ); 
+
         if( !empty( $orderInfo ) &&  $branchInfo['id'] ==  $branchId ){ 
             $orderList   =  array(
                                 'list' => 
                                     array(
                                         array(
-                                           $orderInfo['id'],
-                                           $orderInfo['campaign_branch_id'],
-                                           $orderInfo['user_id'],
-                                           $orderInfo['price'],
-                                           $this->get('dwd.util')->getOrderStatusLabel( $orderInfo['status'] ),
-                                           $this->get('dwd.util')->getOrderTypeLabel($orderInfo['type']),
-                                           $orderInfo['trade_number'],
-                                           $orderInfo['created_at'],
-                                           $orderInfo['updated_at'],
+                                           $orderInfo['item_name'], 
+                                           $orderInfo['branch_name'],
+                                           $orderInfo['redeem_number'],
+                                           $this->get('dwd.util')->getOrderStatusLabel($orderInfo['status']),
+                                           $this->_getOperation( $operation, $orderInfo['id'] ),
                                        ),    
                                     ), 
                                 "total" => 1,
@@ -407,33 +414,15 @@ class BranchController extends Controller
                                 );
         $complaintList        = $dm->getRepository('DWDDataBundle:Complaint')->getBranchComplaints( $branchId, $options );
         $complaintCnt         = $dm->getRepository('DWDDataBundle:Complaint')->getBranchCount( $branchId );
- 
-        $dataHttp             = $this->get('dwd.data.http'); 
-        $tagsList             = array();
-        $data                 = array(
-                                    array(
-                                        'url'    => '/complaint/taglist', 
-                                        'method' => 'get',
-                                        'key'    => 'complaintTags',
-                                    ),  
-                                ); 
-
-        $data                      = $dataHttp->MutliCall($data);
- 
-        foreach ($data['complaintTags']['data']['list'] as  $tag) {
-            $tagsList[$tag['id']]  = $tag['name'];
-        } 
-
+  
         $aaData                    = array();
     
         foreach( $complaintList as $complaint ){
             $tags                  = array();
 
             if( isset( $complaint['tags'] ) ){
-              foreach ($complaint['tags'] as $tagId) {
-                  if( isset( $tagsList[$tagId] ) ){
-                      $tags[]      = $tagsList[$tagId];   
-                  } 
+              foreach ($complaint['tags'] as $tagId) { 
+                  $tags[]          = $this->get('dwd.util')->getComplaintTag( $tagId );  
               }
             } 
         
@@ -441,7 +430,7 @@ class BranchController extends Controller
                                         $this->get('dwd.util')->getComplaintSourceLabel( $complaint['source'] ),
                                         implode(",", $tags),
                                         $this->get('dwd.util')->getComplaintStatusLabel( $complaint['status'] ),
-                                        "<a href='/complaint/confirm?id=" . $complaint['_id'] . "' target='_blank' >[详情]</a>",
+                                        "<a href='/complaint/edit?id=" . $complaint['_id'] . "' target='_blank' >[详情]</a>",
                                      );
         }
 
@@ -577,17 +566,31 @@ class BranchController extends Controller
                              );
         foreach( $data['campaignbranchs']['data']['list'] as $campaignbranch )
         {  
+
+            $tmpData       = array( 
+                                array(
+                                    'url'    => '/campaignbranch/iteminfo',
+                                    'data'   => array(
+                                        'campaignBranchId'       => $campaignbranch['id'], 
+                                    ), 
+                                    'method' => 'get',
+                                    'key'    => 'iteminfo',
+                                ),
+                            ); 
+
+            $tmpData       = $dataHttp->MutliCall($tmpData);
+ 
             $campaignbranchs['list'][] = array(
-                                             $campaignbranch['campaign_id'],
+                                             $tmpData['iteminfo']['data']['name'],
                                              $campaignbranch['start_time'],
                                              $campaignbranch['end_time'], 
                                              $this->get('dwd.util')->getCampaignBranchTypeLabel( $campaignbranch['type'] ), 
                                              '<a href="#" data-rel=' . $campaignbranch['id'] . ' class="campaignbranch-detail">[详情]</a>'
                                         );
+        
         }
- 
-        $res             = array
-                           (
+
+        $res             = array(
                                 "sEcho"                => $sEcho, 
                                 "aaData"               => $campaignbranchs['list'],
                                 "iTotalRecords"        => $data['campaignbranchs']['data']['totalCnt'],
@@ -618,12 +621,20 @@ class BranchController extends Controller
                                     'method' => 'post',
                                     'key'    => 'update',
                                 ),
+                                array(
+                                    'url'    => '/campaignbranch/offline',
+                                    'data'   => array(
+                                        'branchId'       => $branchId, 
+                                    ), 
+                                    'method' => 'post',
+                                    'key'    => 'offline',
+                                ),
                             ); 
 
         $data            = $dataHttp->MutliCall($data);  
 
         $res             = false;
-        if( $data['update']['errno'] == 0 && $data['update']['data'] == true ){
+        if( $data['offline']['errno'] == 0 && $data['update']['errno'] == 0 && $data['update']['data'] == true ){
           $res           = true;
         }
 

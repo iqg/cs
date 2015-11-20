@@ -25,13 +25,13 @@
                     <form class="form-inline" role="form">
 
                         <div class="form-group has-feedback">
-                            <label class="control-label" for="inputSuccess4">来源</label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 其他投诉-{{complaintType}}
+                            <label class="control-label" for="inputSuccess4">来源</label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {{tag}}
                         </div> <br /><br />
                     
                         <div class="form-group has-feedback">
                             <label class="control-label" for="inputSuccess4">标签</label>
                             &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
-                                <button id="{{tagId}}" readonly=readonly class="btn btn-primary btn-sm complaint-label">{{complaintType}}</button>&nbsp;&nbsp; 
+                                <button id="{{tagId}}" readonly=readonly class="btn btn-primary btn-sm complaint-label">{{tag}}</button>&nbsp;&nbsp; 
                         </div> <br /><br />
  
                         <div class="form-group has-feedback">
@@ -49,7 +49,7 @@
                             </label>
                             <label class="checkbox-inline">
                                 <input type="radio" name="complaintWay" id="complaintWay" value=3> 其他 
-                            </label> 
+                            </label>
                         </div>  <br /><br /> 
                        
                         <div class="form-group has-feedback">
@@ -67,7 +67,7 @@
                             </label> 
                         </div>  <br /><br /><br /><br /><br />
                         <div class="form-group has-feedback" style="margin-left: 39%">
-                            <button type="button" id="confirm-btn" class="btn btn-primary">保存</button>
+                            <button type="button" id="confirm-btn" class="btn btn-primary">提交</button>
                         </div>
                     </form>
                 </div>
@@ -77,6 +77,45 @@
 </div>
 
 <script type="text/javascript" >
+    
+    function submit(){
+        method         = $("#complaintWay:checked").val();
+        status         = $("#status:checked").val();
+        mobile         = $("#mobile").val();
+        note           = $("#note").val(); 
+
+        phoneReg       = /^((0\d{2,3})-)(\d{7,8})(-(\d{3,}))?$/;
+        telReg         = /^1[34875]\d{9}$/;
+
+        if( false == phoneReg.test( mobile ) && false == telReg.test( mobile ) ){
+            alert("请输入正确的手机号码");
+            return false;
+        }
+
+        res            = false;
+        tags           = [{{tagId}}];
+        $.ajax({    
+            type:'post',         
+            async:false,
+            url:'/complaint/submit',    
+            data: {tags: tags.join(','), mobile:mobile, op:"{{type}}", status: status, method: method, note:note, source:{{source}}},
+            dataType:'json',    
+            success:function(data){ 
+                        if( data != 'null' ){
+                            alert('提交成功'); 
+                            res = true;
+                        } else {
+                            alert('提交失败'); 
+                        }
+                    },
+            error:function (req,err) { 
+                    alert('提交失败'); 
+                  } 
+        });
+
+        return res;
+    }
+
     $(document).ready(function() { 
  
         $(".complaint-label").click(function (e) {
@@ -86,28 +125,13 @@
         $("#confirm-btn").click(function (e) {
 
             if(!confirm("确认提交?")){
-                return ;
+                return false;
             }
  
-            method         = $("#complaintWay:checked").val();
-            status         = $("#status:checked").val();
-            mobile         = $("#mobile").val();
-            note           = $("#note").val();
-            tags           = {{tagId}};
-            userId         = {{userId}};
-            branchId       = {{branchId}};
-
-            $.ajax({    
-                type:'post',        
-                url:'/complaint/othersubmit',    
-                data: {tags: tags, mobile:mobile, status: status, method: method, note: note, type:"{{type}}", branchId: branchId, userId:userId },
-                dataType:'json',    
-                success:function(data){ 
-                            if( data == 'ok' ){
-                                alert('提交成功');
-                            }
-                        }  
-            });
+            res = submit();
+            if( res ){
+               location.href = '/';
+            } 
         });
     });
 </script>

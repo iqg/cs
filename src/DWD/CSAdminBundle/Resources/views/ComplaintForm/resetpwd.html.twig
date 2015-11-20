@@ -25,18 +25,18 @@
                     <form class="form-inline" role="form">
 
                         <div class="form-group has-feedback">
-                            <label class="control-label" for="inputSuccess4">来源</label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 其他投诉-{{complaintType}}
+                            <label class="control-label" for="inputSuccess4">来源</label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 商户投诉 - 重置密码
                         </div> <br /><br />
                     
                         <div class="form-group has-feedback">
                             <label class="control-label" for="inputSuccess4">标签</label>
                             &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
-                                <button id="{{tagId}}" readonly=readonly class="btn btn-primary btn-sm complaint-label">{{complaintType}}</button>&nbsp;&nbsp; 
+                                <button id=20 readonly=readonly class="btn btn-primary btn-sm complaint-label">重置密码</button>&nbsp;&nbsp; 
                         </div> <br /><br />
  
                         <div class="form-group has-feedback">
                             <label class="control-label">来电电话</label>&nbsp;&nbsp;
-                            <input type="text" id="mobile" class="form-control">
+                            <input type="text" id="mobile" class="form-control" value="{{mobile}}">
                         </div> <br /><br />
 
                         <div class="form-group has-feedback">
@@ -54,7 +54,7 @@
                        
                         <div class="form-group has-feedback">
                             <label class="control-label">备注</label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                            <textarea id="note" class="autogrow"></textarea>
+                            <textarea id="note" class="autogrow">账号密码重置</textarea>
                         </div> <br /><br />
 
                         <div class="form-group has-feedback">
@@ -66,8 +66,10 @@
                                 <input type="radio" id="status" name="status" value=1> 已解决 
                             </label> 
                         </div>  <br /><br /><br /><br /><br />
-                        <div class="form-group has-feedback" style="margin-left: 39%">
-                            <button type="button" id="confirm-btn" class="btn btn-primary">保存</button>
+                        <div class="form-group has-feedback" style="margin-left: 32%">
+                            <button type="button" id="confirm-back-btn" class="btn btn-primary">保存并继续</button>&nbsp;&nbsp;
+                            <button type="button" id="confirm-index-btn" class="btn btn-primary">保存返回首页</button>&nbsp;&nbsp;
+                            <button type="button" id="cancel-btn" class="btn btn-default">取消</button>
                         </div>
                     </form>
                 </div>
@@ -77,37 +79,77 @@
 </div>
 
 <script type="text/javascript" >
+    function submit(){
+        method         = $("#complaintWay:checked").val();
+        status         = $("#status:checked").val();
+        mobile         = $("#mobile").val();
+        note           = $("#note").val(); 
+
+        phoneReg       = /^((0\d{2,3})-)(\d{7,8})(-(\d{3,}))?$/;
+        telReg         = /^1[34875]\d{9}$/;
+
+        if( false == phoneReg.test( mobile ) && false == telReg.test( mobile ) ){
+            alert("请输入正确的手机号码");
+            return false;
+        }
+        res            = false;
+        tags           = [20];
+
+        $.ajax({    
+            type:'post',        
+            url:'/complaint/submit',
+            async:false,
+            data: { branchId:{{branchId}}, userId:{{userId}}, op: 'resetPwd', source: 1, mobile:mobile, status: status, method: method, note: note, tags: tags.join(',') },
+            dataType:'json',    
+            success:function(data){ 
+                        if( data != 'null' ){
+                            alert('提交成功'); 
+                            res = true;
+                        } else {
+                            alert('提交失败'); 
+                        }
+                    },
+            error:function (req,err) { 
+                    alert('提交失败'); 
+                  } 
+        });
+
+        return res;
+    }
+
     $(document).ready(function() { 
- 
-        $(".complaint-label").click(function (e) {
+
+        $(".complaint-label").click(function (e) { 
             return false;
         });
 
-        $("#confirm-btn").click(function (e) {
+        $("#confirm-back-btn").click(function (e) {
 
             if(!confirm("确认提交?")){
                 return ;
+            } 
+            res = submit();
+            if( res ){
+               location.href = "{{referer|raw}}";
             }
- 
-            method         = $("#complaintWay:checked").val();
-            status         = $("#status:checked").val();
-            mobile         = $("#mobile").val();
-            note           = $("#note").val();
-            tags           = {{tagId}};
-            userId         = {{userId}};
-            branchId       = {{branchId}};
+        });
 
-            $.ajax({    
-                type:'post',        
-                url:'/complaint/othersubmit',    
-                data: {tags: tags, mobile:mobile, status: status, method: method, note: note, type:"{{type}}", branchId: branchId, userId:userId },
-                dataType:'json',    
-                success:function(data){ 
-                            if( data == 'ok' ){
-                                alert('提交成功');
-                            }
-                        }  
-            });
+        $("#confirm-index-btn").click(function (e) {
+
+            if(!confirm("确认提交?")){
+                return ;
+            } 
+            res = submit();
+            if( res ){
+               location.href = '/';
+            } 
+        });
+
+        $("#cancel-btn").click(function (e) {
+            if(!confirm("确认取消?")){
+                return ;
+            }
+            history.back();
         });
     });
 </script>

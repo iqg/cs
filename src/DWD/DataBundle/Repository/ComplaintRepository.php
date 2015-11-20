@@ -23,7 +23,7 @@ class ComplaintRepository extends DocumentRepository
 		foreach ($conditions as $key => $value) {
 		    $queryBuilder = $queryBuilder->field($key)->equals($value);
 		}
-		return $queryBuilder->limit($options['limit'])->skip($options['skip'])->hydrate(false)->getQuery()->toArray();
+		return $queryBuilder->sort( $options['sort'] )->limit($options['limit'])->skip($options['skip'])->hydrate(false)->getQuery()->toArray();
 	} 
 
 

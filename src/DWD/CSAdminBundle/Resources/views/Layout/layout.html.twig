@@ -47,17 +47,18 @@
                             </a> 
                         </div>
                         <div class="navbar-collapse collapse">
-                                {# block header_navigation_links %}
-                                    <ul class="nav navbar-nav navbar-right">
-                                        <li><a href="#">Dashboard</a></li>
-                                        <li><a href="#">Settings</a></li>
-                                        <li><a href="#">Profile</a></li>
-                                        <li><a href="#">Help</a></li>
-                                    </ul>
-                                    <form class="navbar-form navbar-right">
-                                        <input type="text" class="form-control" placeholder="Search...">
-                                    </form>
-                                {% endblock #}
+                            {% block header_navigation_links %}
+                                <ul class="nav navbar-nav navbar-right">
+
+                                    {% if app.user %}
+                                        <li>
+                                            <a href="{{ path('dwd_csadmin_logout') }}">
+                                                退出
+                                            </a>
+                                        </li>
+                                    {% endif %}
+                                </ul>
+                            {% endblock %}
                         </div>
                     </div>
                 </div>

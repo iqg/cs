@@ -36,8 +36,8 @@
                             {% endfor %} 
                         </div> <br /><br />
  
-                        <div class="form-group has-feedback">
-                            <label class="control-label">电话号码</label>&nbsp;&nbsp;
+                        <div  id="divTel" class="form-group has-feedback">
+                            <label class="control-label">来电电话</label>&nbsp;&nbsp;
                             <input type="text" id="mobile" class="form-control" value="{{mobile}}" >
                         </div> <br /><br />
 
@@ -65,17 +65,17 @@
 
                         <div class="form-group has-feedback">
                             <label class="control-label">活动</label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                            <input readonly=readonly value="{{param['item']}}" type="text" class="form-control">
+                            <span>{{param['itemName']}}</span>
                         </div> <br /><br />
 
                         <div class="form-group has-feedback">
                             <label class="control-label">门店</label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                            <input readonly=readonly value="{{param['branch']}}" type="text" class="form-control">
+                            <span>{{param['branch']}}</span>
                         </div> <br /><br />
 
                         <div class="form-group has-feedback">
                             <label class="control-label">跟进销售</label>&nbsp;&nbsp;
-                            <input readonly=readonly value="{{param['saler']}}"  type="text" class="form-control">
+                            <span>{{param['saler']}}</span>
                         </div> <br /><br />
 
                         <div class="form-group has-feedback">
@@ -103,10 +103,54 @@
 </div>
 
 <script type="text/javascript" >
-    var complaint           = {{complaint|raw}};
+    var complaint     = {{complaint|raw}};
 
-    var tags = [];
+    var tags          = [];
+    var lockUser      = {};
+    var lockUserIndex = 0;
+
+    function __init(){
+        $(".lockUser").remove();
+        $(complaint.users).each(function(i,user) {
+            if( user.op == 'lock' && typeof(user.res) == 'undefined' )
+            {
+                lockUser      = user;
+                lockUserIndex = i;
+                reason        = '';
+                switch( parseInt( user.reason ) )
+                {
+                   case 1: 
+                       reason = '使用多个帐号重复购买同一商品';
+                       break;
+                   case 2: 
+                       reason = '领用时使用截图或抄写验证码';
+                       break;
+                   case 3: 
+                       reason = '一天内在同一门店零用一份以上商品';
+                       break;
+                   case 4: 
+                       reason = '与商户发生纠纷,在门店内闹事';
+                       break;
+                   case 5: 
+                       reason = '转卖爱抢购订单进行牟利';
+                       break;
+                   case 6: 
+                       reason = '其他';
+                       break;
+                   case 7: 
+                       reason = '退款过多';
+                       break;
+                   default: 
+                       break;
+                }  
+                $("#divTel").append("<br /><br /><div class='form-group lockUser has-feedback'><label class='control-label'>封号原因</label>&nbsp;&nbsp;" + reason + " <a href='#' id='lock-user-btn' >&nbsp;&nbsp;&nbsp;[确认封号]</a></div>");
+            }
+        });
+    }
+
     $(document).ready(function() {
+        __init();
+
         $(".complaint-label").click(function (e) {
 
             if( $(this).hasClass("btn-default") ){
@@ -129,17 +173,60 @@
             tags.push( $(".c-tags #{{tagAlias}}").attr("id") );
         {% endfor %}
 
+        $("#lock-user-btn").click(function (e) {
+
+            $.ajax({    
+                type:'post',        
+                url:'/user/lock',    
+                data:{userId:lockUser.id,selectlockReason:lockUser.reason,lockNote:''},
+                dataType:'json',    
+                success:function(data){
+                   if( true == data.result ){
+                      lockUser.res                   = true; 
+                      complaint.users[lockUserIndex] = lockUser;
+                      alert('封号成功');
+                      __init();
+                   } else {
+                      lockUser.res                   = false;
+                      complaint.users[lockUserIndex] = lockUser;
+                      alert( '封号失败');
+                   }    
+                },
+                error:function (req,err) {
+                   lockUser.res = false;
+                   lockUser.err = err;
+                   complaint.users[lockUserIndex] = lockUser; 
+                   alert( '封号失败' ); 
+                } 
+            });
+
+
+        });
+
 
         $("#confirm-btn").click(function (e) {
 
             if(!confirm("确认提交?")){
                 return ;
             }
+            mobile                   = $("#mobile").val();
             complaint.platform       = $("#selectPlatform option:selected").val();
             complaint.method         = $("#complaintWay:checked").val();
             complaint.status         = $("#status:checked").val();
-            complaint.mobile         = $("#mobile").val();
+            complaint.mobile         = mobile;
             complaint.note           = $("#note").val();
+            if( tags.length == 0 ){
+                alert("请选择标签");
+                return ;
+            }
+            phoneReg                 = /^((0\d{2,3})-)(\d{7,8})(-(\d{3,}))?$/;
+            telReg                   = /^1[34875]\d{9}$/;
+
+            if( false == phoneReg.test( mobile ) && false == telReg.test( mobile ) ){
+                alert("请输入正确的手机号码");
+                return ;
+            }
+
             complaint.tags           = tags.join(",");
 
             $.ajax({    
@@ -149,6 +236,7 @@
                 dataType:'json',    
                 success:function(data){ 
                            alert("提交成功");
+                           location.href = "/";
                         }  
             });
         });

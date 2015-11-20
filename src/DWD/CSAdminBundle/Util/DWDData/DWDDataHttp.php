@@ -17,7 +17,7 @@ class DWDDataHttp
 
     private $_responses  = array();
 
-    const  API_SERVER    = 'http://127.0.0.1/';
+    const  API_SERVER    = 'http://10.0.0.10:12306/';//'http://cron.wx.jaeapp.com/';
 
     public function __construct(Container $container)
     { 

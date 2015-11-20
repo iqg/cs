@@ -32,33 +32,13 @@
                             <strong>{{ 'label.coin'|trans }}&nbsp;:&nbsp;</strong><span id='info-coin'></span><br><br>
                             <strong>{{ 'label.last_login'|trans }}&nbsp;:&nbsp;</strong><span id='info-lastLogin'></span><br><br>
                             <strong>{{ 'label.created_at'|trans }}&nbsp;:&nbsp;</strong><span id='info-createdAt'></span><br><br>
-
                         </li>
                     <ul>
                 </div>
             </div>
         </div>
     </div> 
-
-    {% if '' != needDealOrder %}
-    <div class="row">
-        <div class="box col-md-12">
-            <div class="box-inner">
-                <div class="box-header well" data-original-title="">
-                    <h2>待处理订单</h2>
-
-                    <div class="box-icon"> 
-                        <a href="#" class="btn btn-minimize btn-round btn-default"><i
-                                class="glyphicon glyphicon-chevron-up"></i></a> 
-                    </div>
-                </div> 
-                <div class="box-content" id="needDealOrderContent"> 
-                    {{needDealOrder|raw}}
-                </dib>
-        </div>
-    </div>
-    {% endif %}
-
+ 
     <div class="row">
         <div class="box col-md-12">
             <div class="box-inner">
@@ -125,7 +105,7 @@
                     </thead>
                     <tbody>
                     </tbody>
-                    </table> 
+                    </table>
              </div>
         </div>
     </div>
@@ -153,7 +133,6 @@
                     </table>
                 </div>
                 <div class="modal-footer">
-                    <a href="#" id="viewCoinRecords-submit" class="btn btn-primary" data-dismiss="modal">投诉</a> 
                     <a href="#" class="btn btn-default" data-dismiss="modal">关闭</a>
                 </div>
             </div>
@@ -174,7 +153,7 @@
                     <tr>
                         <th>{{ 'label.name'|trans }}</th>
                         <th>{{ 'label.record_type'|trans }}</th>
-                        <th>余额明细</th>
+                        <th>{{ 'label.balance_amount'|trans }}</th>
                         <th>{{ 'label.current_balance'|trans }}</th>
                         <th>{{ 'label.created_at'|trans }}</th> 
                     </tr>
@@ -184,7 +163,6 @@
                     </table>
                 </div>
                 <div class="modal-footer">
-                    <a href="#" id="viewBalanceRecords-submit" class="btn btn-primary" data-dismiss="modal">投诉</a> 
                     <a href="#" class="btn btn-default" data-dismiss="modal">关闭</a>
                 </div>
             </div>
@@ -215,7 +193,6 @@
                     </table>
                 </div>
                 <div class="modal-footer">
-                    <a href="#" id="viewLockUserRecords-submit" class="btn btn-primary" data-dismiss="modal">投诉</a> 
                     <a href="#" class="btn btn-default" data-dismiss="modal">关闭</a>
                 </div>
             </div>
@@ -235,8 +212,7 @@
                     <thead>
                     <tr> 
                         <th>{{ 'label.recommend_user_id'|trans }}</th>
-                        <th>{{ 'label.created_at'|trans }}</th>
-                        <th>{{ 'label.note'|trans }}</th>
+                        <th>{{ 'label.created_at'|trans }}</th> 
                     </tr>
                     </thead>
                     <tbody>
@@ -244,7 +220,6 @@
                     </table>
                 </div>
                 <div class="modal-footer">
-                    <a href="#" id="viewRecommendRecords-submit" class="btn btn-primary" data-dismiss="modal">投诉</a> 
                     <a href="#" class="btn btn-default" data-dismiss="modal">关闭</a>
                 </div>
             </div>
@@ -273,7 +248,6 @@
                     </table>
                 </div>
                 <div class="modal-footer">
-                    <a href="#" id="viewSMSRecords-submit" class="btn btn-primary" data-dismiss="modal">投诉</a> 
                     <a href="#" class="btn btn-default" data-dismiss="modal">关闭</a>
                 </div>
             </div>
@@ -292,7 +266,7 @@
                     <span>重置密码, 并发送新密码至手机号: {{ userinfo['mobile'] }}?</span>
                 </div>
                 <div class="modal-footer">
-                    <a href="#" id="resetPwd-submit-btn" class="btn btn-primary">确认</a>
+                    <a href="#" id="resetPwd-submit-btn" class="btn btn-default">确认</a>
                     <a href="#" class="btn btn-default" data-dismiss="modal">关闭</a>
                 </div>
             </div>
@@ -322,7 +296,7 @@
                      </div><br /> 
                 </div>
                 <div class="modal-footer">
-                    <a href="#" id="deviceUnbind-submit-btn" class="btn btn-primary">解绑</a>
+                    <a href="#" id="deviceUnbind-submit-btn" class="btn btn-default">解绑</a>
                     <a href="#" class="btn btn-default" data-dismiss="modal">关闭</a>
                 </div>
             </div>
@@ -358,7 +332,7 @@
                      </div><br /> 
                 </div>
                 <div class="modal-footer">
-                    <a href="#" id="lockUser-submit-btn" class="btn btn-primary">封号</a>
+                    <a href="#" id="lockUser-submit-btn" class="btn btn-default">封号</a>
                     <a href="#" class="btn btn-default" data-dismiss="modal">关闭</a>
                 </div>
             </div>
@@ -374,7 +348,7 @@
                     <h3>纠错</h3>
                 </div>
                 <div class="modal-body">  
-                     <div class="control-group">
+                     <div class="control-group"> 
                          <div class="input-group col-md-4">
                             <span class="input-group-addon">纠错内容</span>
                             <select id="correctContent" >
@@ -392,12 +366,10 @@
                             <input id="correctItemName" type="hidden" />
                             <input id="correctBranchName" type="hidden" />
                          </div><br /> 
-                         <div class="input-group col-md-4 campaign-order-list">
-                         </div><br /> 
                      </div><br /> 
                 </div>
                 <div class="modal-footer">
-                    <a href="#" id="correct-submit-btn" class="btn btn-primary">保存</a>
+                    <a href="#" id="correct-submit-btn" class="btn btn-default">保存</a>
                     <a href="#" class="btn btn-default" data-dismiss="modal">关闭</a>
                 </div>
             </div>
@@ -448,52 +420,20 @@
                 </div>
                 <div id="complaintRecordTable" class="modal-body">
                 </div>
-                <div class="modal-footer">
+                <div class="modal-footer"> 
                     <a href="#" class="btn btn-default" data-dismiss="modal">关闭</a>
                 </div>
             </div>
         </div>
-    </div>
+    </div> 
 
-    <div class="modal fade" id="orderRefundModal" tabindex="-1" role="dialog" aria-labelledby="orderRefundModal" aria-hidden="true">
-
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <button type="button" class="close" data-dismiss="modal">×</button>
-                        <h3>退款</h3>
-                    </div>
-                    <div class="modal-body">
-                        <div class="control-group">
-                            <div class="input-group col-md-4">
-                                <span class="input-group-addon">退款原因</span>
-                                <select id="orderRefundReason" >
-                                    <option value='8'>来不及消费</option>
-                                    <option value='9'>不想要了</option>
-                                    <option value="10">商家停业</option>
-                                    <option value="11">商家拒绝领用</option>
-                                    <option value="6">商家断货</option>
-                                    <option value="7">其他</option>
-                                </select>
-                            </div><br />
-                            <div class="input-group col-md-4 campaign-order-list">
-                            </div><br />
-                            <input id="refundOrderId" type="hidden" />
-                        </div><br />
-                    </div>
-                    <div class="modal-footer">
-                        <a href="#" id="orderRefund-submit-btn" class="btn btn-primary">保存</a>
-                        <a href="#" class="btn btn-default" data-dismiss="modal">关闭</a>
-                    </div>
-                </div>
-            </div>
-    </div>
- 
+    <div align="center">
+        <input type="button" id="process-submit-btn" class="btn-primary" value="下一步"/>
+    </div> 
 </div>
 <script type="text/javascript" >
     operator      = new Array();
     userinfo      = {{jsonUserInfo|raw}};
-    userDevicesCount = parseInt({{userDevicesCount}});
 
     function __init(){
         $("#info-userid").html( userinfo.id );
@@ -513,12 +453,7 @@
         }
         lockedinfo     += "&nbsp;&nbsp;&nbsp;<a id='lockedrecords-btn' href='#'>[封号记录]</a>";
         $("#info-locked").html( lockedinfo );
-        mobileinfo      = userinfo.mobile;
-        if ( userDevicesCount ) {
-            mobileinfo += "&nbsp;&nbsp;&nbsp;<a id='unbind-device-btn' href='#'>[解绑设备]</a>&nbsp;&nbsp;&nbsp;";
-        } else {
-            mobileinfo += "&nbsp;&nbsp;&nbsp;未绑定设备&nbsp;&nbsp;&nbsp;";
-        }
+        mobileinfo      = userinfo.mobile + "&nbsp;&nbsp;&nbsp;<a id='unbind-device-btn' href='#'>[解绑设备]</a>&nbsp;&nbsp;&nbsp;";
         $("#info-mobile").html( mobileinfo ); 
         balanceinfo     = userinfo.balance + "元&nbsp;&nbsp;&nbsp;<a id='balancerecords-btn' href='#'>[余额记录]</a>"; 
         $("#info-balance").html( balanceinfo );
@@ -530,12 +465,10 @@
 
     $(document).ready(function() {
         __init();
-        {% set bFilterFlag = true %}
         {% for typeLabel in orderlistTypes %}
             $('#{{typeLabel['code']}}-orderlist-table').dataTable({
                 "bProcessing": true,
                 "bStateSave": true,
-                "bFilter": parseInt({{ bFilterFlag }}),
                 "bServerSide":  true,
                 "sAjaxSource": "/user/orderlist?userId={{userId}}&type={{typeLabel['code']}}",
                 "sDom": "<'row'<'col-md-6'l><'col-md-6'f>r>t<'row'<'col-md-12'i><'col-md-12 center-block'p>>",
@@ -561,7 +494,6 @@
                         {"bSortable": false, "aTargets": [1, 2]},
                     ],
             });
-        {% set bFilterFlag = false %}
         {% endfor %}
 
         $('#complaintrecords-table').dataTable({
@@ -719,8 +651,7 @@
                 },
                 "aoColumns": [ 
                         {"mData": 'recommend_user_id'}, 
-                        {"mData": 'created_at'},
-                        {"mData": 'note'}
+                        {"mData": 'created_at'}, 
                     ], 
         });
 
@@ -780,9 +711,8 @@
                 dataType:'json',    
                 success:function(data){
                    if( true == data.result ){ 
-                       alert('重置成功');
-                      record.res = true; 
-                      location.href = "/complaintform/resetpwd?userId={{userId}}&mobile={{ userinfo['mobile'] }}";
+                       alert('重置成功')
+                      record.res = true;
                    } else {
                       alert( '重置失败');
                       record.res = false;
@@ -809,13 +739,33 @@
             record.type      = "封号";
             record.reason    = selectlockReason;
             record.userId    = {{userId}};  
-            record.note      = lockNote; 
-            
+            record.note      = lockNote;
+
+           /* $.ajax({    
+                type:'post',        
+                url:'/user/lock',    
+                data:{userId:{{userId}},selectlockReason:selectlockReason,lockNote:lockNote},
+                dataType:'json',    
+                success:function(data){
+                   if( true == data.result ){
+                      record.res      = true;
+                      userinfo.locked = 1;  
+                      __init();
+                   } else {
+                      record.res    = false;
+                      alert( '封号失败');
+                   }
+                },
+                error:function (req,err) {
+                   record.res = false;
+                   record.err = err;  
+                   alert( '封号失败' ); 
+                } 
+            }); */
             operator.push(record);
             alert('提交成功');
             $("#lock-user-btn").addClass('hide');
             $('#lockUserModal').modal('hide');
-            location.href = "/complaintform/lockuser?userId={{userId}}&reason=" + selectlockReason + "&note=" + lockNote + "&mobile={{ userinfo['mobile'] }}";
         }); 
 
         $("#deviceUnbind-submit-btn").click(function(e){
@@ -837,7 +787,7 @@
                    if( true == data.result ){
                       record.res  = true;
                       alert( '解绑成功' );
-                      location.href = "/complaintform/unbinduser?userId={{userId}}&reason=" + reason + "&mobile={{ userinfo['mobile'] }}";
+                      
                    } else {
                       record.res  = false;
                       alert( '解绑失败' );
@@ -870,68 +820,33 @@
             record.itemName   = $("#correctItemName").val();
             record.branchName = $("#correctBranchName").val();
 
-            
+           /* $.ajax({    
+                type:'post',        
+                url:'/order/feedback',    
+                data:{type:1,orderId:correctOrderId,feedback:correctContent,status:0},
+                dataType:'json',    
+                success:function(data){
+                   if( true == data.result ){
+                      record.res = true;
+                      alert( '提交成功' );
+                   } else {
+                      record.res = false;
+                      alert( '提交失败' );
+                   }
+                },
+                error:function (req,err) {
+                   record.res = false;
+                   record.err = err;  
+                   alert( '提交失败' ); 
+                }
+            }); */
             operator.push(record);
             alert('提交成功'); 
             $(this).removeClass('disabled');
             $('#correctModal').modal('hide');
-            needOffline   = $('input[name="correctOffline"]:checked').val();
-            location.href = "/complaintform/ordercorrect?orderId=" + correctOrderId + "&correctContent=" + correctContent + "&correctNote=" + correctNote + "&needOffline=" + needOffline + "&mobile={{ userinfo['mobile'] }}";
-        });
-
-        $('#orderRefund-submit-btn').click(function(e){
-            if( $(this).hasClass('disabled') ){
-                alert('请勿重复提交');
-                return ;
-            }
-            $(this).addClass('disabled');
-
-            if(!confirm("确认退款?")){
-                $(this).removeClass('disabled');
-                $('#correctModal').modal('hide');
-                return ;
-            }
-
-            var refundOrderId     = $("#refundOrderId").val();
-            var feedbackId        = $("#orderRefundReason").val();
-            var orderRefundReason = $("#orderRefundReason option[value='" + feedbackId + "']").text();
-            var needOffline       = $('input[name="orderRefundOffline"]:checked').val();
-            var offlined          = 0;
-            var record            = new Object();
-            if($('#orderRefundModal .campaignOfflined').length){
-                offlined          = 1;
-            }
-            record.type           = "退款";
-            record.reason         = orderRefundReason;
-            record.offline        = needOffline;
-
-            operator.push(record);
-
-            $.ajax({
-                type:'post',
-                url:'/order/refund',
-                data:{orderId: refundOrderId, feedbackId: feedbackId, makeup: offlined},
-                dataType:'json',
-                success:function(data){
-                    if( data.result == true ){
-                        alert('退款成功');
-                        $(this).removeClass('disabled');
-                        $('#correctModal').modal('hide');
-                        location.href = "/complaintform/orderrefund?orderId=" + refundOrderId + "&orderRefundReason=" + orderRefundReason + "&needOffline=" + needOffline + "&mobile={{ userinfo['mobile'] }}";
-                    } else{
-                        alert('退款失败');
-                        $(this).removeClass('disabled');
-                        $('#correctModal').modal('hide');
-                    }
-                },
-                error:function (req,err) {
-                    $(this).removeClass('disabled');
-                    $('#correctModal').modal('hide');
-                    alert( '提交失败' );
-                },
-            });
-        });
-
+        }); 
+         
+ 
         $('#orderListTab a:first').tab('show');
         $('#orderListTab a').click(function (e) {
             e.preventDefault();
@@ -982,36 +897,11 @@
         $("#orderListTabContent").on("click", ".order-correct-btn", function (e) {
             e.preventDefault();
             $('#correctModal').modal('show');
-            $("#campaignNeedOffline").attr("checked", false);
             $('#correctNote').val("");
             $("#correctOrderId").val( $(this).attr("data-rel") );
             $("#correctItemName").val($(this).parent().prev().prev().prev().text());
             $("#correctBranchName").val($(this).parent().prev().prev().text());
-            var campaignBranchEnabled = parseInt($(this).attr("data-campaign-branch-enabled-rel"));
-            if( campaignBranchEnabled ) {
-                $('.campaign-order-list').html('<span class="input-group-addon">活动需下线</span> <label class="radio-inline"> <input type="radio" name="orderRefundOffline" id="offline1" value="1"> 是 </label> <label class="radio-inline"> <input type="radio" name="orderRefundOffline" id="offline2" value="0" checked> 否 </label> ');
-            } else {
-                $('.campaign-order-list').html('<span class="campaignOfflined">活动已下线</span>');
-            }
         });
-
-        {% if '' != needDealOrder %}
-        $("#needDealOrderContent").on("click", ".order-correct-btn", function (e) {
-            e.preventDefault();
-            $('#correctModal').modal('show');
-            $("#campaignNeedOffline").attr("checked", false);
-            $('#correctNote').val("");
-            $("#correctOrderId").val( $(this).attr("data-rel") );
-            $("#correctItemName").val($(this).parent().prev().prev().prev().text());
-            $("#correctBranchName").val($(this).parent().prev().prev().text());
-            var campaignBranchEnabled = parseInt($(this).attr("data-campaign-branch-enabled-rel"));
-            if( campaignBranchEnabled ) {
-                $('.campaign-order-list').html('<span class="input-group-addon">活动需下线</span> <label class="radio-inline"> <input type="radio" name="orderRefundOffline" id="offline1" value="1"> 是 </label> <label class="radio-inline"> <input type="radio" name="orderRefundOffline" id="offline2" value="0" checked> 否 </label> ');
-            } else {
-                $('.campaign-order-list').html('<span class="campaignOfflined">活动已下线</span>');
-            }
-        }); 
-        {% endif %}
 
         $("#orderListTabContent").on("click", ".order-log-btn", function (e) { 
             $("#orderLogTable").html("");
@@ -1048,20 +938,7 @@
                   } 
                 },    
             }); 
-        });
-
-
-        $("#orderListTabContent").on("click", ".order-refund-btn", function (e) {
-            e.preventDefault();
-            $('#orderRefundModal').modal('show');
-            $("#refundOrderId").val( $(this).attr("data-rel") );
-            var campaignBranchEnabled = parseInt($(this).attr("data-campaign-branch-enabled-rel"));
-            if( campaignBranchEnabled ) {
-                $('.campaign-order-list').html('<span class="input-group-addon">活动需下线</span> <label class="radio-inline"> <input type="radio" name="orderRefundOffline" id="offline1" value="1"> 是 </label> <label class="radio-inline"> <input type="radio" name="orderRefundOffline" id="offline2" value="0" checked> 否 </label> ');
-            } else {
-                $('.campaign-order-list').html('<span class="campaignOfflined">活动已下线</span>');
-            }
-        });
+        }); 
 
         $("#complaintrecords-table").on("click", ".complaint-detail-btn", function (e) {
             $("#complaintRecordTable").html("");
@@ -1079,7 +956,7 @@
                   } 
                 },    
             }); 
-        });
+        }); 
 
         $("#process-submit-btn").click(function (e) {
             if( $(this).hasClass('disabled') ){
@@ -1108,28 +985,6 @@
                 },   
             });  
         });
-
-        $("#viewSMSRecords-submit").click(function (e) {
-            location.href = "/complaintform/viewinfo?userId={{userId}}&view=smsrecords&mobile={{ userinfo['mobile'] }}";
-        });
-
-        $("#viewRecommendRecords-submit").click(function (e) {
-            location.href = "/complaintform/viewinfo?userId={{userId}}&view=recommendrecords&mobile={{ userinfo['mobile'] }}";
-        });
-
-        $("#viewLockUserRecords-submit").click(function (e) {
-            location.href = "/complaintform/viewinfo?userId={{userId}}&view=lockuserrecords&mobile={{ userinfo['mobile'] }}";
-        });
-
-        $("#viewBalanceRecords-submit").click(function (e) {
-            location.href = "/complaintform/viewinfo?userId={{userId}}&view=balancerecords&mobile={{ userinfo['mobile'] }}";
-        });
-
-        $("#viewCoinRecords-submit").click(function (e) {
-            location.href = "/complaintform/viewinfo?userId={{userId}}&view=coinrecords&mobile={{ userinfo['mobile'] }}";
-        });
-
-        $('div.dataTables_filter input').attr('placeholder', '请输入兑换码');
     });
  
  </script>

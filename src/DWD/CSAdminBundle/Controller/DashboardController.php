@@ -43,7 +43,6 @@ class DashboardController extends Controller
                                    'key'    => 'salerlist',
                                ),  
                            );
-      
         $response        = $dataHttp->MutliCall( $data );   
 
         return $this->render('DWDCSAdminBundle:Dashboard:index.html.twig', array(

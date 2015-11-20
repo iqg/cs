@@ -47,6 +47,7 @@
             <div class="box-inner">
                 <div class="box-header well" data-original-title="">
                     <h2>{{ 'title.order_list'|trans }}</h2>
+
                     <div class="box-icon"> 
                         <a href="#" class="btn btn-minimize btn-round btn-default"><i
                                 class="glyphicon glyphicon-chevron-up"></i></a> 
@@ -241,7 +242,7 @@
                      </div><br /> 
                 </div>
                 <div class="modal-footer">
-                    <a href="#" id="offline-submit-btn" class="btn btn-default">保存</a>
+                    <a href="#" id="offline-submit-btn" class="btn btn-default">下线</a>
                     <a href="#" class="btn btn-default" data-dismiss="modal">关闭</a>
                 </div>
             </div>
@@ -338,7 +339,12 @@
                 </div>
             </div>
         </div>
-    </div> 
+    </div>
+
+    <div align="center">
+        <input type="button" id="process-submit-btn" class="btn-primary" value="下一步"/>
+    </div>
+
 </div>
 
 <script type="text/javascript" >
@@ -348,7 +354,7 @@
     redeemTels  = "{{redeemTels}}";
 
     function __init(){
-        infoBranchNameHtml  =  branchinfo.name + "&nbsp;&nbsp;&nbsp;<a id='modifyBranch-btn' href='#'>[编辑信息]</a>";
+        infoBranchNameHtml  =  branchinfo.name + "&nbsp;&nbsp;&nbsp;<a id='modifyBranch-btn' href='#'>[编辑名称]</a>";
         $("#info-branchName").html( infoBranchNameHtml );
 
         infoAccountNameHtml =  accountinfo.username;
@@ -379,12 +385,10 @@
 
     $(document).ready(function() {
         __init();
-        {% set bFilterFlag = true %}
         {% for  typeLabel in orderlistTypes %}
            var {{typeLabel['code']}}Table = $('#{{typeLabel['code']}}-orderlist-table').dataTable({
                 "bProcessing": true,
                 "bStateSave": true,
-                "bFilter": parseInt({{ bFilterFlag }}),
                 "bServerSide":  true,
                 "sAjaxSource": "/branch/orderlist?branchId={{branchId}}&type={{typeLabel['code']}}",
                 "sDom": "<'row'<'col-md-6'l><'col-md-6'f>r>t<'row'<'col-md-12'i><'col-md-12 center-block'p>>",
@@ -397,7 +401,7 @@
                     "sInfoEmpty" : "记录数为0",    
                     "sInfoFiltered" : "(全部记录数 _MAX_ 条)",    
                     "sInfoPostFix" : "",    
-                    "sSearch" : "搜索订单",
+                    "sSearch" : "搜索订单",    
                     "sUrl" : "", 
                     "oPaginate": {    
                         "sFirst" : "第一页",    
@@ -410,7 +414,6 @@
                         {"bSortable": false, "aTargets": [1, 2, 3]},
                     ],
             });
-        {% set bFilterFlag = false %}
         {% endfor %} 
          
         $('#campaignbranch-table').dataTable({
@@ -489,11 +492,28 @@
             record.branchName = "{{branchinfo['name']}}";
             record.reason     = offlineReason;
             record.note       = offlineNote;
-            location.href     = "/complaintform/branchoffline?branchId={{branchId}}" + "&reason=" + offlineReason + "&note=" + offlineNote;
-            record.res = true;
-            alert('申请下线成功');
-            $('#offlineModal').modal('hide');
-            __init();
+            $.ajax({
+                type:'post',      
+                url:'/branch/offline',    
+                data:{branchId:{{branchId}},offlineReason:offlineReason,offlineNote:offlineNote},
+                dataType:'json',    
+                success:function(data){ 
+                   if( data == true ){
+                     record.res = true;
+                     alert('下线成功');
+                     branchinfo.enabled = 0;
+                     $('#offlineModal').modal('hide');
+                     __init();
+                   } else {
+                     record.res = false;
+                     alert('下线失败');
+                   }
+                },
+                error:function (req,err) {
+                   record.res  = false;
+                   record.err  = err;   
+                }    
+            });
             operator.push( record );
             $(this).removeClass("disable");
         });
@@ -553,10 +573,9 @@
                       alert('更新成功');
                       branchinfo.redeemTypes = redeemTypes;
                       branchinfo.address     = address;
-                      branchinfo.redeem_time = redeemTime;
-                      branchinfo.redeem_type = redeemTypes;
-                      branchinfo.tel         = tel; 
-                      location.href = "/complaintform/updatebranch?branchId={{branchId}}&address=" + address + "&redeemTels=" + redeemTels + "&redeemTime=" + redeemTime + "&tel=" + tel;
+                      branchinfo.redeem_time = $redeemTime;
+                      branchinfo.redeem_type = $tel;
+                      branchinfo.tel = $redeemTime; 
                     } else {
                       record.res = false;
                       alert('更新失败');
@@ -642,9 +661,8 @@
                    if( data == true ){
                      record.res = true;
                      alert('验证成功');
-                     $('#orderRedeemModal').modal('hide');
+                     $('#orderRedeemModal').modal('hide'); 
                      waitredeemTable.fnDraw();
-                     location.href = '/complaintform/redeem?branchId={{branchId}}&orderId=' + orderId;
                    } else {
                      record.res = false;
                      record.err = data;
@@ -699,8 +717,8 @@
                 dataType:'json',    
                 success:function(data){
                    if( true == data.result ){ 
-                      alert('重置成功')
-                      location.href = '/complaintform/resetpwd?userId=' + record.userId;
+                       alert('重置成功')
+                      record.res = true;
                    } else {
                       alert( '重置失败');
                       record.res = false;
@@ -756,7 +774,7 @@
                 dataType:'json',    
                 success:function(data){
                   if( data.res != false ){
-                      location.href = "/complaint/edit?id=" + data.data;
+                      location.href = "/complaint/confirm?id=" + data.data;
                   }
                 },
                 error:function (req,err) { 
@@ -764,8 +782,6 @@
                 },   
             });  
         });
-
-        $('div.dataTables_filter input').attr('placeholder', '请输入兑换码');
     });
 </script>
 {% endblock %}

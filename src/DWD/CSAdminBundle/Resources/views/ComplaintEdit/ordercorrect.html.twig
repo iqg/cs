@@ -1,0 +1,301 @@
+{% extends "DWDCSAdminBundle:Layout:layout.html.twig" %}
+
+{% block body %}
+<div class="ch-container">
+    <div id="content" class="col-lg-10 col-sm-10">
+            <!-- content starts -->
+                <div>
+        <ul class="breadcrumb">
+            <li>
+                <a href="/">首页</a>
+            </li>
+            <li>
+                投诉确认
+            </li>
+        </ul>
+    </div>
+
+    <div class="row">
+        <div class="box col-md-15">
+            <div class="box-inner">
+                <div class="box-header well">
+                    <h2><i class="glyphicon glyphicon-file"></i> {{ 'title.complaint_confirm'|trans }}</h2>
+                </div> 
+                <div class="box-content">
+                    <form class="form-inline" role="form">
+
+                        <div class="form-group has-feedback">
+                            <label class="control-label" for="inputSuccess4">来源</label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 用户投诉 - 信息纠错
+                        </div> <br /><br />
+                    
+                        <div class="form-group has-feedback">
+                            <label class="control-label" for="inputSuccess4">标签</label>
+                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                            <button id=19 name="tag_19" readonly=readonly class="btn btn-primary btn-sm complaint-label">信息纠错</button>
+                        </div> <br /><br />
+ 
+                        <div class="form-group has-feedback">
+                            <label class="control-label">来电电话</label>&nbsp;&nbsp;
+                            <input type="text" id="mobile" class="form-control" value="{{mobile}}">
+                        </div> <br /><br />
+
+                        <div class="form-group has-feedback">
+                            <label class="control-label">活动名称</label>&nbsp;&nbsp;
+                            <span id="itemName">{{itemName}}</span>
+                            <span id='info-campaignStatus'></span>
+                        </div> <br /><br />
+
+                        <div class="form-group has-feedback">
+                            <label class="control-label">商户名称</label>&nbsp;&nbsp;
+                            <span id="branchName">{{branchName}}</span>
+                        </div> <br /><br />
+
+                        <div class="form-group has-feedback">
+                            <label class="control-label">跟进销售</label>&nbsp;&nbsp;
+                            <span id="salerName">{{salerName}}</span>
+                        </div> <br /><br />
+
+                        <div class="form-group has-feedback">
+                            {% if 0 == offlined %}
+                            <label class="control-label">活动需下线</label>&nbsp;&nbsp;
+                            <label class="radio-inline">
+                                <input type="radio" name="correctOffline" id="offline1" value="1" {% if 0 != needOffline %} checked=checked {% endif %}> 是
+                            </label>
+                            <label class="radio-inline">
+                                <input type="radio" name="correctOffline" id="offline2" value="0" {% if 0 == needOffline %} checked=checked {% endif %}>  否
+                            </label>
+                            {% endif %}
+                            {% if 1 == offlined %}
+                                <span>活动已下线</span>
+                            {% endif %}
+                        </div> <br /><br />
+ 
+                        <div class="form-group has-feedback">
+                            <label class="control-label">投诉方式</label>&nbsp;&nbsp;
+                            <label class="checkbox-inline">
+                                <input type="radio" name="complaintWay" {% if 1 == method %} checked=checked {% endif %} id="complaintWay" value=1> 客服电话 
+                            </label>
+                            <label class="checkbox-inline">
+                                <input type="radio" name="complaintWay" {% if 2 == method %} checked=checked {% endif %} id="complaintWay" value=2> 在线客服 
+                            </label>
+                            <label class="checkbox-inline">
+                                <input type="radio" name="complaintWay" {% if 3 == method %} checked=checked {% endif %} id="complaintWay" value=3> 其他 
+                            </label>
+                        </div>  <br /><br /> 
+
+                        <div class='form-group lockUser has-feedback'><label class='control-label'>纠错原因</label>&nbsp;&nbsp;{{content}}</div><br /><br />
+                       
+                        <div class="form-group has-feedback">
+                            <label class="control-label">备注</label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                            <textarea id="note" class="autogrow">{{note}}</textarea>
+                        </div> <br /><br />
+
+                        <div class="form-group has-feedback">
+                            <label class="control-label">投诉状态</label>&nbsp;&nbsp;
+                            <label class="checkbox-inline">
+                                <input type="radio" id="status" {% if 0 == status %} checked=checked {% endif %} name="status" value=0> 待跟进 
+                            </label>
+                            <label class="checkbox-inline">
+                                <input type="radio" id="status" {% if 1 == status %} checked=checked {% endif %} name="status" value=1> 已解决 
+                            </label> 
+                        </div>  <br /><br /><br /><br /><br />
+                        <div class="form-group has-feedback" style="margin-left: 32%">
+                            <button type="button" id="confirm-index-btn" class="btn btn-primary">保存</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+        <div class="modal fade" id="offlineModal" tabindex="-1" role="dialog" aria-labelledby="offlineModal" aria-hidden="true">
+
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal">×</button>
+                        <h3>下线</h3>
+                    </div>
+                    <div class="modal-body">
+                        <div class="control-group">
+                            <div class="input-group col-md-4">
+                                <span class="input-group-addon">原因</span>
+                                <select id="selectofflineReason" >
+                                    <option value=1>推广效果不好</option>
+                                    <option value=2>用户质量差</option>
+                                    <option value=3>操作太麻烦</option>
+                                    <option value=4>不结算成本太高</option>
+                                    <option value=5>合作到期了</option>
+                                    <option value=6>做了别的推广，不需要爱抢购了</option>
+                                    <option value=7>门店要转让/倒闭/装修了</option>
+                                </select>
+                            </div><br />
+                            <div class="input-group col-md-4">
+                                <span class="input-group-addon">备注</span>
+                                <textarea id="offlineNote"></textarea>
+                            </div><br />
+                            <div class="input-group col-md-4" id="refundRadio">
+                                    <span class="input-group-addon">需退款</span>
+                                    <label class="radio-inline">
+                                        <input type="radio" name="needRefund" id="offline1" value="1"> 是
+                                    </label>
+                                    <label class="radio-inline">
+                                        <input type="radio" name="needRefund" id="offline2" value="0" checked=checked>  否
+                                    </label>
+                            </div><br />
+                            <div id="refundDetail" style="display: none;">
+                                <div class="input-group col-md-4">
+                                    <label class="control-label" for="inputSuccess4">需退款订单</label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                    <span>33单</span>
+                                </div><br />
+                                <div class="input-group col-md-4">
+                                    <label class="control-label" for="inputSuccess4">退款至</label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                    <span>原路返回</span>
+                                </div><br />
+                                <div class="input-group col-md-4">
+                                    <label class="control-label" for="inputSuccess4">原因</label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                    <span>门店下线退款</span>
+                                </div><br />
+                            </div>
+                        </div><br />
+                    </div>
+                    <div class="modal-footer">
+                        <a href="#" id="offline-submit-btn" class="btn btn-default">下线</a>
+                        <a href="#" class="btn btn-default" data-dismiss="modal">关闭</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+</div>
+
+<script type="text/javascript" >
+    tags        =  [19];
+    offlined    =  {{offlined}};
+    needOffline = {{needOffline}};
+
+    if( 1 == offlined ){
+        $("#info-campaignStatus").html('');
+    } else {
+        $("#info-campaignStatus").html("<a id='offline-btn'>&nbsp;[下线]</a>");
+    }
+
+    $('#offline-btn').click(function (e) {
+        e.preventDefault();
+        $('#offlineModal').modal('show');
+    });
+
+    $('#refundRadio #offline1').click(function (e) {
+        $('#refundDetail').css('display', 'block');
+    });
+
+    $('#refundRadio #offline2').click(function (e) {
+        $('#refundDetail').css('display', 'none');
+    });
+
+    $("#offline-submit-btn").click(function(e){
+        if( $(this).hasClass("disable") ){
+            alert('请勿重复操作');
+            return ;
+        }
+        $(this).addClass("disable");
+
+        var offlineReason = $("#selectofflineReason").val();
+        var offlineNote   = $("#offlineNote").val();
+        var needRefund = $('input[name="needRefund"]:checked').val();
+
+        var record        = new Object();
+        record.type       = "商户下线";
+        record.campaignBranchId   = {{campaignBranchId}};
+        record.reason     = offlineReason;
+        record.note       = offlineNote;
+        record.refund     = needRefund;
+        $.ajax({
+            type:'post',
+            url:'/campaignbranch/offline',
+            data:{campaignBranchId:{{campaignBranchId}},offlineReason:offlineReason,offlineNote:offlineNote},
+            dataType:'json',
+            success:function(data){
+                if( data == true ){
+                    location.href      = "/complaintform/campaignbranchoffline?campaignBranchId={{campaignBranchId}}" + "&reason=" + offlineReason + "&note=" + offlineNote + "&needRefund" + needRefund;
+                    record.res = true;
+                    alert('下线成功');
+                    branchinfo.enabled = 0;
+                    $('#offlineModal').modal('hide');
+                    __init();
+                } else {
+                    record.res = false;
+                    alert('下线失败');
+                }
+            },
+            error:function (req,err) {
+                record.res  = false;
+                record.err  = err;
+            }
+        });
+        operator.push( record );
+        $(this).removeClass("disable");
+    });
+
+    function submit(){
+        method         = $("#complaintWay:checked").val();
+        status         = $("#status:checked").val();
+        mobile         = $("#mobile").val();
+        note           = $("#note").val();
+        
+        if( 'on' == $("#needOffline").val() ){
+           needOffline = 1;
+        }
+
+        if( tags.length == 0 ){
+            alert("请选择标签");
+            return false;
+        }
+
+        phoneReg       = /^((0\d{2,3})-)(\d{7,8})(-(\d{3,}))?$/;
+        telReg         = /^1[34875]\d{9}$/;
+
+        if( false == phoneReg.test( mobile ) && false == telReg.test( mobile ) ){
+            alert("请输入正确的手机号码");
+            return false;
+        }
+        res            = false;
+        $.ajax({    
+            type:'post',        
+            url:'/complaint/save',
+            async:false,
+            data: { id:"{{complaintId}}", mobile:mobile, status: status, method: method, note: note, tags: tags.join(','), offlined: offlined, needOffline:needOffline},
+            dataType:'json',    
+            success:function(data){ 
+                        if( data != 'null' ){
+                            alert('提交成功'); 
+                            res = true;
+                        } else {
+                            alert('提交失败'); 
+                        }
+                    },
+            error:function (req,err) { 
+                    alert('提交失败'); 
+                  } 
+        });
+
+        return res;
+    }
+
+    $(document).ready(function() { 
+ 
+        $(".complaint-label").click(function (e) { 
+            return false;
+        }); 
+        
+        $("#confirm-index-btn").click(function (e) {
+
+            if(!confirm("确认提交?")){
+                return ;
+            } 
+            res = submit();
+            if( res ){
+               location.href = '/';
+            } 
+        }); 
+    });
+</script>
+{% endblock %}

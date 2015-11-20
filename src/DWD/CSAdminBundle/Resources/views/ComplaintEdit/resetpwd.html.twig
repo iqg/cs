@@ -1,0 +1,136 @@
+{% extends "DWDCSAdminBundle:Layout:layout.html.twig" %}
+
+{% block body %}
+<div class="ch-container">
+    <div id="content" class="col-lg-10 col-sm-10">
+            <!-- content starts -->
+                <div>
+        <ul class="breadcrumb">
+            <li>
+                <a href="/">首页</a>
+            </li>
+            <li>
+                投诉确认
+            </li>
+        </ul>
+    </div>
+
+    <div class="row">
+        <div class="box col-md-15">
+            <div class="box-inner">
+                <div class="box-header well">
+                    <h2><i class="glyphicon glyphicon-file"></i> {{ 'title.complaint_confirm'|trans }}</h2>
+                </div> 
+                <div class="box-content">
+                    <form class="form-inline" role="form">
+
+                        <div class="form-group has-feedback">
+                            <label class="control-label" for="inputSuccess4">来源</label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 商户投诉 -重置密码
+                        </div> <br /><br />
+                    
+                        <div class="form-group has-feedback">
+                            <label class="control-label" for="inputSuccess4">标签</label>
+                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+                                <button id=20 name="tag_20" readonly=readonly class="btn btn-primary btn-sm complaint-label">重置密码</button>&nbsp;&nbsp; 
+                        </div> <br /><br />
+ 
+                        <div class="form-group has-feedback">
+                            <label class="control-label">来电电话</label>&nbsp;&nbsp;
+                            <input type="text" id="mobile" class="form-control" value="{{mobile}}">
+                        </div> <br /><br />
+
+                        <div class="form-group has-feedback">
+                            <label class="control-label">投诉方式</label>&nbsp;&nbsp;
+                            <label class="checkbox-inline">
+                                <input type="radio" name="complaintWay" {% if 1 == method %} checked=checked {% endif %} id="complaintWay" value=1> 客服电话 
+                            </label>
+                            <label class="checkbox-inline">
+                                <input type="radio" name="complaintWay" {% if 2 == method %} checked=checked {% endif %} id="complaintWay" value=2> 在线客服 
+                            </label>
+                            <label class="checkbox-inline">
+                                <input type="radio" name="complaintWay" {% if 3 == method %} checked=checked {% endif %} id="complaintWay" value=3> 其他 
+                            </label>
+                        </div>  <br /><br /> 
+                       
+                        <div class="form-group has-feedback">
+                            <label class="control-label">备注</label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                            <textarea id="note" class="autogrow">{{note}}</textarea>
+                        </div> <br /><br />
+
+                        <div class="form-group has-feedback">
+                            <label class="control-label">投诉状态</label>&nbsp;&nbsp;
+                            <label class="checkbox-inline">
+                                <input type="radio" id="status" {% if 0 == status %} checked=checked {% endif %} name="status" value=0> 待跟进 
+                            </label>
+                            <label class="checkbox-inline">
+                                <input type="radio" id="status" {% if 1 == status %} checked=checked {% endif %} name="status" value=1> 已解决 
+                            </label> 
+                        </div>  <br /><br /><br /><br /><br />
+                        <div class="form-group has-feedback" style="margin-left: 32%">
+                            <button type="button" id="confirm-index-btn" class="btn btn-primary">保存</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>  
+</div>
+
+<script type="text/javascript" >
+    function submit(){
+        method         = $("#complaintWay:checked").val();
+        status         = $("#status:checked").val();
+        mobile         = $("#mobile").val();
+        note           = $("#note").val(); 
+
+        phoneReg       = /^((0\d{2,3})-)(\d{7,8})(-(\d{3,}))?$/;
+        telReg         = /^1[34875]\d{9}$/;
+
+        if( false == phoneReg.test( mobile ) && false == telReg.test( mobile ) ){
+            alert("请输入正确的手机号码");
+            return false;
+        }
+        res            = false;
+        tags           = [20];
+
+        $.ajax({    
+            type:'post',        
+            url:'/complaint/save',
+            async:false,
+            data: { id:"{{complaintId}}", mobile:mobile, status: status, method: method, note: note, tags: tags.join(',') },
+            dataType:'json',    
+            success:function(data){ 
+                        if( data != 'null' ){
+                            alert('提交成功'); 
+                            res = true;
+                        } else {
+                            alert('提交失败'); 
+                        }
+                    },
+            error:function (req,err) { 
+                    alert('提交失败'); 
+                  } 
+        });
+
+        return res;
+    }
+
+    $(document).ready(function() { 
+
+        $(".complaint-label").click(function (e) { 
+            return false;
+        });
+
+        $("#confirm-index-btn").click(function (e) {
+
+            if(!confirm("确认提交?")){
+                return ;
+            } 
+            res = submit();
+            if( res ){
+               location.href = '/';
+            } 
+        });
+    });
+</script>
+{% endblock %}

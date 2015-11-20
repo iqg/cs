@@ -24,6 +24,8 @@ class UserController extends Controller
         $userId          = $this->getRequest()->get('userId');
         $type            = $this->getRequest()->get('type');
         $source          = $this->getRequest()->get('source');
+        $searchType      = $this->getRequest()->get('searchType');
+        $searchKey       = $this->getRequest()->get('searchKey');
         $dataHttp        = $this->get('dwd.data.http');
 
         if( false == is_numeric( $userId ) ){
@@ -51,26 +53,60 @@ class UserController extends Controller
                 ),
                 'method' => 'get',
                 'key'    => 'balancerecords',
-            ), 
+            ),
+            array(
+                'url'    => '/user/userdevices',
+                'data'   => array(
+                    'userId'         => $userId
+                ),
+                'method' => 'get',
+                'key'    => 'userdevices'
+            )
         );
+
+        if( $searchType == 'redeemNumber' ){
+            $data[]     =  array(
+                                'url'    => '/order/orderinfo',
+                                'data'   => array(
+                                    'redeemNumber'      => $searchKey, 
+                                ),
+                                'method' => 'get',
+                                'key'    => 'orderinfo',
+                           );
+        }
+
+
 
         $orderListTypes =  $this->get('dwd.util')->getOrderTableInfo( 0 );
 
-        $data           = $dataHttp->MutliCall($data); 
+        $data           =  $dataHttp->MutliCall($data); 
 
         if( empty( $data['user']['data'] ) ){
             return $this->render('DWDCSAdminBundle:Dashboard:index.html.twig', array(
              'errMsg'    => '用户不存在'
           ));
         }
+
+        $userDevicesCount  = count( $data['userdevices']['data']['list'] );
+
+        $needDealOrder     = '';
+        if( $searchType == 'redeemNumber' ){
+           $orderInfo      = $data['orderinfo']['data'];
+           $needDealOrder  = '<table class="table table-striped table-bordered"><tr><th>商品</th><th>门店</th><th>兑换码</th><th>状态</th><th>操作</th></tr>';
+           $needDealOrder .= "<tr><td>" . $orderInfo['item_name'] . "</td><td>" . $orderInfo['branch_name'] . "</td><td>" . $orderInfo['redeem_number'] . "</td><td>" . $this->get('dwd.util')->getOrderStatusLabel( $orderInfo['status'] ) . "</td><td><a href='#' class='order-correct-btn' data-rel='" . $orderInfo['id'] .  "'>[纠错]</a></td></tr>";
+           $needDealOrder .= "</table>"; 
+        }
       
         return $this->render('DWDCSAdminBundle:User:index.html.twig', array(
+            'jsonUserInfo'     => json_encode( $data['user']['data'] ),
             'balancerecords'   => $data['balancerecords']['data']['list'],
             'userinfo'         => $data['user']['data'],
+            'needDealOrder'    => $needDealOrder,
             'orderlistTypes'   => $orderListTypes,
             'userId'           => $userId,
             'type'             => $type,
             'source'           => $source,
+            'userDevicesCount' => $userDevicesCount
         ));
     }
 
@@ -82,16 +118,16 @@ class UserController extends Controller
                     $orderTypeId = 2;
                     break;
                 case 'refund':
-                    $orderTypeId = 3;
+                    $orderTypeId = 6;
                     break;
                 case 'expired': 
-                    $orderTypeId = 4;
+                    $orderTypeId = 3;
                     break;
                 case 'finish': 
-                    $orderTypeId = 5;
+                    $orderTypeId = 4;
                     break;
                 case 'processing': 
-                    $orderTypeId = 6;
+                    $orderTypeId = 11;
                     break;
                 default: 
                     break;
@@ -99,16 +135,16 @@ class UserController extends Controller
         return $orderTypeId;
     }
 
-    private function _getOperation( $operation, $orderId )
+    private function _getOperation( $operation, $orderId, $offlineEnabled = 0 )
     {
         $opStr               = '';
         foreach ($operation as $operator) {
           switch ( $operator ) {
-             /*case '退款':
-                    $opStr  .= "&nbsp;&nbsp;&nbsp;<a href='#' class='order-refund-btn' data-rel='$orderId'>[退款]</a>";
-                    break;*/
+             case '退款':
+                    $opStr  .= "&nbsp;&nbsp;&nbsp;<a href='#' class='order-refund-btn' data-rel='$orderId' data-campaign-branch-enabled-rel='$offlineEnabled'>[退款]</a>";
+                    break;
              case '纠错':
-                    $opStr  .= "&nbsp;&nbsp;&nbsp;<a href='#' class='order-correct-btn' data-rel='$orderId'>[纠错]</a>";
+                    $opStr  .= "&nbsp;&nbsp;&nbsp;<a href='#' class='order-correct-btn' data-rel='$orderId' data-campaign-branch-enabled-rel='$offlineEnabled'>[纠错]</a>";
                     break;
              case '日志': 
                     $opStr  .= "&nbsp;&nbsp;&nbsp;<a href='#' class='order-log-btn' data-rel='$orderId'>[日志]</a>";
@@ -178,7 +214,7 @@ class UserController extends Controller
                   $tdValue       = $orderInfo['refunded_at'];
                   break;
                 case 'expiredTime':
-                  $tdValue       = $orderInfo['expire_time'];
+                  $tdValue       = $orderInfo['expire_date'];
                   break;
                 case 'redeemTime':
                   $tdValue       = $orderInfo['redeem_time'];
@@ -194,7 +230,22 @@ class UserController extends Controller
               }
               $tdValues[]        = $tdValue;
            }
-           $tdValues[]           = $this->_getOperation( $tableInfo['operation'], $orderInfo['id'] );
+
+            $data              = array(
+                array(
+                    'url'    => '/campaignbranch/detail',
+                    'data'   => array(
+                        'campaignBranchId'    => $orderInfo['campaign_branch_id'],
+                    ),
+                    'method' => 'get',
+                    'key'    => 'detail',
+                ),
+            );
+
+            $data              = $dataHttp->MutliCall( $data );
+            $campaignBranch    = $data['detail']['data'];
+
+           $tdValues[]           = $this->_getOperation( $tableInfo['operation'], $orderInfo['id'], $campaignBranch['enabled'] );
            $orderList['list'][]  = $tdValues; 
         }
 
@@ -206,40 +257,40 @@ class UserController extends Controller
     { 
         $dataHttp        = $this->get('dwd.data.http');
         $data            =  array(
-            array(
-                'url'    => '/order/orderinfo',
-                'data'   => array(
-                    'redeemNumber'      => $redeemNumber, 
-                ),
-                'method' => 'get',
-                'key'    => 'orderinfo',
-            )
-        );
+                                array(
+                                    'url'    => '/order/orderinfo',
+                                    'data'   => array(
+                                        'redeemNumber'      => $redeemNumber,
+
+                                    ),
+                                    'method' => 'get',
+                                    'key'    => 'orderinfo',
+                                )
+                            );
         $data            =  $dataHttp->MutliCall($data);
-        $orderInfo       =  $data['orderinfo']['data'];
+        $orderListAll    =  $data['orderinfo']['data'];
         $orderList       =  array(
                                 'list'  => array(),
                                 'total' => 0,
                             );
-        if( !empty( $orderInfo ) && $userId == $orderInfo['user_id'] ){ 
-            $orderList       =  array(
-                                  'list' => 
-                                      array(
-                                          array(
-                                           $orderInfo['id'],
-                                           $orderInfo['campaign_branch_id'],
-                                           $orderInfo['user_id'],
-                                           $orderInfo['price'],
-                                           $this->get('dwd.util')->getOrderStatusLabel($orderInfo['status']),
-                                           $this->get('dwd.util')->getOrderTypeLabel($orderInfo['type']),
-                                           $orderInfo['trade_number'],
-                                           $orderInfo['created_at'],
-                                           $orderInfo['updated_at'],
-                                         ),    
-                                      ), 
-                                  "total" => 1,
-                              );
-        } 
+
+        $operation       = array(
+                            '纠错','日志','详情'
+                           ); 
+
+        foreach( $orderListAll as $orderInfo )
+        {
+            if( !empty( $orderInfo ) && $userId == $orderInfo['user_id'] ){
+                $orderList['list'] []= array(
+                    $orderInfo['item_name'],
+                    $orderInfo['branch_name'],
+                    $orderInfo['redeem_number'],
+                    $this->get('dwd.util')->getOrderStatusLabel($orderInfo['status']),
+                    $this->_getOperation( $operation, $orderInfo['id'] ),
+                );
+                $orderList['total'] += 1;
+            }
+        }
 
         return $orderList;
     }
@@ -488,6 +539,7 @@ class UserController extends Controller
             $recommendrecords['list'][] = array( 
                                                $recommendrecord['recommend_user_id'],
                                                $recommendrecord['created_at'],
+                                               $this->get('dwd.util')->getRecommendRecordNoteLabel($recommendrecord['amount']),
                                           );
             $recommendUserIds[]         = $recommendrecord['recommend_user_id'];
         }
@@ -597,53 +649,57 @@ class UserController extends Controller
         $complaintList        = $dm->getRepository('DWDDataBundle:Complaint')->getUserComplaints( $userId, $options );
         $complaintCnt         = $dm->getRepository('DWDDataBundle:Complaint')->getUserCount( $userId );
  
-        $dataHttp             = $this->get('dwd.data.http'); 
-        $tagsList             = array();
-        $data                 = array(
-                                    array(
-                                        'url'    => '/complaint/taglist', 
-                                        'method' => 'get',
-                                        'key'    => 'complaintTags',
-                                    ),  
-                                ); 
-
-        $data                      = $dataHttp->MutliCall($data);
- 
-        foreach ($data['complaintTags']['data']['list'] as  $tag) {
-            $tagsList[$tag['id']]  = $tag['name'];
-        } 
 
         $aaData                    = array();
-    
+
+        $dataHttp             = $this->get('dwd.data.http');
+
         foreach( $complaintList as $complaint ){
             $tags                  = array();
 
             if( isset( $complaint['tags'] ) ){
               foreach ($complaint['tags'] as $tagId) {
-                  if( isset( $tagsList[$tagId] ) ){
-                      $tags[]        = $tagsList[$tagId];   
-                  } 
+                  $tags[]          = $this->get('dwd.util')->getComplaintTag( $tagId );  
               }
             } 
 
             $branchName = '';
             $itemName   = '';
 
-            if( isset( $complaint['branchs'] ) ){
-              $branchName = $complaint['branchs'][0]['name'];
-              $itemName   = isset( $complaint['branchs'][0]['itemName'] ) ? $complaint['branchs'][0]['itemName'] : '';
-            } else if( isset( $complaint['orders'] ) ) {
-              $branchName = isset( $complaint['orders'][0]['branchName'] ) ? $complaint['orders'][0]['branchName'] : '';
-              $itemName   = isset( $complaint['orders'][0]['itemName'] ) ? $complaint['orders'][0]['itemName'] : '';
+//            if( isset( $complaint['branchs'] ) ){
+//              $branchName = $complaint['branchs'][0]['name'];
+//              $itemName   = isset( $complaint['branchs'][0]['itemName'] ) ? $complaint['branchs'][0]['itemName'] : '';
+//            } else if( isset( $complaint['orders'] ) ) {
+//              $branchName = isset( $complaint['orders'][0]['branchName'] ) ? $complaint['orders'][0]['branchName'] : '';
+//              $itemName   = isset( $complaint['orders'][0]['itemName'] ) ? $complaint['orders'][0]['itemName'] : '';
+//            }
+
+            if( isset($complaint['complaintInfo']['orderId']) ) {
+                $data       = array(
+                    array(
+                        'url'    => '/order/orderinfo',
+                        'data'   =>  array(
+                            'orderId'  => $complaint['complaintInfo']['orderId'],
+                        ),
+                        'method' =>  'get',
+                        'key'    =>  'orderinfo',
+                    ),
+                );
+
+
+                $data                 = $dataHttp->MutliCall($data);
+                $orderinfo            = $data['orderinfo']['data'];
+                $branchName           = $orderinfo['branch_name'];
+                $itemName             = $orderinfo['item_name'];
             }
 
             $aaData[]              = array(
                                         $this->get('dwd.util')->getComplaintSourceLabel( $complaint['source'] ),
                                         implode(",", $tags),
-                                        $branchName,
                                         $itemName,
+                                        $branchName,
                                         date("Y-m-d H:i:s", $complaint['createdAt']),
-                                        "<a href='/complaint/confirm?id=" . $complaint['_id'] . "' target='_blank' >[详情]</a>",
+                                        "<a href='/complaint/edit?id=" . $complaint['_id'] . "' target='_blank' >[详情]</a>",
                                      );
         }
 
@@ -731,7 +787,7 @@ class UserController extends Controller
 
         $data           = array( 
                               array(
-                                  'host'   => 'http://staging.iqianggou.com',
+                                  'host'   => $this->container->getParameter('iqg_host'),
                                   'url'    => '/api/user/update_password',
                                   'data'   =>  $params,
                                   'method' => 'post',
@@ -772,15 +828,16 @@ class UserController extends Controller
     { 
         $dataHttp             = $this->get('dwd.data.http'); 
         $userId               = $this->getRequest()->get('userId');
+        $lockDays             = $this->getRequest()->get('lockDays', 30);
+        $reasonType           = $this->getRequest()->get('selectlockReason', 2); 
 
         if( false == empty( $userPassword ) ){
           $params['password'] = $userPassword;
         }
-
-        $reasonType           = 2;
+  
         $type                 = 1;
-        $unlcokDate           = date( 'Y-m-d H:i:s',  3600 * 24 * 30 + time() );
-
+        $unlockDate           = date( 'Y-m-d H:i:s',  3600 * 24 * $lockDays + time() );
+ 
         $data                 = array( 
                                     array(
                                         'url'    => '/user/locked',
@@ -788,8 +845,9 @@ class UserController extends Controller
                                                         'userId'     => $userId,
                                                         'opUserId'   => $this->getUser()->getId(),
                                                         'reasonType' => $reasonType,
-                                                        'unlcokDate' => $unlcokDate,
+                                                        'unlockDate' => $unlockDate,
                                                         'type'       => $type,
+                                                        'note'       => '后台封号',
                                                     ),
                                         'method' => 'post',
                                         'key'    => 'locked',
@@ -811,7 +869,7 @@ class UserController extends Controller
                               'ext'      => array( 
                                               'userId'        => $userId,
                                               'reasonType'    => $reasonType,
-                                              'unlcokDate'    => $unlcokDate, 
+                                              'unlockDate'    => $unlockDate, 
                                               'type'          => $type,
                                             ),
                            );
