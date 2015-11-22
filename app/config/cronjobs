@@ -1,0 +1,1 @@
+1 3 * * *   SYMFONY_ENV=prod /usr/bin/php /ace/code/iqgapi/app/console data:update_store_pinyin >> /ace/code/iqgapi/app/logs/update_store_pinyin.log
