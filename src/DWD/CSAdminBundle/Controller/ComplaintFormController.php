@@ -366,7 +366,8 @@ class ComplaintFormController extends Controller
     /**
      *
      * @Route("/other",name="dwd_csadmin_complaintform_other")
-     * 加入一个labelType标示
+     * 加入一个labelType标示,加一个字段
+     * test
      */
     public function other()
     {
