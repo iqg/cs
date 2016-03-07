@@ -30,9 +30,16 @@
                     
                         <div class="form-group has-feedback">
                             <label class="control-label" for="inputSuccess4">标签</label>
-                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
-                                <button id="{{tagId}}" readonly=readonly class="btn btn-primary btn-sm complaint-label">{{tag}}</button>&nbsp;&nbsp; 
-                        </div> <br /><br />
+                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                             {#<button id="{{tagId}}" readonly=readonly class="btn btn-primary btn-sm complaint-label">{{tag}}</button>&nbsp;&nbsp;&nbsp;#}
+                            {% for key,label in tagLabel %}
+                                <label class="checkbox-inline">
+                                   <input type="radio" name="labelType" id="labelType" {% if key ==1 %} checked=checked {% endif %} value="{{ key }}"> {{  label }}
+                                </label>
+                            {% endfor %}
+                        </div>
+
+                        <br /><br />
  
                         <div class="form-group has-feedback">
                             <label class="control-label">来电电话</label>&nbsp;&nbsp;
@@ -77,10 +84,11 @@
 </div>
 
 <script type="text/javascript" >
-    
+    console.log('wpp');
     function submit(){
         method         = $("#complaintWay:checked").val();
         status         = $("#status:checked").val();
+        labelType      = $("#labelType:checked").val();
         mobile         = $("#mobile").val();
         note           = $("#note").val(); 
 
@@ -94,11 +102,14 @@
 
         res            = false;
         tags           = [{{tagId}}];
-        $.ajax({    
+        console.log(tags);
+        data = {tags: tags.join(','), mobile:mobile, op:"{{type}}", status: status, method: method, note:note, source:{{source}},labelType:labelType};
+        console.log(data);
+        $.ajax({
             type:'post',         
             async:false,
             url:'/complaint/submit',    
-            data: {tags: tags.join(','), mobile:mobile, op:"{{type}}", status: status, method: method, note:note, source:{{source}}},
+            data: {tags: tags.join(','), mobile:mobile, op:"{{type}}", status: status, method: method, note:note, source:{{source}},labelType:labelType},
             dataType:'json',    
             success:function(data){ 
                         if( data != 'null' ){
@@ -130,7 +141,7 @@
  
             res = submit();
             if( res ){
-               location.href = '/';
+//               location.href = '/';
             } 
         });
     });

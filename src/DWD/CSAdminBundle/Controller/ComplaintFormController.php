@@ -366,22 +366,28 @@ class ComplaintFormController extends Controller
     /**
      *
      * @Route("/other",name="dwd_csadmin_complaintform_other")
+     * 加入一个labelType标示
      */
     public function other()
     {
         $type                 = $this->getRequest()->get('type');
         $tagId                = 22;
         $tag                  = '咨询';
+        $tagLabel             = [ 1=>'咨询',2 =>'账号退出',
+                                  3=>'封号原因',4=>'退款未到账',5=>'邀请好友无金币',
+                                  6=>'充值卡无法充值',7=>'券不能用'];  //【账号退出】【封号原因】【退款未到账】【邀请好友无金币】【充值卡无法充值】【券不能用】
         $source               = 3;
         switch( $type ){
             case 'tech-error':
                 $tagId        = 2;
                 $tag          = '技术故障';
+                $tagLabel     = [1=>'技术故障',2=>'闪退',3=>'支付成功无订单',4=>'无法参加睡前摇',5=>'退款超期未到账'];  //【闪退】【支付成功无订单】【无法参加睡前摇】【退款超期未到账】
                 $source       = 4;
                 break;
             case 'other':
                 $tagId        = 23;
                 $tag          = '其他';
+                $tagLabel     = [1=>'其他'];
                 $source       = 5;
                 break;
         }
@@ -390,6 +396,7 @@ class ComplaintFormController extends Controller
             'type'            => $type,
             'tagId'           => $tagId,
             'tag'             => $tag,
+            'tagLabel'        => $tagLabel,
             'source'          => $source,
         )); 
     }

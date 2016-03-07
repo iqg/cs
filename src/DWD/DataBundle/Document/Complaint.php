@@ -82,6 +82,10 @@ class Complaint
     /**
      * @MongoDB\Int
      */
+    protected $labelType;
+    /**
+     * @MongoDB\Int
+     */
     protected $zoneId;
 
     /**
@@ -239,6 +243,28 @@ class Complaint
     public function getSalerId()
     {
         return $this->salerId;
+    }
+
+    /**
+     * Set labelType
+     *
+     * @param int $labelType
+     * @return self
+     */
+    public function setLabelType($labelType)
+    {
+        $this->labelType = $labelType;
+        return $this;
+    }
+
+    /**
+     * Get labelType
+     *
+     * @return int $labelType
+     */
+    public function getLabelType()
+    {
+        return $this->labelType;
     }
 
     /**
