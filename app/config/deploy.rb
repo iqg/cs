@@ -13,7 +13,7 @@ set :scm,         :git
 set :branch,      "master"
 
 server '10.0.0.10', :app, :web, :primary => true
-set :deploy_to,   "/var/www/cs.iqianggou.lab"
+#set :deploy_to,   "/var/www/cs.iqianggou.lab"
 
 set :linked_dirs, ""
 set :shared_children,     [app_path + "/logs", web_path + "/uploads", "vendor"]
@@ -41,8 +41,8 @@ set :use_composer, true
 set :update_vendors, true
 
 
-set :stages,        %w(prod master dev staging tae)
-set :default_stage, "master"
+set :stages,        %w(dev staging)
+set :default_stage, "dev"
 set :stage_dir,     "app/config/deploy_stage"
 require 'capistrano/ext/multistage'
 
