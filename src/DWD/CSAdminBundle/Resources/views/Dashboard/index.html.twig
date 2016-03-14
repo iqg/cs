@@ -29,8 +29,8 @@
                     <div class="row">
                         <div class="col-md-1"></div>
                         <div class="col-md-8"> 
-                            <input type="searchBranch" id="searchBranchBox" value="" name="search" class="form-control hide searchBox" placeholder="请输入名称,拼音缩写,验证码" required>
-                            <input type="searchUser" id="searchUserBox" value="" name="search" class="form-control searchBox hide" placeholder="请输入手机号,验证码,用户id" required> 
+                            <input type="searchBranch" id="searchBranchBox" value="" name="search" class="form-control hide searchBox" placeholder="请输入商户名称,拼音缩写,验证码" required>
+                            <input type="searchUser" id="searchUserBox" value="" name="search" class="form-control searchBox hide" placeholder="请输入用户手机号,验证码,用户id,订单id" required>
                         </div>
                         <div class="col-md-3">
                             <button id="processBtn" class="btn hide btn-primary">处理</button>
@@ -204,8 +204,8 @@
                     }
                 },
                 "aoColumnDefs": [
-                        {"bSortable": false, "aTargets": [1, 2]},
-                    ],
+                        {"bSortable": false, "aTargets": [1, 2]}
+                    ]
         });
  
         $("#searchBranchBox").autocomplete({
@@ -217,7 +217,7 @@
                      searchKey  = $(this).val();
 				    }
 		});
-
+        //用户搜索
 		$("#searchUserBox").autocomplete({
 	                source: "/autocomplete-user/search",
 	                select: function(e, ui) {
@@ -225,9 +225,8 @@
                       searchType = ui.item.type;
                       searchKey  = $(this).val();
 				    } 
-		});  
-
-
+		});
+        // 商家搜索
 		$("#searchBranchNameBox").autocomplete({
 	                source: "/autocomplete-branchname/search",
 	                minLength:3,
@@ -235,7 +234,13 @@
 	                  branchId = ui.item.id;
 	                  table.fnDraw();
 				    }
-		});          
+		});
+
+        $("#searchBranchNameBox").keyup(function() {
+            if( !this.value ){
+                location.reload();
+            }
+        });
 
         $("#processBtn").click(function(){
 		   if( type == '' ){
@@ -247,8 +252,7 @@
 		   	  alert('请选择对应门店,用户或订单');
 		   	  return;
 		   }
-
-		   switch(type){ 
+           switch(type){
 			case 'user':  
 			  location.href='/user?userId=' + id + '&type=' + type + '&source=' + source + '&searchType=' + searchType + '&searchKey=' + searchKey;
 			  break; 
@@ -282,7 +286,7 @@
                   if( data.result ){
                      $("#complaintLogTable").html(data.content);
                   } 
-                },    
+                }
             }); 
         });
 
@@ -291,11 +295,7 @@
             location.href = "/complaint/edit?id=" + complaintId;
         });
 
-        $("#searchBranchNameBox").keyup(function() {
-            if( !this.value ){
-                location.reload();
-            }
-        });
+
 
 		$("#user").click();
 	});
