@@ -68,14 +68,13 @@ class UserController extends Controller
             $data[]     =  array(
                                 'url'    => '/order/orderinfo',
                                 'data'   => array(
-                                    'redeemNumber'      => $searchKey, 
+                                    'redeemNumber'=> $searchKey,
+                                    'userId'      => $userId,
                                 ),
                                 'method' => 'get',
                                 'key'    => 'orderinfo',
                            );
         }
-
-
 
         $orderListTypes =  $this->get('dwd.util')->getOrderTableInfo( 0 );
 
@@ -86,17 +85,21 @@ class UserController extends Controller
              'errMsg'    => '用户不存在'
           ));
         }
-
         $userDevicesCount  = count( $data['userdevices']['data']['list'] );
 
         $needDealOrder     = '';
         if( $searchType == 'redeemNumber' ){
-           $orderInfo      = $data['orderinfo']['data'];
-           $needDealOrder  = '<table class="table table-striped table-bordered"><tr><th>商品</th><th>门店</th><th>兑换码</th><th>状态</th><th>操作</th></tr>';
-           $needDealOrder .= "<tr><td>" . $orderInfo['item_name'] . "</td><td>" . $orderInfo['branch_name'] . "</td><td>" . $orderInfo['redeem_number'] . "</td><td>" . $this->get('dwd.util')->getOrderStatusLabel( $orderInfo['status'] ) . "</td><td><a href='#' class='order-correct-btn' data-rel='" . $orderInfo['id'] .  "'>[纠错]</a></td></tr>";
-           $needDealOrder .= "</table>"; 
+
+            $orderInfos      = $data['orderinfo']['data'];
+            $needDealOrder  = '<table class="table table-striped table-bordered"><tr><th>商品</th><th>门店</th><th>兑换码</th><th>状态</th><th>操作</th></tr>';
+            if(!empty($orderInfos)){
+              foreach($orderInfos as $orderInfo){
+                 $needDealOrder .= "<tr><td>" . $orderInfo['item_name'] . "</td><td>" . $orderInfo['branch_name'] . "</td><td>" . $orderInfo['redeem_number'] . "</td><td>" . $this->get('dwd.util')->getOrderStatusLabel( $orderInfo['status'] ) . "</td><td><a href='#' class='order-correct-btn' data-rel='" . $orderInfo['id'] .  "'>[纠错]</a></td></tr>";
+               }
+            }
+            $needDealOrder .= "</table>";
         }
-      
+
         return $this->render('DWDCSAdminBundle:User:index.html.twig', array(
             'jsonUserInfo'     => json_encode( $data['user']['data'] ),
             'balancerecords'   => $data['balancerecords']['data']['list'],
@@ -834,10 +837,10 @@ class UserController extends Controller
         if( false == empty( $userPassword ) ){
           $params['password'] = $userPassword;
         }
-  
+
         $type                 = 1;
         $unlockDate           = date( 'Y-m-d H:i:s',  3600 * 24 * $lockDays + time() );
- 
+
         $data                 = array( 
                                     array(
                                         'url'    => '/user/locked',

@@ -135,7 +135,8 @@ class ComplaintEditController extends Controller
          if( isset( $complaint['complaintInfo']['offlined'] ) ){
              $offlined         = 1;
          }
-
+//        echo json_encode($complaint);
+//        exit;
          $dataHttp             = $this->get('dwd.data.http');   
   
          $data                 = array(
@@ -159,7 +160,26 @@ class ComplaintEditController extends Controller
 
          $data                 = $dataHttp->MutliCall($data);
          $orderinfo            = $data['orderinfo']['data'];
-         $salerinfo            = $data['salerinfo']['data']; 
+         $salerinfo            = $data['salerinfo']['data'];
+//        echo json_encode(['complait'=>$complaint,'salerinfo'=>$salerinfo ]);
+//        exit;
+      echo json_encode(  array(
+            'tags'             => $complaint['tags'],
+            'method'           => $complaint['method'],
+            'mobile'           => $complaint['mobile'],
+            'status'           => $complaint['status'],
+            'note'             => $complaint['note'],
+            'complaintId'      => $complaint['_id'],
+            'needOffline'      => $complaint['complaintInfo']['needOffline'],
+            'offlined'         => $offlined,
+            'content'          => $complaint['complaintInfo']['content'],
+            'userId'           => $orderinfo['user_id'],
+            'campaignBranchId' => $complaint['complaintInfo']['campaignBranchId'],
+            'salerName'        => isset( $salerinfo['name'] ) ? $salerinfo['name'] : '',
+            'itemName'         => $orderinfo['item_name'],
+            'branchName'       => $orderinfo['branch_name'],
+        ) );
+//        exit;
 
          return $this->render('DWDCSAdminBundle:ComplaintEdit:ordercorrect.html.twig', array( 
             'tags'             => $complaint['tags'],
@@ -315,7 +335,7 @@ class ComplaintEditController extends Controller
   
         $dm                   = $this->get('doctrine_mongodb')->getManager();
         $complaint            = $dm->getRepository('DWDDataBundle:Complaint')->getComplaint( $complaintId );
-
+//var_dump($complaint);exit;
         switch ($complaint['op']) {
            case 'branchOffline':
               return self::_editBranchOffline( $complaint );
@@ -352,7 +372,6 @@ class ComplaintEditController extends Controller
               break;
         }
 
-        return $this->render('DWDCSAdminBundle:ComplaintForm:other.html.twig', array( 
-        ));
+//        return $this->render('DWDCSAdminBundle:ComplaintForm:other.html.twig', array( ));
     }
 }

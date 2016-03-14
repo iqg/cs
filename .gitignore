@@ -18,6 +18,5 @@ composer.lock
 /app/SymfonyRequirements.php
 /app/check.php
 /app/config/security.yml
-/app/logs/.gitkeep
 composer.lock
 
