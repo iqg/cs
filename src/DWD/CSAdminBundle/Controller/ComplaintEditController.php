@@ -130,14 +130,14 @@ class ComplaintEditController extends Controller
     }
 
     private function _editOrderCorrect( $complaint )
-    {    
+    {
          $offlined             = 0;
          if( isset( $complaint['complaintInfo']['offlined'] ) ){
              $offlined         = 1;
          }
-//        echo json_encode($complaint);
-//        exit;
-         $dataHttp             = $this->get('dwd.data.http');   
+
+         $campaignBranchId     = isset( $complaint['complaintInfo']['campaignBranchId'] )?$complaint['complaintInfo']['campaignBranchId']:0;
+         $dataHttp             = $this->get('dwd.data.http');
   
          $data                 = array(
                                     array(
@@ -156,30 +156,20 @@ class ComplaintEditController extends Controller
                                         'method' =>  'get',
                                         'key'    =>  'salerinfo',
                                     ),
+                                    array(
+                                        'url'    => '/Campaignbranch/OfflineRefundOrders',
+                                        'data'   =>  array(
+                                                        'campaignBranchId' => $campaignBranchId ,
+                                                     ),
+                                        'method' =>  'get',
+                                        'key'    =>  'OfflineRefundNum',
+                                    ),
                                 );
 
          $data                 = $dataHttp->MutliCall($data);
          $orderinfo            = $data['orderinfo']['data'];
          $salerinfo            = $data['salerinfo']['data'];
-//        echo json_encode(['complait'=>$complaint,'salerinfo'=>$salerinfo ]);
-//        exit;
-      echo json_encode(  array(
-            'tags'             => $complaint['tags'],
-            'method'           => $complaint['method'],
-            'mobile'           => $complaint['mobile'],
-            'status'           => $complaint['status'],
-            'note'             => $complaint['note'],
-            'complaintId'      => $complaint['_id'],
-            'needOffline'      => $complaint['complaintInfo']['needOffline'],
-            'offlined'         => $offlined,
-            'content'          => $complaint['complaintInfo']['content'],
-            'userId'           => $orderinfo['user_id'],
-            'campaignBranchId' => $complaint['complaintInfo']['campaignBranchId'],
-            'salerName'        => isset( $salerinfo['name'] ) ? $salerinfo['name'] : '',
-            'itemName'         => $orderinfo['item_name'],
-            'branchName'       => $orderinfo['branch_name'],
-        ) );
-//        exit;
+         $OfflineRefundNum     = $data['OfflineRefundNum']['data'];
 
          return $this->render('DWDCSAdminBundle:ComplaintEdit:ordercorrect.html.twig', array( 
             'tags'             => $complaint['tags'],
@@ -196,6 +186,8 @@ class ComplaintEditController extends Controller
             'salerName'        => isset( $salerinfo['name'] ) ? $salerinfo['name'] : '',
             'itemName'         => $orderinfo['item_name'],
             'branchName'       => $orderinfo['branch_name'],
+            'OfflineRefundNum' => $OfflineRefundNum,
+
         ));
     }
 
@@ -291,7 +283,6 @@ class ComplaintEditController extends Controller
 
     private function _editOther( $complaint )
     {
-//        echo json_encode($complaint);exit;
         $op                   = $complaint['op'];
         $tagId                = 22;
         $tag                  = '咨询';
@@ -335,7 +326,6 @@ class ComplaintEditController extends Controller
   
         $dm                   = $this->get('doctrine_mongodb')->getManager();
         $complaint            = $dm->getRepository('DWDDataBundle:Complaint')->getComplaint( $complaintId );
-//var_dump($complaint);exit;
         switch ($complaint['op']) {
            case 'branchOffline':
               return self::_editBranchOffline( $complaint );

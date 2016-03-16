@@ -145,7 +145,7 @@
                             <div id="refundDetail" style="display: none;">
                                 <div class="input-group col-md-4">
                                     <label class="control-label" for="inputSuccess4">需退款订单</label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                                    <span>33单</span>
+                                    <span>{{ OfflineRefundNum }}</span>
                                 </div><br />
                                 <div class="input-group col-md-4">
                                     <label class="control-label" for="inputSuccess4">退款至</label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
@@ -169,7 +169,7 @@
 
 <script type="text/javascript" >
     tags        =  [19];
-    offlined    =  {{offlined}};
+    offlined    = {{ offlined }};
     needOffline = {{needOffline}};
 
     if( 1 == offlined ){
@@ -208,6 +208,7 @@
         record.reason     = offlineReason;
         record.note       = offlineNote;
         record.refund     = needRefund;
+
         $.ajax({
             type:'post',
             url:'/campaignbranch/offline',

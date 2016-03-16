@@ -6,11 +6,10 @@ imports:
 # Put parameters here that don't need to change on each machine where the app is deployed
 # http://symfony.com/doc/current/best_practices/configuration.html#application-related-configuration
 parameters:
-    locale: zh_CN
-    cookie_domain: .iqianggou.dev
+    locale: "%G_locale%"
+    cookie_domain: "%G_cookie_domain%"
     redis_dsn: "%G_redis_dsn%"
     iqg_host:  "%G_iqg_host%"
-
 framework:
     #esi:             ~
     translator:      { fallbacks: ["%locale%"] }
@@ -33,7 +32,7 @@ framework:
 #        cookie_lifetime: 315360000
 #        handler_id: session.handler.pdo
     fragments:       ~
-    http_method_override: true
+      http_method_override: true
 
 # Twig Configuration
 twig:

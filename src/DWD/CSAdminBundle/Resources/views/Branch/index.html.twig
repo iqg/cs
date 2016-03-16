@@ -301,6 +301,25 @@
         </div>
     </div>
 
+    <div class="modal fade" id="resetPinPwdModal" tabindex="-1" role="dialog" aria-labelledby="resetPwdModal" aria-hidden="true">
+
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">×</button>
+                    <h3>重置店码</h3>
+                </div>
+                <div class="modal-body">
+                    <span>重置店码, 并发送新密码至手机号: {{ accountInfo['mobile'] }}?</span>
+                </div>
+                <div class="modal-footer">
+                    <a href="#" id="resetPinPwd-submit-btn" class="btn btn-default">确认</a>
+                    <a href="#" class="btn btn-default" data-dismiss="modal">关闭</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="modal fade" id="campaignBranchDetailModal" tabindex="-1" role="dialog" aria-labelledby="campaignBranchDetailModal" aria-hidden="true">
 
         <div class="modal-dialog">
@@ -353,7 +372,7 @@
 
         infoAccountNameHtml =  accountinfo.username;
         if( '该门店不存在手机号' != accountinfo.mobile && null != accountinfo.mobile ){
-            infoAccountNameHtml += "&nbsp;&nbsp;&nbsp;<a id='resetPwd-btn' href='#'>[重置密码]</a> (重置密码前,确认联系人电话)";
+            infoAccountNameHtml += "&nbsp;&nbsp;&nbsp;<a id='resetPwd-btn' href='#'>[重置密码]</a>&nbsp;&nbsp;&nbsp<a id='resetPinPwd-btn' href='#'>[重置pin码]</a> (重置密码前,确认联系人电话)";
         }
         $("#info-branchAccount").html( infoAccountNameHtml );
 
@@ -674,6 +693,7 @@
             }); 
         });
 
+        //重置密码
         $("#resetPwd-submit-btn").click(function(e){
 
             if(!confirm("确认重置?")){
@@ -699,7 +719,7 @@
                 dataType:'json',    
                 success:function(data){
                    if( true == data.result ){ 
-                      alert('重置成功')
+                      alert('重置成功');
                       location.href = '/complaintform/resetpwd?userId=' + record.userId;
                    } else {
                       alert( '重置失败');
@@ -714,6 +734,53 @@
             });
             operator.push(record);
             $(this).removeClass("disable");    
+        });
+
+        //重置店码（pin）
+       $("#resetPinPwd-submit-btn").click(function(e){
+
+            if(!confirm("确认重置店码?")){
+                return ;
+            }
+            if( $(this).hasClass("disable") ){
+                alert('请勿重复操作');
+                return ;
+            }
+
+            $(this).addClass("disable");
+
+            var record2       = new Object();
+            record2.type      = "重置店码";
+            record2.userId    = {{accountInfo['id']}};
+            record2.userName  = "{{accountInfo['username']}}";
+
+           mobile = '';
+           if( '该门店不存在手机号' != accountinfo.mobile && null != accountinfo.mobile ){
+               mobile = accountinfo.mobile;
+           }
+
+            $.ajax({
+                type:'post',
+                url:'/user/resetPinPwd',
+                data:{branchId:{{ branchId }},mobile:mobile },
+                dataType:'json',
+                success:function(data){
+                    if( true == data ){
+                        alert('重置成功');
+                        location.href = '/complaintform/resetpwd?userId=' + record.userId;
+                    } else {
+                        alert( '重置失败');
+                        record2.res = false;
+                    }
+                },
+                error:function (req,err) {
+                    record2.res = false;
+                    record2.err = err;
+                    alert( '重置失败,请刷新' );
+                }
+            });
+            operator.push(record2);
+            $(this).removeClass("disable");
         });
 
         $('#orderListTab a:first').tab('show');
@@ -735,7 +802,11 @@
         $('#resetPwd-btn').click(function (e) {
             e.preventDefault();
             $('#resetPwdModal').modal('show');
-        }); 
+        });
+        $('#resetPinPwd-btn').click(function (e) {
+            e.preventDefault();
+            $('#resetPinPwdModal').modal('show');
+        });
 
         $("#process-submit-btn").click(function (e) {
             if( $(this).hasClass('disabled') ){

@@ -632,6 +632,61 @@ class UserController extends Controller
     }
 
     /**
+     * @Route("/user/noticerecords", name="dwd_csadmin_user_noticerecords_show")
+     * @Method("GET")
+     * 用户通知记录中心 3.15
+     */
+    public function  noticeRecordsDataAction()
+    {
+        $dataHttp        = $this->get('dwd.data.http');
+        $iDisplayStart   = $this->getRequest()->get('iDisplayStart');
+        $iDisplayLength  = $this->getRequest()->get('iDisplayLength');
+        $sEcho           = $this->getRequest()->get('sEcho');
+        $sSearch         = $this->getRequest()->get('sSearch', null);
+        $userId          = $this->getRequest()->get('userId');
+        $orderType       = $this->getRequest()->get('type', 'redeem');
+        $orderList       = array();
+        $data            = array(
+            array(
+                'url'    => '/user/noticerecords',
+                'data'   => array(
+                    'userId'         => $userId,
+                    'needPagination' => 1,
+                    'pageLimit'      => $iDisplayLength,
+                    'pageNum'        => $iDisplayStart / $iDisplayLength + 1,
+                ),
+                'method' => 'get',
+                'key'    => 'smsrecords',
+            ),
+        );
+
+        $data              = $dataHttp->MutliCall($data);
+        $smsrecords        = array(
+            'list'         => array(),
+            'total'        => $data['smsrecords']['data']['totalCnt'],
+        );
+        foreach( $data['smsrecords']['data']['list'] as $smsrecord )
+        {
+            $smsrecords['list'][] = array(
+                $smsrecord['title'],
+                $smsrecord['content'],
+                $smsrecord['created_at'],
+                $smsrecord['end_time'],
+            );
+        }
+
+        $res             = array(
+            "sEcho"                => $sEcho,
+            "aaData"               => $smsrecords['list'],
+            "iTotalRecords"        => $data['smsrecords']['data']['totalCnt'],
+            "iTotalDisplayRecords" => $data['smsrecords']['data']['totalCnt'],
+        );
+        $response        = new Response();
+        $response->setContent( json_encode( $res ) );
+        return $response;
+    }
+
+    /**
      * @Route("/user/complaintrecords", name="dwd_csadmin_user_complaintrecords_show")
      * @Method("GET")
      */
@@ -787,11 +842,10 @@ class UserController extends Controller
                               'user_id'          => $userId,
                               'password'         => rand(100000, 999999),
                           );
-
-        $data           = array( 
+        $data           = array(
                               array(
                                   'host'   => $this->container->getParameter('iqg_host'),
-                                  'url'    => '/api/user/update_password',
+                                  'url'    => '/api/user/update_password',  // 这个接口 dev环境访问受限，在staging没有问题
                                   'data'   =>  $params,
                                   'method' => 'post',
                                   'key'    => 'resetPwd',
@@ -799,13 +853,11 @@ class UserController extends Controller
                           ); 
 
         $data              = $dataHttp->MutliCall($data);
-     
         $res               = array();
         $res['result']     = false;
-        if( $data['resetPwd']['status']["code"] == 10000 ){
+        if( $data['resetPwd']['status']['code'] == 10000 ){
             $res['result'] = true;
         }
-
         $logRecord         = array(
                                 'route'    => $this->getRequest()->get('_route'),
                                 'res'      => $res['result'],
@@ -818,6 +870,68 @@ class UserController extends Controller
 
         $this->get('dwd.oplogger')->addCommonLog( $logRecord );
  
+        $response          = new Response();
+        $response->setContent( json_encode( $res ) );
+        return $response;
+    }
+
+    /**
+     * @Route("/user/resetPinPwd", name="dwd_csadmin_user_resetPinPwd")
+     * @Method("POST")
+     * 重置pin码（店码,四位数)
+     */
+    public function resetPinPwd()
+    {
+        $dataHttp       = $this->get('dwd.data.http');
+        $branchId       = $this->getRequest()->get('branchId');
+        $mobile         = $this->getRequest()->get('mobile');
+
+        $pin  =  rand(1000, 9999);
+        $data = array(
+                    array(
+                        'url'    => '/branch/update',
+                        'data'   => array(
+                            'branchId'    => $branchId,
+                            'pin'         => $pin,
+                        ),
+                        'method' => 'post',
+                        'key'    => 'resetPwd',
+                    ),
+         );
+        $data              = $dataHttp->MutliCall($data);
+        $res             = false;
+        if( $data['resetPwd']['errno'] == 0 && $data['resetPwd']['data'] == true ){
+
+            //@todo  调用短信接口
+            $senddata = array(
+                array(
+                    'url'    => '/sms/send',
+                    'data'   => array(
+                        'mobile'    => $mobile,
+                        'content'   => '亲爱的用户,已为您设置新的店码：' . $pin .',请登陆爱抢购app,及时修改密码' ,
+                    ),
+                    'method' => 'post',
+                    'key'    => 'sendPwd',
+                ),
+            );
+            $sendMsgResult    = $dataHttp->MutliCall($senddata);
+            if($sendMsgResult['sendPwd']['errno'] == 0 && $sendMsgResult['sendPwd']['errmsg'] == 'success' ){
+              $res           = true;
+            }
+        }
+
+        $logRecord         = array(
+            'route'    => $this->getRequest()->get('_route'),
+            'res'      => $res,
+            'adminId'  => $this->getUser()->getId(),
+            'ext'      => array(
+                'branchId' => $branchId,
+                'pin'      => $pin,
+                'sendMsgResult' => $sendMsgResult
+             ),
+        );
+        $this->get('dwd.oplogger')->addCommonLog( $logRecord );
+
         $response          = new Response();
         $response->setContent( json_encode( $res ) );
         return $response;
