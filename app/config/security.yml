@@ -1,0 +1,46 @@
+# To get started with security, check out the documentation:
+# http://symfony.com/doc/current/book/security.html
+security:
+    encoders:
+        # Our user class and the algorithm we'll use to encode passwords
+        # http://symfony.com/doc/current/book/security.html#encoding-the-user-s-password
+        FOS\UserBundle\Model\UserInterface: sha512
+
+    role_hierarchy:
+        ROLE_ADMIN:       ROLE_SUPPORT
+        ROLE_SUPER_ADMIN: ROLE_ADMIN
+
+    # http://symfony.com/doc/current/book/security.html#where-do-users-come-from-user-providers
+    providers:
+        fos_userbundle:
+            id: fos_user.user_provider.username_email
+
+    firewalls:
+        # disables authentication for assets and the profiler, adapt it according to your needs
+        dev:
+            pattern: ^/(_(profiler|wdt)|css|images|js)/
+            security: false
+
+        main:
+            pattern:             .*
+            context:             user
+            form_login:
+                provider:       fos_userbundle
+                login_path:     /login
+                use_forward:    false
+                check_path:     /login_check
+                failure_path:   null
+                always_use_default_target_path: false
+                default_target_path:            /
+                target_path_parameter:          _target_path
+                use_referer:                    false
+
+            logout:       true
+            anonymous:    true
+
+    access_control:
+        # this is a catch-all for the admin area
+        # additional security lives in the controllers  
+        - { path: ^/login$, role: IS_AUTHENTICATED_ANONYMOUSLY }
+#        - { path: ^/, roles: ROLE_SUPPORT }
+        - { path: ^/, roles: ROLE_USER }
