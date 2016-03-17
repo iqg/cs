@@ -169,7 +169,7 @@ class ComplaintEditController extends Controller
          $data                 = $dataHttp->MutliCall($data);
          $orderinfo            = $data['orderinfo']['data'];
          $salerinfo            = $data['salerinfo']['data'];
-         $OfflineRefundNum     = $data['OfflineRefundNum']['data'];
+         $OfflineRefundNum     = isset($data['OfflineRefundNum']['data'])?$data['OfflineRefundNum']['data']:0;
 
          return $this->render('DWDCSAdminBundle:ComplaintEdit:ordercorrect.html.twig', array( 
             'tags'             => $complaint['tags'],

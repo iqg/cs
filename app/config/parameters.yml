@@ -4,7 +4,6 @@ parameters:
     database_port: 3306
     database_name: backup_iqg_new_prod
 #    database_name: backup_iqg_new_dev
-#    database_name: backup_app_db
     database_user: root
     database_password: 'U#AyMJ64Dgxkq15Z'
     mailer_transport: smtp
@@ -12,7 +11,8 @@ parameters:
     mailer_user: null
     mailer_password: null
     secret: ThisTokenIsNotSoSecretChangeIt
-    G_redis_dsn: redis://127.0.0.1:6379
+#    G_redis_dsn: redis://127.0.0.1:6379
+    G_redis_dsn: redis://10.0.0.10:6379
     G_iqg_host: http://staging.iqianggou.com
     G_cookie_domain: .iqianggou.dev
 
