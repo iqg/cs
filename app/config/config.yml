@@ -6,11 +6,10 @@ imports:
 # Put parameters here that don't need to change on each machine where the app is deployed
 # http://symfony.com/doc/current/best_practices/configuration.html#application-related-configuration
 parameters:
-    locale: zh_CN
-    cookie_domain: .iqianggou.dev
-    redis_dsn: 'redis://127.0.0.1:6379'
-    iqg_host: http://staging.iqianggou.com
-
+    locale: "%G_locale%"
+    cookie_domain: "%G_cookie_domain%"
+    redis_dsn: "%G_redis_dsn%"
+    iqg_host:  "%G_iqg_host%"
 framework:
     #esi:             ~
     translator:      { fallbacks: ["%locale%"] }
@@ -29,16 +28,17 @@ framework:
     trusted_hosts:   ~
     trusted_proxies: ~
     session:
-        cookie_domain: %cookie_domain%
-        cookie_lifetime: 315360000
-        handler_id: session.handler.pdo
+#        cookie_domain: %cookie_domain%
+#        cookie_lifetime: 315360000
+#        handler_id: session.handler.pdo
     fragments:       ~
     http_method_override: true
-
 # Twig Configuration
 twig:
     debug:            "%kernel.debug%"
     strict_variables: "%kernel.debug%"
+    globals:
+      G_internal_api: %G_internal_api%
 
 # Assetic Configuration
 assetic:
@@ -78,9 +78,10 @@ doctrine:
 doctrine_mongodb:
     connections:
         default:
-            server: mongodb://iqg_search:6yhn$RFV@27.115.51.166:27017/iqianggou_search
+#            server: mongodb://iqg_search:6yhn$RFV@27.115.51.166:27017/iqianggou_search
+            server: "%G_mongodb_server%"
             options: {}
-    default_database: iqianggou_search
+    default_database: "%G_mongodb_databasename%"
     document_managers:
         default:
             auto_mapping: true

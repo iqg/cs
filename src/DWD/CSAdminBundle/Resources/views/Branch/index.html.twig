@@ -211,7 +211,7 @@
             </div>
         </div>
     </div>
-
+    {#商户下线#}
     <div class="modal fade" id="offlineModal" tabindex="-1" role="dialog" aria-labelledby="offlineModal" aria-hidden="true">
 
         <div class="modal-dialog">
@@ -238,10 +238,81 @@
                             <span class="input-group-addon">备注</span>
                             <textarea id="offlineNote"></textarea>
                          </div><br />
+                         <div class="input-group col-md-4" id="refundRadio">
+                             <span class="input-group-addon">需退款</span>
+                             <label class="radio-inline">
+                                 <input type="radio" name="needRefund" id="offline1" value="1"> 是
+                             </label>
+                             <label class="radio-inline">
+                                 <input type="radio" name="needRefund" id="offline2" value="0" checked=checked>  否
+                             </label>
+                         </div><br />
+
                      </div><br /> 
                 </div>
                 <div class="modal-footer">
                     <a href="#" id="offline-submit-btn" class="btn btn-default">保存</a>
+                    <a href="#" class="btn btn-default" data-dismiss="modal">关闭</a>
+                </div>
+            </div>
+        </div>
+    </div>
+        {#活动下线#}
+    <div class="modal fade" id="activityofflineModal" tabindex="-1" role="dialog" aria-labelledby="offlineModal" aria-hidden="true">
+
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">×</button>
+                    <h3>下线</h3>
+                </div>
+                <div class="modal-body">
+                    <div class="control-group">
+                        <div class="input-group col-md-4">
+                            <span class="input-group-addon">原因</span>
+                            <select id="selectofflineReason2" >
+                                <option value=1>推广效果不好</option>
+                                <option value=2>用户质量差</option>
+                                <option value=3>操作太麻烦</option>
+                                <option value=4>不结算成本太高</option>
+                                <option value=5>合作到期了</option>
+                                <option value=6>做了别的推广，不需要爱抢购了</option>
+                                <option value=7>门店要转让/倒闭/装修了</option>
+                            </select>
+                        </div><br />
+                        <div class="input-group col-md-4">
+                            <span class="input-group-addon">备注</span>
+                            <textarea id="offlineNote2"></textarea>
+                        </div><br />
+                        <div class="input-group col-md-4" id="refundRadio">
+                            <span class="input-group-addon">需退款</span>
+                            <label class="radio-inline">
+                                <input type="radio" name="needRefund2" id="offline1" value="1"> 是
+                            </label>
+                            <label class="radio-inline">
+                                <input type="radio" name="needRefund2" id="offline2" value="0" checked=checked>  否
+                            </label>
+                        </div><br />
+                        <div id="refundDetail" style="display: none;">
+                        {#<div id="refundDetail" style="">#}
+                            <div class="input-group col-md-4">
+                                <label class="control-label" for="inputSuccess4">需退款订单</label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                {#<span>{{ OfflineRefundNum }}</span>#}
+                                <span>33</span>
+                            </div><br />
+                            <div class="input-group col-md-4">
+                                <label class="control-label" for="inputSuccess4">退款至</label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                <span>原路返回</span>
+                            </div><br />
+                            <div class="input-group col-md-4">
+                                <label class="control-label" for="inputSuccess4">原因</label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                <span>门店下线退款</span>
+                            </div><br />
+                        </div>
+                    </div><br />
+                </div>
+                <div class="modal-footer">
+                    <a href="#" id="activityoffline-submit-btn" class="btn btn-default">下线</a>
                     <a href="#" class="btn btn-default" data-dismiss="modal">关闭</a>
                 </div>
             </div>
@@ -301,6 +372,25 @@
         </div>
     </div>
 
+    <div class="modal fade" id="resetPinPwdModal" tabindex="-1" role="dialog" aria-labelledby="resetPwdModal" aria-hidden="true">
+
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">×</button>
+                    <h3>重置店码</h3>
+                </div>
+                <div class="modal-body">
+                    <span>重置店码, 并发送新密码至手机号: {{ accountInfo['mobile'] }}?</span>
+                </div>
+                <div class="modal-footer">
+                    <a href="#" id="resetPinPwd-submit-btn" class="btn btn-default">确认</a>
+                    <a href="#" class="btn btn-default" data-dismiss="modal">关闭</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="modal fade" id="campaignBranchDetailModal" tabindex="-1" role="dialog" aria-labelledby="campaignBranchDetailModal" aria-hidden="true">
 
         <div class="modal-dialog">
@@ -353,7 +443,7 @@
 
         infoAccountNameHtml =  accountinfo.username;
         if( '该门店不存在手机号' != accountinfo.mobile && null != accountinfo.mobile ){
-            infoAccountNameHtml += "&nbsp;&nbsp;&nbsp;<a id='resetPwd-btn' href='#'>[重置密码]</a> (重置密码前,确认联系人电话)";
+            infoAccountNameHtml += "&nbsp;&nbsp;&nbsp;<a id='resetPwd-btn' href='#'>[重置密码]</a>&nbsp;&nbsp;&nbsp<a id='resetPinPwd-btn' href='#'>[重置pin码]</a> (重置密码前,确认联系人电话)";
         }
         $("#info-branchAccount").html( infoAccountNameHtml );
 
@@ -472,7 +562,7 @@
                         {"bSortable": false, "aTargets": [1, 2, 3]},
                     ],
         });
-
+        // 商户下线
         $("#offline-submit-btn").click(function(e){
             if( $(this).hasClass("disable") ){
                 alert('请勿重复操作');
@@ -482,6 +572,7 @@
 
             var offlineReason = $("#selectofflineReason").val();
             var offlineNote   = $("#offlineNote").val();
+            var needRefund = $('input[name="needRefund"]:checked').val();
 
             var record        = new Object();
             record.type       = "商户下线";
@@ -489,13 +580,76 @@
             record.branchName = "{{branchinfo['name']}}";
             record.reason     = offlineReason;
             record.note       = offlineNote;
-            location.href     = "/complaintform/branchoffline?branchId={{branchId}}" + "&reason=" + offlineReason + "&note=" + offlineNote;
-            record.res = true;
-            alert('申请下线成功');
-            $('#offlineModal').modal('hide');
-            __init();
-            operator.push( record );
-            $(this).removeClass("disable");
+
+            $.ajax({
+                async:false,
+                type:'post',
+                url:'/branch/offline',
+                data:{branchId:{{branchId}},offlineReason:offlineReason,offlineNote:offlineNote,needRefund:needRefund},
+                dataType:'json',
+                success:function(data){
+                    if( data == true ){
+                        record.res = true;
+                        alert('商铺申请下线已成功');
+                        location.href     = "/complaintform/branchoffline?branchId={{branchId}}" + "&reason=" + offlineReason + "&note=" + offlineNote+ "&needRefund=" + needRefund;
+                        $('#offlineModal').modal('hide');
+                        __init();
+                        operator.push( record );
+                        $(this).removeClass("disable");
+                    } else {
+                        record.res = false;
+                        alert('下线失败');
+                    }
+                },
+                error:function (req,err) {
+                    alert('下线失败3');
+                    record.res  = false;
+                    record.err  = err;
+                }
+            });
+
+        });
+
+        //活动下线
+        $("#activityoffline-submit-btn").click(function(e){
+            console.log(campaignBranchId);
+
+            var offlineReason = $("#selectofflineReason2").val();
+            var offlineNote   = $("#offlineNote2").val();
+            var needRefund = $('input[name="needRefund2"]:checked').val();
+
+            var record        = new Object();
+            record.type       = "活动下线";
+            record.campaignBranchId   = campaignBranchId;
+            record.reason     = offlineReason;
+            record.note       = offlineNote;
+            record.refund     = needRefund;
+
+            $.ajax({
+                type:'post',
+                url:'/branch/activityoffline',
+                data:{campaignBranchId: campaignBranchId,offlineReason:offlineReason,needRefund:needRefund,offlineNote:offlineNote},
+                dataType:'json',
+                success:function(data){
+                    if( data == true ){
+//                      location.href      = "/complaintform/campaignbranchoffline?campaignBranchId="+ campaignBranchId + "&reason=" + offlineReason + "&note=" + offlineNote + "&needRefund" + needRefund;
+                        record.res = true;
+                        alert('活动下线成功');
+                        window.location.reload();
+                        $('#activityofflineModal').modal('hide');
+                        __init();
+//                        operator.push( record );
+                    } else {
+                        record.res = false;
+                        alert('活动下线失败');
+                    }
+                },
+                error:function (req,err) {
+                    record.res  = false;
+                    record.err  = err;
+                }
+            });
+
         });
 
         $("#modifyBranch-submit-btn").click(function(e){
@@ -655,7 +809,7 @@
             operator.push(record); 
         });
 
-
+        campaignBranchId  = '';
         $("#campaignbranch-table").on("click", ".campaignbranch-detail", function (e) {
             $("#campaignBranchDetailTable").html("");
             e.preventDefault();
@@ -674,6 +828,13 @@
             }); 
         });
 
+        // 下线指定的活动
+        $("#campaignbranch-table").on("click", ".campaignbranch-offline", function (e) {
+            e.preventDefault();
+            $('#activityofflineModal').modal('show');
+            campaignBranchId  =  $(this).attr("data-rel");
+        });
+        //重置密码
         $("#resetPwd-submit-btn").click(function(e){
 
             if(!confirm("确认重置?")){
@@ -699,7 +860,7 @@
                 dataType:'json',    
                 success:function(data){
                    if( true == data.result ){ 
-                      alert('重置成功')
+                      alert('重置成功');
                       location.href = '/complaintform/resetpwd?userId=' + record.userId;
                    } else {
                       alert( '重置失败');
@@ -714,6 +875,53 @@
             });
             operator.push(record);
             $(this).removeClass("disable");    
+        });
+
+        //重置店码（pin）
+       $("#resetPinPwd-submit-btn").click(function(e){
+
+            if(!confirm("确认重置店码?")){
+                return ;
+            }
+            if( $(this).hasClass("disable") ){
+                alert('请勿重复操作');
+                return ;
+            }
+
+            $(this).addClass("disable");
+
+            var record2       = new Object();
+            record2.type      = "重置店码";
+            record2.userId    = {{accountInfo['id']}};
+            record2.userName  = "{{accountInfo['username']}}";
+
+           mobile = '';
+           if( '该门店不存在手机号' != accountinfo.mobile && null != accountinfo.mobile ){
+               mobile = accountinfo.mobile;
+           }
+
+            $.ajax({
+                type:'post',
+                url:'/user/resetPinPwd',
+                data:{branchId:{{ branchId }},mobile:mobile },
+                dataType:'json',
+                success:function(data){
+                    if( true == data ){
+                        alert('重置成功');
+                        location.href = '/complaintform/resetpwd?userId=' + record.userId;
+                    } else {
+                        alert( '重置失败');
+                        record2.res = false;
+                    }
+                },
+                error:function (req,err) {
+                    record2.res = false;
+                    record2.err = err;
+                    alert( '重置失败,请刷新' );
+                }
+            });
+            operator.push(record2);
+            $(this).removeClass("disable");
         });
 
         $('#orderListTab a:first').tab('show');
@@ -735,7 +943,11 @@
         $('#resetPwd-btn').click(function (e) {
             e.preventDefault();
             $('#resetPwdModal').modal('show');
-        }); 
+        });
+        $('#resetPinPwd-btn').click(function (e) {
+            e.preventDefault();
+            $('#resetPinPwdModal').modal('show');
+        });
 
         $("#process-submit-btn").click(function (e) {
             if( $(this).hasClass('disabled') ){

@@ -21,6 +21,8 @@ class BranchController extends Controller
     const PAPER_VERIFY  = 4;  //纸质验证
     const SECRET_VERIFY = 8;  //密码验证
 
+    const KEY_CAMPAIGNBRANCH_OFFLINE = 'S_CB_OFFLINE'; //把下线的CAMPAIGNBRANCHID推送给Redis
+
     private function _getRedeemTypes( $redeemType )
     {
         $redeemTypes    = array();
@@ -171,8 +173,8 @@ class BranchController extends Controller
            $accountInfo['username']  = '该门店不存在帐号';
            $accountInfo['mobile']    = '该门店不存在手机号';
            $accountInfo['id']        = -1;
-        } 
- 
+        }
+
         $branchInfo['brandName']     =  $brandInfo['name'];
         $branchInfo['brandTel']      =  $brandInfo['tel'];
         $branchInfo['zoneName']      =  $zoneInfo['name'];
@@ -534,6 +536,7 @@ class BranchController extends Controller
     /**
      * @Route("/branch/campaignbranchs", name="dwd_csadmin_branch_campaignbranchs")
      * @Method("GET")
+     *
      */
     public function CampaignBranchsAction()
     {
@@ -585,7 +588,7 @@ class BranchController extends Controller
                                              $campaignbranch['start_time'],
                                              $campaignbranch['end_time'], 
                                              $this->get('dwd.util')->getCampaignBranchTypeLabel( $campaignbranch['type'] ), 
-                                             '<a href="#" data-rel=' . $campaignbranch['id'] . ' class="campaignbranch-detail">[详情]</a>'
+                                             '<a href="#" data-rel=' . $campaignbranch['id'] . ' class="campaignbranch-detail">[详情]</a>&nbsp&nbsp<a href="#" data-rel=' . $campaignbranch['id'] . ' class="campaignbranch-offline">[下线]</a>'
                                         );
         
         }
@@ -603,6 +606,8 @@ class BranchController extends Controller
     /**
      * @Route("/branch/offline", name="dwd_csadmin_branch_offline")
      * @Method("POST")
+     *
+     * 整个商户的下线活动
      */
     public function OfflineAction()
     {
@@ -610,8 +615,9 @@ class BranchController extends Controller
         $branchId        = $this->getRequest()->get('branchId');
         $offlineReason   = $this->getRequest()->get('offlineReason'); 
         $offlineNote     = $this->getRequest()->get('offlineNote');
+        $needRefund      = $this->getRequest()->get('needRefund');
 
-        $data            = array( 
+        $data            = array(
                                 array(
                                     'url'    => '/branch/update',
                                     'data'   => array(
@@ -634,8 +640,17 @@ class BranchController extends Controller
         $data            = $dataHttp->MutliCall($data);  
 
         $res             = false;
+        $campaignBranchIds =[];
         if( $data['offline']['errno'] == 0 && $data['update']['errno'] == 0 && $data['update']['data'] == true ){
-          $res           = true;
+           $res           = true;
+
+           if( $needRefund){   //需要把活动id推送到redis里
+                $redis = $this->container->get('snc_redis.cache');
+                $campaignBranchIds = $data['offline']['data'];
+                foreach($campaignBranchIds as $campaignBranchId){
+                  $redis->sadd(SELF::KEY_CAMPAIGNBRANCH_OFFLINE,$campaignBranchId);
+                }
+            }
         }
 
         $logRecord       = array(
@@ -646,6 +661,7 @@ class BranchController extends Controller
                                               'branchId'      => $branchId,
                                               'offlineReason' => $offlineReason,
                                               'offlineNote'   => $offlineNote,
+                                              'campaignBranchIds' => $campaignBranchIds,
                                             ),
                            );
         $this->get('dwd.oplogger')->addCommonLog( $logRecord );
@@ -655,4 +671,61 @@ class BranchController extends Controller
         return $response;
     }
 
+
+    /**
+     * @Route("/branch/activityoffline", name="dwd_csadmin_campaignbranch_activityoffline")
+     * @Method("POST")
+     * 单个活动下线
+     */
+    public function activityOfflineAction()
+    {
+        $dataHttp        = $this->get('dwd.data.http');
+        $campaignBranchId= $this->getRequest()->get('campaignBranchId');
+        $offlineReason   = $this->getRequest()->get('offlineReason');
+        $needRefund      = $this->getRequest()->get('needRefund');
+        $offlineNote     = $this->getRequest()->get('offlineNote');
+
+        $data            = array(
+            array(
+                'url'    => '/campaignbranch/offline',
+                'data'   => array(
+                    'campaignBranchId'=> $campaignBranchId,
+                    'offlineReason'   => $offlineReason,
+                    'offlineNote'     => $offlineNote,
+                ),
+                'method' => 'post',
+                'key'    => 'offline',
+            ),
+        );
+
+        $data            = $dataHttp->MutliCall($data);
+
+        $res             = false;
+        if( $data['offline']['errno'] == 0 ){
+            $res           = true;
+        }
+        $synRedisResult = false;
+        if( $needRefund){   //需要推断，则推送到redis里
+            $redis = $this->container->get('snc_redis.cache');
+            $synRedisResult = $redis->sadd(SELF::KEY_CAMPAIGNBRANCH_OFFLINE,$campaignBranchId);
+        }
+
+        $logRecord       = array(
+            'route'    => $this->getRequest()->get('_route'),
+            'res'      => $res,
+            'adminId'  => $this->getUser()->getId(),
+            'ext'      => array(
+                'campaignBranchId' => $campaignBranchId,
+                'offlineReason' => $offlineReason,
+                'offlineNote'   => $offlineNote,
+                'rtnResult'     => json_encode($data),
+                'synRedisResult'=> $synRedisResult
+            ),
+        );
+        $this->get('dwd.oplogger')->addCommonLog( $logRecord );
+
+        $response        = new Response();
+        $response->setContent( json_encode( $res ) );
+        return $response;
+    }
 }

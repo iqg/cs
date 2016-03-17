@@ -31,7 +31,12 @@
                         <div class="form-group has-feedback">
                             <label class="control-label" for="inputSuccess4">标签</label>
                             &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
-                                <button id="{{tagId}}" name="tag_{{tagId}}" readonly=readonly class="btn btn-primary btn-sm complaint-label">{{tag}}</button>&nbsp;&nbsp; 
+                                {#<button id="{{tagId}}" name="tag_{{tagId}}" readonly=readonly class="btn btn-primary btn-sm complaint-label">{{tag}}</button>&nbsp;&nbsp; #}
+                            {% for key,label in tagLabel %}
+                                <label class="checkbox-inline">
+                                    <input type="radio" name="labelType" {% if key == selectedLabel %} checked=checked {% endif %} id="labelType" value="{{ key }}"> {{  label }}
+                                </label>
+                            {% endfor %}
                         </div> <br /><br />
  
                         <div class="form-group has-feedback">
@@ -81,6 +86,7 @@
     function submit(){
         method         = $("#complaintWay:checked").val();
         status         = $("#status:checked").val();
+        labelType      = $("#labelType:checked").val();
         mobile         = $("#mobile").val();
         note           = $("#note").val(); 
 
@@ -98,7 +104,7 @@
             type:'post',        
             url:'/complaint/save',
             async:false,
-            data: {id:"{{complaintId}}", tags: tags.join(','), mobile:mobile, op:"{{tag}}", status: status, method: method, note:note },
+            data: {id:"{{complaintId}}", tags: tags.join(','), mobile:mobile, op:"{{tag}}", status: status, method: method, note:note,labelType:labelType },
             dataType:'json',    
             success:function(data){ 
                         if( data != 'null' ){

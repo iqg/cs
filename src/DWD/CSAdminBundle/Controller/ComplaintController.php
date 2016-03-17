@@ -106,6 +106,7 @@ class ComplaintController extends Controller
         $note                 = $this->getRequest()->get('note');
         $tags                 = $this->getRequest()->get('tags');
         $platform             = $this->getRequest()->get('platform');
+        $labelType            = $this->getRequest()->get('labelType');
 
         if( !empty( $tags ) ){
             $tags             = explode( ',', $tags );
@@ -178,6 +179,7 @@ class ComplaintController extends Controller
         $complaint->setCreatedAt( $now );
         $complaint->setOp( $op );
         $complaint->setOpLog( $opLog );
+        $complaint->setLabelType( $labelType );
 
         if( intval( $status ) != self::UNSOLVED ){
             $complaint->setResolvedAt( $now );
@@ -220,6 +222,7 @@ class ComplaintController extends Controller
         $method               = $this->getRequest()->get('method'); 
         $note                 = $this->getRequest()->get('note');
         $tags                 = $this->getRequest()->get('tags'); 
+        $labelType            = $this->getRequest()->get('labelType');
 
         if( !empty( $tags ) ){
             $tags             = explode( ',', $tags );
@@ -241,6 +244,7 @@ class ComplaintController extends Controller
         $complaint->setMethod( intval( $method ) );
         $complaint->setStatus( intval( $status ) );
         $complaint->setNote( $note );     
+        $complaint->setLabelType( $labelType );
         $complaint->setOpLog( array_merge( $complaint->getOpLog(), $opLog ) );
 
 

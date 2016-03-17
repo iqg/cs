@@ -16,11 +16,13 @@ class DWDDataHttp
 {
 
     private $_responses  = array();
+    public  static  $_ApiUrl  = '';
 
-    const  API_SERVER    = 'http://10.0.0.10:12306/';//'http://cron.wx.jaeapp.com/';
+//    const  API_SERVER    = 'http://10.0.0.10:12306/';//'http://cron.wx.jaeapp.com/';
 
     public function __construct(Container $container)
-    { 
+    {
+        SELF::$_ApiUrl = $container->getParameter('G_internal_api');
     }
 
     static function callback($data, $delay) {
@@ -30,7 +32,8 @@ class DWDDataHttp
 
     static function PackageGetRequest( &$ch, $request ){
         $path            =  http_build_query( $request['data'] );
-        $url             =  isset( $request['host'] ) ? $request['host'] : SELF::API_SERVER;
+//        $url             =  isset( $request['host'] ) ? $request['host'] : SELF::API_SERVER;
+        $url             =  isset( $request['host'] ) ? $request['host'] : SELF::$_ApiUrl;
         $request['url'] .= '?' . $path;
         curl_setopt($ch, CURLOPT_URL, $url . $request['url']);
         curl_setopt($ch, CURLOPT_TIMEOUT, 10);
@@ -40,7 +43,8 @@ class DWDDataHttp
     }
 
     static function PackagePostRequest( &$ch, $request ){
-        $url             =  isset( $request['host'] ) ? $request['host'] : SELF::API_SERVER;
+//        $url             =  isset( $request['host'] ) ? $request['host'] : SELF::API_SERVER;
+        $url             =  isset( $request['host'] ) ? $request['host'] : SELF::$_ApiUrl;
         curl_setopt($ch, CURLOPT_URL, $url . $request['url']);
         curl_setopt($ch, CURLOPT_TIMEOUT, 10);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);

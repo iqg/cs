@@ -1,0 +1,24 @@
+# This file is auto-generated during the composer install
+parameters:
+    database_host: 10.0.0.10
+    database_port: 3306
+    database_name: backup_iqg_new_prod
+#    database_name: backup_iqg_new_dev
+    database_user: root
+    database_password: 'U#AyMJ64Dgxkq15Z'
+    mailer_transport: smtp
+    mailer_host: 127.0.0.1
+    mailer_user: null
+    mailer_password: null
+    secret: ThisTokenIsNotSoSecretChangeIt
+#    G_redis_dsn: redis://127.0.0.1:6379
+    G_redis_dsn: redis://10.0.0.10:6379
+    G_iqg_host: http://staging.iqianggou.com
+    G_cookie_domain: .iqianggou.dev
+
+    G_mongodb_server: mongodb://iqg_search:6yhn$RFV@27.115.51.166:27017/iqianggou_search
+    G_mongodb_databasename: iqianggou_search
+
+#    G_internal_api:  http://10.0.0.10:12306/   # 链接的数据库是 backup_iqg_new_prod
+    G_internal_api:  http://127.0.0.1:12306/
+    G_locale:  zh_CN
