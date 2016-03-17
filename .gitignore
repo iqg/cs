@@ -9,14 +9,13 @@
 /web/bundles/
 
 .DS_Store
+.project
 .idea/*
 composer.lock
 /.project
 
 
-.gitignore
 /app/SymfonyRequirements.php
 /app/check.php
-/app/config/security.yml
 composer.lock
 
