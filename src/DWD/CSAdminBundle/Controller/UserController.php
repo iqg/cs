@@ -884,7 +884,7 @@ class UserController extends Controller
     {
         $dataHttp       = $this->get('dwd.data.http');
         $branchId       = $this->getRequest()->get('branchId');
-        $mobile         = $this->getRequest()->get('mobile');
+        $mobile         = $this->getRequest()->get('mobile'); //店铺的店码时，需要用到user的brand_admin_bind_mobile字段
 
         $pin  =  rand(1000, 9999);
         $data = array(

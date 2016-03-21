@@ -25,6 +25,7 @@
                         <li>  
                             <strong>{{ 'label.branch_name'|trans }}&nbsp;:&nbsp;</strong><span id='info-branchName'></span><br><br>
                             <strong>{{ 'label.branch_account'|trans }}&nbsp;:&nbsp;</strong><span id='info-branchAccount'></span><br><br> 
+                            <strong>绑定账号的手机&nbsp;:&nbsp;</strong><span id='brand_admin_bind_mobile'></span><br><br>
                             <strong>{{ 'label.city'|trans }}&nbsp;:&nbsp;</strong><span id='info-branchCity'></span><br><br>
                             <strong>状态&nbsp;:&nbsp;</strong><span id='info-branchStatus'></span><br><br>
                             <strong>{{ 'label.brand_name'|trans }}&nbsp;:&nbsp;</strong><span id='info-brandName'></span><br><br>
@@ -157,7 +158,11 @@
                     <div class="input-group col-md-12">
                         <span class="input-group-addon">门店地址</span>
                         <input type="text" id="modify-address" value="{{ branchinfo['address'] }}" class="form-control" placeholder="Address">
-                    </div><br /> 
+                    </div><br />
+                    <div class="input-group col-md-12">
+                        <span class="input-group-addon">绑定账号的手机</span>
+                        <input type="text" id="modify-bindmobile" value="{{ accountInfo['brand_admin_bind_mobile'] }}" class="form-control" placeholder="Tel">
+                    </div><br />
                     <div class="input-group col-md-12">
                         <span class="input-group-addon">门店电话</span>
                         <input type="text" id="modify-tel" value="{{ branchinfo['tel'] }}" class="form-control" placeholder="Tel">
@@ -362,7 +367,7 @@
                     <h3>重置密码</h3>
                 </div>
                 <div class="modal-body"> 
-                    <span>重置密码, 并发送新密码至手机号: {{ accountInfo['mobile'] }}?</span>
+                    <span>重置密码, 并发送新密码至手机号: {{ accountInfo['brand_admin_bind_mobile'] }}?</span>
                 </div>
                 <div class="modal-footer">
                     <a href="#" id="resetPwd-submit-btn" class="btn btn-default">确认</a>
@@ -381,7 +386,7 @@
                     <h3>重置店码</h3>
                 </div>
                 <div class="modal-body">
-                    <span>重置店码, 并发送新密码至手机号: {{ accountInfo['mobile'] }}?</span>
+                    <span>重置店码, 并发送新密码至手机号: {{ accountInfo['brand_admin_bind_mobile'] }}?</span>
                 </div>
                 <div class="modal-footer">
                     <a href="#" id="resetPinPwd-submit-btn" class="btn btn-default">确认</a>
@@ -441,11 +446,14 @@
         infoBranchNameHtml  =  branchinfo.name + "&nbsp;&nbsp;&nbsp;<a id='modifyBranch-btn' href='#'>[编辑信息]</a>";
         $("#info-branchName").html( infoBranchNameHtml );
 
+        brand_admin_bind_mobile  = '';
         infoAccountNameHtml =  accountinfo.username;
-        if( '该门店不存在手机号' != accountinfo.mobile && null != accountinfo.mobile ){
-            infoAccountNameHtml += "&nbsp;&nbsp;&nbsp;<a id='resetPwd-btn' href='#'>[重置密码]</a>&nbsp;&nbsp;&nbsp<a id='resetPinPwd-btn' href='#'>[重置pin码]</a> (重置密码前,确认联系人电话)";
+        if( '该门店不存在手机号' != accountinfo.brand_admin_bind_mobile && null != accountinfo.brand_admin_bind_mobile ){
+            infoAccountNameHtml += "&nbsp;&nbsp;&nbsp;<a id='resetPwd-btn' href='#'>[重置密码]</a>&nbsp;&nbsp;&nbsp<a id='resetPinPwd-btn' href='#'>[重置店码]</a> (重置密码前,确认联系人电话)";
+            brand_admin_bind_mobile+= accountinfo.brand_admin_bind_mobile;
         }
         $("#info-branchAccount").html( infoAccountNameHtml );
+        $("#brand_admin_bind_mobile").html( brand_admin_bind_mobile );
 
         $("#info-branchCity").html( branchinfo.zoneName );
 
@@ -651,7 +659,7 @@
             });
 
         });
-
+        //修改用户信息
         $("#modifyBranch-submit-btn").click(function(e){
  
             if( $(this).hasClass("disable") ){
@@ -662,6 +670,7 @@
 
             var address        = $("#modify-address").val();
             var tel            = $("#modify-tel").val();
+            var bindMobile     = $("#modify-bindmobile").val(); //重置密码和店码的手机号
             var redeemTels     = $("#redeem-tels").val();
             var redeemTime     = $("#modify-redeemTime").val();
 
@@ -674,7 +683,7 @@
             record.type        = "更新商户信息";
             record.branchId    = {{branchId}};
             record.branchName  = "{{branchinfo['name']}}";
-            var data           = {branchId:{{branchId}},address:address,redeemTels:redeemTels,redeemTime:redeemTime,tel:tel};
+            var data           = {branchId:{{branchId}},address:address,redeemTels:redeemTels,redeemTime:redeemTime,tel:tel,userId:{{accountInfo['id'] }},bindMobile:bindMobile};
             var redeemTypes    = '';
             if( false != webRedeem ){
                 data.webRedeem    = 1;
@@ -896,8 +905,8 @@
             record2.userName  = "{{accountInfo['username']}}";
 
            mobile = '';
-           if( '该门店不存在手机号' != accountinfo.mobile && null != accountinfo.mobile ){
-               mobile = accountinfo.mobile;
+           if( '该门店不存在手机号' != accountinfo.brand_admin_bind_mobile && null != accountinfo.brand_admin_bind_mobile ){
+               mobile = accountinfo.brand_admin_bind_mobile;
            }
 
             $.ajax({
@@ -908,7 +917,7 @@
                 success:function(data){
                     if( true == data ){
                         alert('重置成功');
-                        location.href = '/complaintform/resetpwd?userId=' + record.userId;
+                        location.href = '/complaintform/resetpwd?userId=' + record2.userId;
                     } else {
                         alert( '重置失败');
                         record2.res = false;
@@ -957,8 +966,8 @@
             $(this).addClass('disabled');
             
             mobile = '';
-            if( '该门店不存在手机号' != accountinfo.mobile && null != accountinfo.mobile ){
-               mobile = accountinfo.mobile;
+            if( '该门店不存在手机号' != accountinfo.brand_admin_bind_mobile && null != accountinfo.brand_admin_bind_mobile ){
+               mobile = accountinfo.brand_admin_bind_mobile;
             }
 
             $.ajax({    

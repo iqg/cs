@@ -168,12 +168,13 @@ class BranchController extends Controller
         $salerInfo                   =  $data['saler']['data'];
         $campaignbranchlist          =  $data['campaignbranchlist']['data'];
         $accountInfo                 =  $data['accountinfo']['data'];
-
+//        echo json_encode($accountInfo);exit;
         if( empty( $accountInfo ) ){
            $accountInfo['username']  = '该门店不存在帐号';
            $accountInfo['mobile']    = '该门店不存在手机号';
-           $accountInfo['id']        = -1;
+           $accountInfo['id']        = -1; //user的id字段
         }
+        $accountInfo['brand_admin_bind_mobile'] = empty($accountInfo['brand_admin_bind_mobile'])?'该门店不存在手机号':$accountInfo['brand_admin_bind_mobile'];
 
         $branchInfo['brandName']     =  $brandInfo['name'];
         $branchInfo['brandTel']      =  $brandInfo['tel'];
@@ -196,7 +197,7 @@ class BranchController extends Controller
 
         return $this->render('DWDCSAdminBundle:Branch:index.html.twig', array( 
             'jsonBranchInfo'         => json_encode( $branchInfo ),
-            'jsonAccountInfo'        => json_encode( $accountInfo ),
+            'jsonAccountInfo'        => json_encode( $accountInfo ), // user里的 brand_admin_bind_mobile
             'branchinfo'             => $branchInfo,
             'orderlistTypes'         => $orderListTypes,
             'branchId'               => $branchId,
@@ -451,6 +452,7 @@ class BranchController extends Controller
     /**
      * @Route("/branch/update", name="dwd_csadmin_branch_update")
      * @Method("POST")
+     *
      */
     public function UpdateAction()
     {
@@ -464,7 +466,9 @@ class BranchController extends Controller
         $mobileRedeem    = $this->getRequest()->get('mobileRedeem');
         $paperRedeem     = $this->getRequest()->get('paperRedeem');
         $secretRedeem    = $this->getRequest()->get('secretRedeem');
- 
+        $userId          = $this->getRequest()->get('userId');
+        $bindMobile      = $this->getRequest()->get('bindMobile');
+
         $redeemType      = 0; 
         if( $webRedeem   ) {
           $redeemType   += self::WEB_VERIFY;
@@ -504,12 +508,21 @@ class BranchController extends Controller
                                     'method' => 'post',
                                     'key'    => 'addredeemtels',
                                 ),
+                                array(
+                                    'url'    => '/user/update',
+                                    'data'   => array(
+                                        'userId'                 => $userId,
+                                        'brand_admin_bind_mobile'=> $bindMobile,
+                                    ),
+                                    'method' => 'post',
+                                    'key'    => 'updatebindmobile',
+                                ),
                             );
 
         $data            = $dataHttp->MutliCall( $data );
         $res             = false;
 
-        if( $data['update']['errno'] == 0 && $data['update']['data'] == true ){
+        if( $data['update']['errno'] == 0 && $data['update']['data'] == true && $data['updatebindmobile']['data'] == true  ){
           $res           = true;
         }
 
