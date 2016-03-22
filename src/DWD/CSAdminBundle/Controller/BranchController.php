@@ -172,9 +172,10 @@ class BranchController extends Controller
         if( empty( $accountInfo ) ){
            $accountInfo['username']  = '该门店不存在帐号';
            $accountInfo['mobile']    = '该门店不存在手机号';
-           $accountInfo['id']        = -1; //user的id字段
+           $accountInfo['id']        = -1; //user的id字段，，contacter_mobile
         }
         $accountInfo['brand_admin_bind_mobile'] = empty($accountInfo['brand_admin_bind_mobile'])?'该门店不存在手机号':$accountInfo['brand_admin_bind_mobile'];
+        $accountInfo['mobile'] = empty($accountInfo['mobile'])?'该门店不存在手机号':$accountInfo['mobile'];
 
         $branchInfo['brandName']     =  $brandInfo['name'];
         $branchInfo['brandTel']      =  $brandInfo['tel'];
@@ -197,7 +198,7 @@ class BranchController extends Controller
 
         return $this->render('DWDCSAdminBundle:Branch:index.html.twig', array( 
             'jsonBranchInfo'         => json_encode( $branchInfo ),
-            'jsonAccountInfo'        => json_encode( $accountInfo ), // user里的 brand_admin_bind_mobile
+            'jsonAccountInfo'        => json_encode( $accountInfo ), // user里的 brand_admin_bind_mobile 或者 branch的 contacter_mobile,暂不使用
             'branchinfo'             => $branchInfo,
             'orderlistTypes'         => $orderListTypes,
             'branchId'               => $branchId,
@@ -512,7 +513,8 @@ class BranchController extends Controller
                                     'url'    => '/user/update',
                                     'data'   => array(
                                         'userId'                 => $userId,
-                                        'brand_admin_bind_mobile'=> $bindMobile,
+//                                        'brand_admin_bind_mobile'=> $bindMobile,
+                                        'mobile'=> $bindMobile,
                                     ),
                                     'method' => 'post',
                                     'key'    => 'updatebindmobile',
