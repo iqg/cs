@@ -161,7 +161,7 @@
                     </div><br />
                     <div class="input-group col-md-12">
                         <span class="input-group-addon">绑定账号的手机</span>
-                        <input type="text" id="modify-bindmobile" value="{{ accountInfo['mobile'] }}" class="form-control" placeholder="Tel">
+                        <input type="text" id="modify-bindmobile" value="{{ branchinfo['contacter_mobile'] }}" class="form-control" placeholder="Tel">
                     </div><br />
                     <div class="input-group col-md-12">
                         <span class="input-group-addon">门店电话</span>
@@ -367,7 +367,7 @@
                     <h3>重置密码</h3>
                 </div>
                 <div class="modal-body"> 
-                    <span>重置密码, 并发送新密码至手机号: {{ accountInfo['mobile'] }}?</span>
+                    <span>重置密码, 并发送新密码至手机号: {{ branchinfo['contacter_mobile'] }}?</span>
                 </div>
                 <div class="modal-footer">
                     <a href="#" id="resetPwd-submit-btn" class="btn btn-default">确认</a>
@@ -386,7 +386,7 @@
                     <h3>重置店码</h3>
                 </div>
                 <div class="modal-body">
-                    <span>重置店码, 并发送新密码至手机号: {{ accountInfo['mobile'] }}?</span>
+                    <span>重置店码, 并发送新密码至手机号: {{ branchinfo['contacter_mobile'] }}?</span>
                 </div>
                 <div class="modal-footer">
                     <a href="#" id="resetPinPwd-submit-btn" class="btn btn-default">确认</a>
@@ -441,16 +441,16 @@
     branchinfo  = {{jsonBranchInfo|raw}}; 
     accountinfo = {{jsonAccountInfo|raw}};
     redeemTels  = "{{redeemTels}}";
-
+    contacter_mobile =  branchinfo.contacter_mobile;
     function __init(){
         infoBranchNameHtml  =  branchinfo.name + "&nbsp;&nbsp;&nbsp;<a id='modifyBranch-btn' href='#'>[编辑信息]</a>";
         $("#info-branchName").html( infoBranchNameHtml );
 
         mobile  = '';
         infoAccountNameHtml =  accountinfo.username;
-        if( '该门店不存在手机号' != accountinfo.mobile && null != accountinfo.mobile ){
+        if( '该门店不存在手机号' != branchinfo.contacter_mobile && null != branchinfo.contacter_mobile ){
             infoAccountNameHtml += "&nbsp;&nbsp;&nbsp;<a id='resetPwd-btn' href='#'>[重置密码]</a>&nbsp;&nbsp;&nbsp<a id='resetPinPwd-btn' href='#'>[重置店码]</a> (重置密码前,确认联系人电话)";
-            mobile+= accountinfo.mobile;
+            mobile+= branchinfo.contacter_mobile;
         }
         $("#info-branchAccount").html( infoAccountNameHtml );
         $("#mobile").html( mobile );
@@ -861,11 +861,14 @@
             record.type      = "重置密码";
             record.userId    = {{accountInfo['id']}};
             record.userName  = "{{accountInfo['username']}}";
-
+            if(contacter_mobile == '该门店不存在手机号'){
+                alert('该门店不存在手机号');
+                return false;
+            }
             $.ajax({    
                 type:'post',        
                 url:'/user/resetPwd',    
-                data:{userId:{{accountInfo['id']}}},
+                data:{userId:{{accountInfo['id']}},contacter_mobile:contacter_mobile},
                 dataType:'json',    
                 success:function(data){
                    if( true == data.result ){ 
@@ -905,10 +908,13 @@
             record2.userName  = "{{accountInfo['username']}}";
 
            mobile = '';
-           if( '该门店不存在手机号' != accountinfo.mobile && null != accountinfo.mobile ){
-               mobile = accountinfo.mobile;
+           if( '该门店不存在手机号' != branchinfo.contacter_mobile && null != branchinfo.contacter_mobile ){
+               mobile = branchinfo.contacter_mobile;
            }
-
+           if(contacter_mobile == '该门店不存在手机号'){
+               alert('该门店不存在手机号');
+               return false;
+           }
             $.ajax({
                 type:'post',
                 url:'/user/resetPinPwd',
@@ -966,8 +972,8 @@
             $(this).addClass('disabled');
             
             mobile = '';
-            if( '该门店不存在手机号' != accountinfo.mobile && null != accountinfo.mobile ){
-               mobile = accountinfo.mobile;
+            if( '该门店不存在手机号' != branchinfo.contacter_mobile && null != branchinfo.contacter_mobile ){
+               mobile = branchinfo.contacter_mobile;
             }
 
             $.ajax({    

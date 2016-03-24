@@ -110,7 +110,7 @@ class BranchController extends Controller
              'errMsg'    => '商户不存在'
           ));
         }
-        
+
         $requests        = array(
                               array(
                                   'url'    => '/brand/brandinfo',
@@ -168,18 +168,20 @@ class BranchController extends Controller
         $salerInfo                   =  $data['saler']['data'];
         $campaignbranchlist          =  $data['campaignbranchlist']['data'];
         $accountInfo                 =  $data['accountinfo']['data'];
-//        echo json_encode($accountInfo);exit;
+
         if( empty( $accountInfo ) ){
            $accountInfo['username']  = '该门店不存在帐号';
            $accountInfo['mobile']    = '该门店不存在手机号';
-           $accountInfo['id']        = -1; //user的id字段，，contacter_mobile
+           $accountInfo['id']        = -1;   //user的id字段，， contacter_mobile
         }
         $accountInfo['brand_admin_bind_mobile'] = empty($accountInfo['brand_admin_bind_mobile'])?'该门店不存在手机号':$accountInfo['brand_admin_bind_mobile'];
         $accountInfo['mobile'] = empty($accountInfo['mobile'])?'该门店不存在手机号':$accountInfo['mobile'];
 
+        $branchInfo['contacter_mobile'] = empty($branchInfo['contacter_mobile'])?'该门店不存在手机号':$branchInfo['contacter_mobile'];
         $branchInfo['brandName']     =  $brandInfo['name'];
         $branchInfo['brandTel']      =  $brandInfo['tel'];
         $branchInfo['zoneName']      =  $zoneInfo['name'];
+
         if( isset( $salerInfo['name'] ) ){
           $branchInfo['salerName']   =  $salerInfo['name'];
         } else {
@@ -194,9 +196,9 @@ class BranchController extends Controller
 
         foreach( $data['redeemtel']['data']['list'] as $redeemTel ){
                       $redeemTels[]  =  $redeemTel['tel'];
-        } 
+        }
 
-        return $this->render('DWDCSAdminBundle:Branch:index.html.twig', array( 
+        return $this->render('DWDCSAdminBundle:Branch:index.html.twig', array(
             'jsonBranchInfo'         => json_encode( $branchInfo ),
             'jsonAccountInfo'        => json_encode( $accountInfo ), // user里的 brand_admin_bind_mobile 或者 branch的 contacter_mobile,暂不使用
             'branchinfo'             => $branchInfo,
@@ -691,6 +693,7 @@ class BranchController extends Controller
      * @Route("/branch/activityoffline", name="dwd_csadmin_campaignbranch_activityoffline")
      * @Method("POST")
      * 单个活动下线
+     *
      */
     public function activityOfflineAction()
     {

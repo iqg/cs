@@ -532,6 +532,7 @@ class UserController extends Controller
                             ); 
 
         $data                           = $dataHttp->MutliCall($data);
+//        var_dump($data);exit;
         $recommendrecords               = array(
                                               'list'         => array(),
                                               'total'        => $data['recommendrecords']['data']['totalCnt'], 
@@ -837,15 +838,17 @@ class UserController extends Controller
     {
         $dataHttp       = $this->get('dwd.data.http'); 
         $userId         = $this->getRequest()->get('userId');
+        $contacterMobile= $this->getRequest()->get('contacter_mobile');
 
+        $randPasswd = rand(100000, 999999);
         $params         = array( 
                               'user_id'          => $userId,
-                              'password'         => rand(100000, 999999),
+                              'password'         => $randPasswd,
                           );
         $data           = array(
                               array(
                                   'host'   => $this->container->getParameter('iqg_host'),
-                                  'url'    => '/api/user/update_password',  // 这个接口 dev环境访问受限，在staging没有问题
+                                  'url'    => '/api/user/update_password',   // 这个接口 dev环境访问受限，在staging没有问题
                                   'data'   =>  $params,
                                   'method' => 'post',
                                   'key'    => 'resetPwd',
@@ -855,9 +858,25 @@ class UserController extends Controller
         $data              = $dataHttp->MutliCall($data);
         $res               = array();
         $res['result']     = false;
-        if( $data['resetPwd']['status']['code'] == 10000 ){
-            $res['result'] = true;
+        if( $data['resetPwd']['status']['code'] == 10000 ){//更改成功后，调用短信结构
+
+            $senddata = array(
+                array(
+                    'url'    => '/sms/send',
+                    'data'   => array(
+                        'mobile'    => $contacterMobile,
+                        'content'   => '亲爱的用户,已为您设置新的密码：' . $randPasswd .',请登陆爱抢购app,及时修改密码' ,
+                    ),
+                    'method' => 'post',
+                    'key'    => 'sendPwd',
+                ),
+            );
+            $sendMsgResult    = $dataHttp->MutliCall($senddata);
+            if($sendMsgResult['sendPwd']['errno'] == 0 && $sendMsgResult['sendPwd']['errmsg'] == 'success' ){
+                $res['result'] = true;
+            }
         }
+
         $logRecord         = array(
                                 'route'    => $this->getRequest()->get('_route'),
                                 'res'      => $res['result'],
