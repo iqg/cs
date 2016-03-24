@@ -104,12 +104,14 @@ class SearchController extends Controller
         $data              = $dataHttp->MutliCall( $data );  
 
         if( false == empty( $data['redeemNumber']['data'] ) && $data['redeemNumber']['errno'] == 0 ){
+            foreach($data['redeemNumber']['data'] as $redeemRow){
             $branchInfo    = array(
-                                'id'       => $data['redeemNumber']['data']['id'],
+                                'id'       => $redeemRow['id'],
                                 'type'     => 'redeemNumber',
-                                'label'    => '兑换码搜索: ' . $data['redeemNumber']['data']['name'],
+                                'label'    => '兑换码搜索: ' . $redeemRow['name'],
                              );
             $arrayResult[] = $branchInfo;
+            }
         }
 
 
