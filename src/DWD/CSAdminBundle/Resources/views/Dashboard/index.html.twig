@@ -216,7 +216,11 @@
                      searchType = ui.item.type;
                      searchKey  = $(this).val();
 				    }
-		});
+		}).bind( "keydown", function( event ) {
+            if ( event.keyCode === $.ui.keyCode.ENTER ) {
+                processingfn();
+            }
+        });
         //用户搜索
 		$("#searchUserBox").autocomplete({
 	                source: "/autocomplete-user/search",
@@ -225,7 +229,11 @@
                       searchType = ui.item.type;
                       searchKey  = $(this).val();
 				    } 
-		});
+		}).bind( "keydown", function( event ) {
+            if ( event.keyCode === $.ui.keyCode.ENTER ) {
+                processingfn();
+            }
+        });
         // 商家搜索
 		$("#searchBranchNameBox").autocomplete({
 	                source: "/autocomplete-branchname/search",
@@ -241,7 +249,7 @@
                 location.reload();
             }
         });
-
+        //点击处理按钮进入相应的 用户投诉或者商户投诉界面
         $("#processBtn").click(function(){
 		   if( type == '' ){
 		      alert('请选择投诉类型');
@@ -261,6 +269,26 @@
 			  break;
 		   } 
 		});
+        // 通用函数。
+        var processingfn = function(){
+            if( type == '' ){
+                alert('请选择投诉类型');
+                return;
+            }
+
+            if( id == 0 && type != 'ask' &&  type != 'tech-error' ){
+                alert('请选择对应门店,用户或订单');
+                return;
+            }
+            switch(type){
+                case 'user':
+                    location.href='/user?userId=' + id + '&type=' + type + '&source=' + source + '&searchType=' + searchType + '&searchKey=' + searchKey;
+                    break;
+                case 'branch':
+                    location.href='/branch?branchId=' + id + '&type=' + type + '&source=' + source + '&searchType=' + searchType + '&searchKey=' + searchKey;
+                    break;
+            }
+        };
 
 		$("#city").change(function(){
 			city = $(this).val();
