@@ -437,4 +437,26 @@ class Util
       return isset( $reasonLabel[$reasonId] ) ?  $reasonLabel[$reasonId] : '' ;
    }
 
+    public function getCouponStatusLabel( $reasonId )
+    {
+        $reasonLabel          =  array(
+            1        => '未领用',
+            2        => '未到使用日期',
+            3        => '有效',
+            4        => '过期',
+            5        => '已使用',
+        );
+        return isset( $reasonLabel[$reasonId] ) ?  $reasonLabel[$reasonId] : '' ;
+    }
+    //获取商家活动状态
+    public function getVendorCouponStatusLabel( $reasonId )
+    {
+        $reasonLabel          =  array(
+            1        => '未使用',
+            2        => '已使用',
+            3        => '已过期',
+        );
+        return isset( $reasonLabel[$reasonId] ) ?  $reasonLabel[$reasonId] : '' ;
+    }
+
 }
