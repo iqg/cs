@@ -395,16 +395,14 @@ class UserController extends Controller
      */
     public function couponActivityDetailAction()
     {
-        $dataHttp            = $this->get('dwd.data.http');
-        $couponId            = $this->getRequest()->get('couponId');
-        $userId              = $this->getRequest()->get('userId');
+        $dataHttp             = $this->get('dwd.data.http');
+        $couponId              = $this->getRequest()->get('couponId');
 
         $data                 = array(
             array(
                 'url'    => '/user/getPromoActivityInfo',
                 'data'   =>  array(
                     'couponId'        => $couponId,
-                    'userId'          => $userId,
                 ),
                 'method' =>  'get',
                 'key'    =>  'couponinfo',
@@ -412,12 +410,12 @@ class UserController extends Controller
         );
 
         $data                 = $dataHttp->MutliCall($data);
-        $couponinfo           = $data['couponinfo']['data'][0];
+        $couponinfo           = $data['couponinfo']['data']['list'][0];
 
         $str               = '<table class="table table-striped table-bordered"><tr></tr>';
         $str              .= "<tr><td>活动id</td><td>"    . $couponinfo['id'] . "</td></tr>";
         $str              .= "<tr><td>活动码名称</td><td>" . $couponinfo['activityname'] . "</td></tr>";
-        $str              .= "<tr><td>券码信息</td><td>"   . $couponinfo['couponInfo'] . "</td></tr>";
+        $str              .= "<tr><td>券码信息</td><td>"   . $couponinfo['name'] . "</td></tr>";
         $str              .= "<tr><td>券码</td><td>"     . $couponinfo['code'] . "</td></tr>";
         $str              .= "<tr><td>开始时间</td><td>" . $couponinfo['start_date'] . "</td></tr>";
         $str              .= "<tr><td>结束时间</td><td>" . $couponinfo['end_date'] . "</td></tr>";
@@ -505,14 +503,14 @@ class UserController extends Controller
         );
         $returnlist           = $dataHttp->MutliCall($data);
 
-        $total = empty($returnlist['couponlist']['data']['totalCnt']) ? 0:$returnlist['couponlist']['data']['totalCnt'];
+        $total = empty($returnlist['couponlist']['data']['totalCnt']) ?0:$returnlist['couponlist']['data']['totalCnt'];
         $aaData =[];
         if(!empty($returnlist['couponlist']['data']['list']) ){
 
             foreach( $returnlist['couponlist']['data']['list'] as $coupon ){
                 $aaData[]              = array(
                     $coupon['activityname'],
-                    $coupon['couponInfo'],
+                    $coupon['name'],
                     $coupon['code'],
                     $coupon['start_date'],
                     $coupon['end_date'],
