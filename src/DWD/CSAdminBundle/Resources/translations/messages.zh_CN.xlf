@@ -48,10 +48,6 @@
                 <source>label.record_type</source>
                 <target>记录类型</target>
             </trans-unit>
-            <trans-unit id="label.title">
-                <source>label.title</source>
-                <target>标题</target>
-            </trans-unit>
             <trans-unit id="label.name">
                 <source>label.name</source>
                 <target>名称</target>
@@ -107,7 +103,11 @@
             <trans-unit id="label.type">
                 <source>label.type</source>
                 <target>类型</target>
-            </trans-unit> 
+            </trans-unit>
+            <trans-unit id="label.title">
+                <source>label.title</source>
+                <target>标题</target>
+            </trans-unit>
             <trans-unit id="label.status">
                 <source>label.status</source>
                 <target>状态</target>
@@ -151,6 +151,10 @@
             <trans-unit id="label.create_at">
                 <source>label.create_at</source>
                 <target>创建时间</target>
+            </trans-unit>
+            <trans-unit id="label.end_time">
+                <source>label.end_time</source>
+                <target>结束时间</target>
             </trans-unit>
             <trans-unit id="label.content">
                 <source>label.content</source>
@@ -257,7 +261,11 @@
             <trans-unit id="title.sms_record_list">
                 <source>title.sms_record_list</source>
                 <target>短信记录列表</target>
-            </trans-unit> 
+            </trans-unit>
+            <trans-unit id="title.notice_record_list">
+                <source>title.notice_record_list</source>
+                <target>用户通知记录列表</target>
+            </trans-unit>
             <trans-unit id="title.complaintrecords_list">
                 <source>title.complaintrecords_list</source>
                 <target>投诉记录列表</target>

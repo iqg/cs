@@ -155,6 +155,10 @@ class Util
                                  7    => '下单奖励',
                                  8    => '取消订单补偿',
                                  9    => '订单纠错通过奖励',
+                                 10   => '兑吧金币兑换',
+                                 11   => '兑吧金币兑换失败退回金币',
+                                 12   => '退款补偿',
+                                 13   => '金币兑换代金券',
                                );
         return $typeLabel[$typeId];
    }
@@ -432,5 +436,27 @@ class Util
                                );
       return isset( $reasonLabel[$reasonId] ) ?  $reasonLabel[$reasonId] : '' ;
    }
+
+    public function getCouponStatusLabel( $reasonId )
+    {
+        $reasonLabel          =  array(
+            1        => '未领用',
+            2        => '未到使用日期',
+            3        => '有效',
+            4        => '过期',
+            5        => '已使用',
+        );
+        return isset( $reasonLabel[$reasonId] ) ?  $reasonLabel[$reasonId] : '' ;
+    }
+    //获取商家活动状态
+    public function getVendorCouponStatusLabel( $reasonId )
+    {
+        $reasonLabel          =  array(
+            1        => '未使用',
+            2        => '已使用',
+            3        => '已过期',
+        );
+        return isset( $reasonLabel[$reasonId] ) ?  $reasonLabel[$reasonId] : '' ;
+    }
 
 }

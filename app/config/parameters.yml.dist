@@ -17,3 +17,13 @@ parameters:
 
     # A secret key that's used to generate certain security-related tokens
     secret:            ThisTokenIsNotSoSecretChangeIt
+
+    G_redis_dsn: redis://127.0.0.1:6379
+    G_iqg_host: http://staging.iqianggou.com
+    G_cookie_domain: .iqianggou.dev
+
+    G_mongodb_server: mongodb://iqg_search:6yhn$RFV@27.115.51.166:27017/iqianggou_search
+    G_mongodb_databasename: iqianggou_search
+
+    G_internal_api:  http://127.0.0.1:12306/
+    G_locale:  zh_CN

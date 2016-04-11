@@ -68,14 +68,13 @@ class UserController extends Controller
             $data[]     =  array(
                                 'url'    => '/order/orderinfo',
                                 'data'   => array(
-                                    'redeemNumber'      => $searchKey, 
+                                    'redeemNumber'=> $searchKey,
+                                    'userId'      => $userId,
                                 ),
                                 'method' => 'get',
                                 'key'    => 'orderinfo',
                            );
         }
-
-
 
         $orderListTypes =  $this->get('dwd.util')->getOrderTableInfo( 0 );
 
@@ -86,17 +85,21 @@ class UserController extends Controller
              'errMsg'    => '用户不存在'
           ));
         }
-
         $userDevicesCount  = count( $data['userdevices']['data']['list'] );
 
         $needDealOrder     = '';
         if( $searchType == 'redeemNumber' ){
-           $orderInfo      = $data['orderinfo']['data'];
-           $needDealOrder  = '<table class="table table-striped table-bordered"><tr><th>商品</th><th>门店</th><th>兑换码</th><th>状态</th><th>操作</th></tr>';
-           $needDealOrder .= "<tr><td>" . $orderInfo['item_name'] . "</td><td>" . $orderInfo['branch_name'] . "</td><td>" . $orderInfo['redeem_number'] . "</td><td>" . $this->get('dwd.util')->getOrderStatusLabel( $orderInfo['status'] ) . "</td><td><a href='#' class='order-correct-btn' data-rel='" . $orderInfo['id'] .  "'>[纠错]</a></td></tr>";
-           $needDealOrder .= "</table>"; 
+
+            $orderInfos      = $data['orderinfo']['data'];
+            $needDealOrder  = '<table class="table table-striped table-bordered"><tr><th>商品</th><th>门店</th><th>兑换码</th><th>状态</th><th>操作</th></tr>';
+            if(!empty($orderInfos)){
+              foreach($orderInfos as $orderInfo){
+                 $needDealOrder .= "<tr><td>" . $orderInfo['item_name'] . "</td><td>" . $orderInfo['branch_name'] . "</td><td>" . $orderInfo['redeem_number'] . "</td><td>" . $this->get('dwd.util')->getOrderStatusLabel( $orderInfo['status'] ) . "</td><td><a href='#' class='order-correct-btn' data-rel='" . $orderInfo['id'] .  "'>[纠错]</a></td></tr>";
+               }
+            }
+            $needDealOrder .= "</table>";
         }
-      
+
         return $this->render('DWDCSAdminBundle:User:index.html.twig', array(
             'jsonUserInfo'     => json_encode( $data['user']['data'] ),
             'balancerecords'   => $data['balancerecords']['data']['list'],
@@ -298,6 +301,7 @@ class UserController extends Controller
     /**
      * @Route("/user/orderlist", name="dwd_csadmin_user_orderlist_show")
      * @Method("GET")
+     *
      */
     public function OrderListDataAction()
     {
@@ -326,9 +330,6 @@ class UserController extends Controller
         $response        = new Response();
         $response->setContent( json_encode( $res ) );
         return $response;
-        //return $this->render('DWDCSAdminBundle:Dashboard:show.html.twig', array(
-         //   'product'      => $product,
-      //  ));
     }
 
     /**
@@ -345,7 +346,7 @@ class UserController extends Controller
         $userId          = $this->getRequest()->get('userId');
         $orderType       = $this->getRequest()->get('type', 'redeem');
         $orderList       = array();
-        $data            = array( 
+        $data            = array(
                                 array(
                                     'url'    => '/user/coinrecords',
                                     'data'   => array(
@@ -383,6 +384,208 @@ class UserController extends Controller
                                 "iTotalDisplayRecords" => $data['coinrecords']['data']['totalCnt'],
                            );
         $response        = new Response();
+        $response->setContent( json_encode( $res ) );
+        return $response;
+    }
+
+    /**
+     *
+     * @Route("/user/couponActivityDetail",name="dwd_csadmin_coupon_couponactivitydetail")
+     * 单个活动的活动码信息。
+     */
+    public function couponActivityDetailAction()
+    {
+        $dataHttp            = $this->get('dwd.data.http');
+        $couponId            = $this->getRequest()->get('couponId');
+        $userId              = $this->getRequest()->get('userId');
+
+        $data                 = array(
+            array(
+                'url'    => '/user/getPromoActivityInfo',
+                'data'   =>  array(
+                    'couponId'        => $couponId,
+                    'userId'          => $userId,
+                ),
+                'method' =>  'get',
+                'key'    =>  'couponinfo',
+            ),
+        );
+
+        $data                 = $dataHttp->MutliCall($data);
+        $couponinfo           = $data['couponinfo']['data'][0];
+
+        $str               = '<table class="table table-striped table-bordered"><tr></tr>';
+        $str              .= "<tr><td>活动id</td><td>"    . $couponinfo['id'] . "</td></tr>";
+        $str              .= "<tr><td>活动码名称</td><td>" . $couponinfo['activityname'] . "</td></tr>";
+        $str              .= "<tr><td>券码信息</td><td>"   . $couponinfo['couponInfo'] . "</td></tr>";
+        $str              .= "<tr><td>券码</td><td>"     . $couponinfo['code'] . "</td></tr>";
+        $str              .= "<tr><td>开始时间</td><td>" . $couponinfo['start_date'] . "</td></tr>";
+        $str              .= "<tr><td>结束时间</td><td>" . $couponinfo['end_date'] . "</td></tr>";
+        $str              .= "<tr><td>使用时间</td><td>" . $couponinfo['used_at'] . "</td></tr>";
+        $str              .= "<tr><td>劵码状态</td><td>" . $this->get('dwd.util')->getCouponStatusLabel($couponinfo['status'])."</td></tr>";
+
+        $str              .= "</table>";
+        $res               = array(
+            'result'  => true,
+            'content' => $str,
+        );
+        $response          = new Response();
+        $response->setContent( json_encode( $res ) );
+        return $response;
+    }
+
+    /**
+     *
+     * @Route("/user/vendorCouponDetail",name="dwd_csadmin_coupon_vendordetail")
+     * 单个商家优惠券活动信息。
+     */
+    public function vendorCouponDetailAction()
+    {
+        $dataHttp             = $this->get('dwd.data.http');
+        $vendorCouponId       = $this->getRequest()->get('vendorCouponId');
+
+        $data                 = array(
+            array(
+                'url'    => '/vendorcoupon/Detail',
+                'data'   =>  array(
+                    'vendorCouponId'    => $vendorCouponId,
+                ),
+                'method' =>  'get',
+                'key'    =>  'couponinfo',
+            ),
+        );
+
+        $data                 = $dataHttp->MutliCall($data);
+        $couponinfo           = $data['couponinfo']['data'];
+
+        $str               = '<table class="table table-striped table-bordered"><tr></tr>';
+        $str              .= "<tr><td>活动id</td><td>"    . $couponinfo['id'] . "</td></tr>";
+        $str              .= "<tr><td>门店</td><td>"      . $couponinfo['branch_name'] . "</td></tr>";
+        $str              .= "<tr><td>优惠券标题</td><td>" . $couponinfo['title'] . "</td></tr>";
+        $str              .= "<tr><td>开始时间</td><td>"  . $couponinfo['start_time'] . "</td></tr>";
+        $str              .= "<tr><td>结束时间</td><td>"  . $couponinfo['end_time'] . "</td></tr>";
+        $str              .= "<tr><td>使用时间</td><td>"  . $couponinfo['used_at'] . "</td></tr>";
+        $str              .= "<tr><td>劵码状态</td><td>"  . $this->get('dwd.util')->getVendorCouponStatusLabel($couponinfo['status'])."</td></tr>";
+
+        $str              .= "</table>";
+        $res               = array(
+            'result'  => true,
+            'content' => $str,
+        );
+        $response          = new Response();
+        $response->setContent( json_encode( $res ) );
+        return $response;
+    }
+    /**
+     * @Route("/user/promoactivitycoupons", name="dwd_csadmin_user_promocoupon_show")
+     * @Method("GET")
+     * 用户活动码列表
+     */
+    public function PromoCouponDataAction()
+    {
+        $dataHttp             = $this->get('dwd.data.http');
+        $sEcho                = $this->getRequest()->get('sEcho');
+        $userId               = $this->getRequest()->get('userId');
+        $iDisplayStart        = $this->getRequest()->get('iDisplayStart');
+        $iDisplayLength       = $this->getRequest()->get('iDisplayLength');
+        $sSearch              = $this->getRequest()->get('sSearch', null);
+
+        $data            = array(
+            array(
+                'url'    => '/user/promoactivitycoupons',
+                'data'   => array(
+                    'userId'         => $userId,
+                    'needPagination' => 1,
+                    'pageLimit'      => $iDisplayLength,
+                    'pageNum'        => $iDisplayStart / $iDisplayLength + 1,
+                ),
+                'method' => 'get',
+                'key'    => 'couponlist',
+            ),
+        );
+        $returnlist           = $dataHttp->MutliCall($data);
+
+        $total = empty($returnlist['couponlist']['data']['totalCnt']) ? 0:$returnlist['couponlist']['data']['totalCnt'];
+        $aaData =[];
+        if(!empty($returnlist['couponlist']['data']['list']) ){
+
+            foreach( $returnlist['couponlist']['data']['list'] as $coupon ){
+                $aaData[]              = array(
+                    $coupon['activityname'],
+                    $coupon['couponInfo'],
+                    $coupon['code'],
+                    $coupon['start_date'],
+                    $coupon['end_date'],
+                    empty($coupon['used_at'])?'':$coupon['used_at'],
+                    $this->get('dwd.util')->getCouponStatusLabel( $coupon['status'] ),
+                    "<a href='#' class='order-detail-btn' data-rel='". $coupon['id'] . "'>[详情]</a>",
+                );
+            }
+        }
+        $res                       = array(
+            "sEcho"                => $sEcho,
+            "aaData"               => $aaData,
+            "iTotalRecords"        => $total,
+            "iTotalDisplayRecords" => $total,
+        );
+        $response             = new Response();
+        $response->setContent( json_encode( $res ) );
+        return $response;
+    }
+
+    /**
+     * @Route("/user/vendorcouponlist", name="dwd_csadmin_user_vendorpromocoupon_show")
+     * @Method("GET")
+     * 商家优惠券列表
+     */
+    public function VendorCouponListAction()
+    {
+        $dataHttp             = $this->get('dwd.data.http');
+        $sEcho                = $this->getRequest()->get('sEcho');
+        $userId               = $this->getRequest()->get('userId');
+        $iDisplayStart        = $this->getRequest()->get('iDisplayStart');
+        $iDisplayLength       = $this->getRequest()->get('iDisplayLength');
+        $sSearch              = $this->getRequest()->get('sSearch', null);
+
+        $data            = array(
+            array(
+                'url'    => '/vendorcoupon/vendorcouponlist',
+                'data'   => array(
+                    'userId'         => $userId,
+                    'getAll'         => 1,
+                    'needPagination' => 1,
+                    'pageLimit'      => $iDisplayLength,
+                    'pageNum'        => $iDisplayStart / $iDisplayLength + 1,
+                ),
+                'method' => 'get',
+                'key'    => 'vendorcouponlist',
+            ),
+        );
+        $returnlist           = $dataHttp->MutliCall($data);
+
+        $total = empty($returnlist['vendorcouponlist']['data']['totalCnt']) ?0:$returnlist['vendorcouponlist']['data']['totalCnt'];
+        $aaData =[];
+        if(!empty($returnlist['vendorcouponlist']['data']['list']) ){
+
+            foreach( $returnlist['vendorcouponlist']['data']['list'] as $coupon ){
+                $aaData[]              = array(
+                    $coupon['branch_name'],
+                    $coupon['title'],
+                    $coupon['start_time'],
+                    $coupon['end_time'],
+                    empty($coupon['used_at'])?'':$coupon['used_at'],
+                    $this->get('dwd.util')->getVendorCouponStatusLabel( $coupon['status'] ),
+                    "<a href='#' class='order-detail-btn' data-rel='". $coupon['id'] . "'>[详情]</a>",
+                );
+            }
+        }
+        $res                       = array(
+            "sEcho"                => $sEcho,
+            "aaData"               => $aaData,
+            "iTotalRecords"        => $total,
+            "iTotalDisplayRecords" => $total,
+        );
+        $response             = new Response();
         $response->setContent( json_encode( $res ) );
         return $response;
     }
@@ -529,6 +732,7 @@ class UserController extends Controller
                             ); 
 
         $data                           = $dataHttp->MutliCall($data);
+//        var_dump($data);exit;
         $recommendrecords               = array(
                                               'list'         => array(),
                                               'total'        => $data['recommendrecords']['data']['totalCnt'], 
@@ -629,6 +833,61 @@ class UserController extends Controller
     }
 
     /**
+     * @Route("/user/noticerecords", name="dwd_csadmin_user_noticerecords_show")
+     * @Method("GET")
+     * 用户通知记录中心 3.15
+     */
+    public function  noticeRecordsDataAction()
+    {
+        $dataHttp        = $this->get('dwd.data.http');
+        $iDisplayStart   = $this->getRequest()->get('iDisplayStart');
+        $iDisplayLength  = $this->getRequest()->get('iDisplayLength');
+        $sEcho           = $this->getRequest()->get('sEcho');
+        $sSearch         = $this->getRequest()->get('sSearch', null);
+        $userId          = $this->getRequest()->get('userId');
+        $orderType       = $this->getRequest()->get('type', 'redeem');
+        $orderList       = array();
+        $data            = array(
+            array(
+                'url'    => '/user/noticerecords',
+                'data'   => array(
+                    'userId'         => $userId,
+                    'needPagination' => 1,
+                    'pageLimit'      => $iDisplayLength,
+                    'pageNum'        => $iDisplayStart / $iDisplayLength + 1,
+                ),
+                'method' => 'get',
+                'key'    => 'smsrecords',
+            ),
+        );
+
+        $data              = $dataHttp->MutliCall($data);
+        $smsrecords        = array(
+            'list'         => array(),
+            'total'        => $data['smsrecords']['data']['totalCnt'],
+        );
+        foreach( $data['smsrecords']['data']['list'] as $smsrecord )
+        {
+            $smsrecords['list'][] = array(
+                $smsrecord['title'],
+                $smsrecord['content'],
+                $smsrecord['created_at'],
+                $smsrecord['end_time'],
+            );
+        }
+
+        $res             = array(
+            "sEcho"                => $sEcho,
+            "aaData"               => $smsrecords['list'],
+            "iTotalRecords"        => $data['smsrecords']['data']['totalCnt'],
+            "iTotalDisplayRecords" => $data['smsrecords']['data']['totalCnt'],
+        );
+        $response        = new Response();
+        $response->setContent( json_encode( $res ) );
+        return $response;
+    }
+
+    /**
      * @Route("/user/complaintrecords", name="dwd_csadmin_user_complaintrecords_show")
      * @Method("GET")
      */
@@ -715,6 +974,8 @@ class UserController extends Controller
         return $response;
     }
 
+
+
     /**
      * @Route("/user/modify", name="dwd_csadmin_user_modify")
      * @Method("POST")
@@ -779,16 +1040,17 @@ class UserController extends Controller
     {
         $dataHttp       = $this->get('dwd.data.http'); 
         $userId         = $this->getRequest()->get('userId');
+        $contacterMobile= $this->getRequest()->get('contacter_mobile');
 
+        $randPasswd = rand(100000, 999999);
         $params         = array( 
                               'user_id'          => $userId,
-                              'password'         => rand(100000, 999999),
+                              'password'         => $randPasswd,
                           );
-
-        $data           = array( 
+        $data           = array(
                               array(
                                   'host'   => $this->container->getParameter('iqg_host'),
-                                  'url'    => '/api/user/update_password',
+                                  'url'    => '/api/user/update_password',   // 这个接口 dev环境访问受限，在staging没有问题
                                   'data'   =>  $params,
                                   'method' => 'post',
                                   'key'    => 'resetPwd',
@@ -796,11 +1058,25 @@ class UserController extends Controller
                           ); 
 
         $data              = $dataHttp->MutliCall($data);
-     
         $res               = array();
         $res['result']     = false;
-        if( $data['resetPwd']['status']["code"] == 10000 ){
-            $res['result'] = true;
+        if( $data['resetPwd']['status']['code'] == 10000 ){//更改成功后，调用短信结构
+
+            $senddata = array(
+                array(
+                    'url'    => '/sms/send',
+                    'data'   => array(
+                        'mobile'    => $contacterMobile,
+                        'content'   => '亲爱的用户,已为您设置新的密码：' . $randPasswd .',请登陆爱抢购app,及时修改密码' ,
+                    ),
+                    'method' => 'post',
+                    'key'    => 'sendPwd',
+                ),
+            );
+            $sendMsgResult    = $dataHttp->MutliCall($senddata);
+            if($sendMsgResult['sendPwd']['errno'] == 0 && $sendMsgResult['sendPwd']['errmsg'] == 'success' ){
+                $res['result'] = true;
+            }
         }
 
         $logRecord         = array(
@@ -821,6 +1097,68 @@ class UserController extends Controller
     }
 
     /**
+     * @Route("/user/resetPinPwd", name="dwd_csadmin_user_resetPinPwd")
+     * @Method("POST")
+     * 重置pin码（店码,四位数)
+     */
+    public function resetPinPwd()
+    {
+        $dataHttp       = $this->get('dwd.data.http');
+        $branchId       = $this->getRequest()->get('branchId');
+        $mobile         = $this->getRequest()->get('mobile'); //店铺的店码时，需要用到user的brand_admin_bind_mobile字段
+
+        $pin  =  rand(1000, 9999);
+        $data = array(
+                    array(
+                        'url'    => '/branch/update',
+                        'data'   => array(
+                            'branchId'    => $branchId,
+                            'pin'         => $pin,
+                        ),
+                        'method' => 'post',
+                        'key'    => 'resetPwd',
+                    ),
+         );
+        $data              = $dataHttp->MutliCall($data);
+        $res             = false;
+        if( $data['resetPwd']['errno'] == 0 && $data['resetPwd']['data'] == true ){
+
+            //@todo  调用短信接口
+            $senddata = array(
+                array(
+                    'url'    => '/sms/send',
+                    'data'   => array(
+                        'mobile'    => $mobile,
+                        'content'   => '亲爱的用户,已为您设置新的店码：' . $pin .',请登陆爱抢购app,及时修改密码' ,
+                    ),
+                    'method' => 'post',
+                    'key'    => 'sendPwd',
+                ),
+            );
+            $sendMsgResult    = $dataHttp->MutliCall($senddata);
+            if($sendMsgResult['sendPwd']['errno'] == 0 && $sendMsgResult['sendPwd']['errmsg'] == 'success' ){
+              $res           = true;
+            }
+        }
+
+        $logRecord         = array(
+            'route'    => $this->getRequest()->get('_route'),
+            'res'      => $res,
+            'adminId'  => $this->getUser()->getId(),
+            'ext'      => array(
+                'branchId' => $branchId,
+                'pin'      => $pin,
+                'sendMsgResult' => $sendMsgResult
+             ),
+        );
+        $this->get('dwd.oplogger')->addCommonLog( $logRecord );
+
+        $response          = new Response();
+        $response->setContent( json_encode( $res ) );
+        return $response;
+    }
+
+    /**
      * @Route("/user/lock", name="dwd_csadmin_user_lock")
      *
      */
@@ -834,10 +1172,10 @@ class UserController extends Controller
         if( false == empty( $userPassword ) ){
           $params['password'] = $userPassword;
         }
-  
+
         $type                 = 1;
         $unlockDate           = date( 'Y-m-d H:i:s',  3600 * 24 * $lockDays + time() );
- 
+
         $data                 = array( 
                                     array(
                                         'url'    => '/user/locked',

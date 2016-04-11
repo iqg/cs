@@ -17,7 +17,7 @@ use Doctrine\ODM\MongoDB;
  */
 class SearchController extends Controller
 {
-    
+
     /** 
      * 如果是混合的关键字，全部转化成拼音
      * @Route("/autocomplete-branchname/search", name="dwd_csadmin_autocomplete_branchname_search")
@@ -34,6 +34,7 @@ class SearchController extends Controller
         }
 
         $dm             = $this->get('doctrine_mongodb')->getManager();
+
         $resultByName   = $dm->getRepository('DWDDataBundle:Store')->findByName(array('$regex' => $q));
         $resultByPinyin = $dm->getRepository('DWDDataBundle:Store')->findByPinyin(array('$regex' => $q));
         $result         = array_merge($resultByName, $resultByPinyin);
@@ -103,12 +104,14 @@ class SearchController extends Controller
         $data              = $dataHttp->MutliCall( $data );  
 
         if( false == empty( $data['redeemNumber']['data'] ) && $data['redeemNumber']['errno'] == 0 ){
+            foreach($data['redeemNumber']['data'] as $redeemRow){
             $branchInfo    = array(
-                                'id'       => $data['redeemNumber']['data']['id'],
+                                'id'       => $redeemRow['id'],
                                 'type'     => 'redeemNumber',
-                                'label'    => '兑换码搜索: ' . $data['redeemNumber']['data']['name'],
+                                'label'    => '兑换码搜索: ' . $redeemRow['name'],
                              );
             $arrayResult[] = $branchInfo;
+            }
         }
 
 
@@ -137,7 +140,8 @@ class SearchController extends Controller
         $response->setContent(json_encode($arrayResult));
         return $response;
     }
- 
+
+
     /**
      * 搜索用户
      * @Route("/autocomplete-user/search", name="dwd_csadmin_autocomplete_user_search")
@@ -146,7 +150,6 @@ class SearchController extends Controller
     {
         $dataHttp       = $this->get('dwd.data.http');
         $q              = $request->get('term');
-      
         $data           = array(
             array(
                 'url'    => '/user/userInfo',
@@ -174,8 +177,7 @@ class SearchController extends Controller
             ),
         );
 
-        $data              = $dataHttp->MutliCall( $data ); 
-     
+        $data              = $dataHttp->MutliCall( $data );
         $arrayResult       = array();
 
         if( false == empty( $data['userId']['data'] ) && $data['userId']['errno'] == 0 ){
@@ -198,12 +200,20 @@ class SearchController extends Controller
         }
 
         if( false == empty( $data['redeem']['data'] ) && $data['userId']['errno'] == 0 ){
-            $userInfo      = array(
-                                'id'       => $data['redeem']['data']['id'],
+            foreach( $data['redeem']['data'] as $redeemNum){
+//            $userInfo      = array(
+//                                'id'       => $data['redeem']['data']['id'],
+//                                'type'     => 'redeemNumber',
+//                                'label'    => '兑换码搜索: ' . $data['redeem']['data']['username'],
+//                             );
+                $userInfo      = array(
+                                'id'       => $redeemNum['id'],
                                 'type'     => 'redeemNumber',
-                                'label'    => '兑换码搜索: ' . $data['redeem']['data']['username'],
+                                'label'    => '兑换码搜索: ' . $redeemNum['username'],
                              );
-            $arrayResult[] = $userInfo;
+                $arrayResult[] = $userInfo;
+            }
+
         }
 
         $response                 = new Response();

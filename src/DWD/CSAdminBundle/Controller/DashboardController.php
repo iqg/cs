@@ -44,7 +44,6 @@ class DashboardController extends Controller
                                ),  
                            );
         $response        = $dataHttp->MutliCall( $data );   
-
         return $this->render('DWDCSAdminBundle:Dashboard:index.html.twig', array(
           	'errMsg'     => $errMsg,
             'zoneList'   => $response['zonelist']['data']['list'],

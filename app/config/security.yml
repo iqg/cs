@@ -42,4 +42,5 @@ security:
         # this is a catch-all for the admin area
         # additional security lives in the controllers  
         - { path: ^/login$, role: IS_AUTHENTICATED_ANONYMOUSLY }
-        - { path: ^/, roles: ROLE_SUPPORT }
+#        - { path: ^/, roles: ROLE_SUPPORT }
+        - { path: ^/, roles: ROLE_USER }
