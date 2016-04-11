@@ -24,13 +24,18 @@ class UpdateStorePinyinCommand extends ContainerAwareCommand
         $this->input = $input;
         $this->output = $output;
 
-        $this->loadStore();
+        $host = $this->getContainer()->getParameter('database_host');
+        $db   = $this->getContainer()->getParameter('database_name');
+        $user = $this->getContainer()->getParameter('database_user');
+        $password = $this->getContainer()->getParameter('database_password');
+
+        $this->loadStore($host,$db,$user,$password);
     }
 
     /**
      * 按照最新插入的branch_id，增量导入到MongoDB
      */
-    protected function loadStore()
+    protected function loadStore($host,$db,$user,$password)
     {
         // 获取mongodb的最大branch_id
         $dm = $this->getContainer()->get('doctrine_mongodb')->getManager();
@@ -45,10 +50,10 @@ class UpdateStorePinyinCommand extends ContainerAwareCommand
         }
 
         // 获取MySQL生产库的增量门店列表
-        $host = "10.0.0.10";
-        $user = "root";
-        $password = "123456";
-        $db = "backup_app_db";
+//        $host = "10.0.0.10";
+//        $user = "root";
+//        $password = "123456";
+//        $db = "backup_app_db";
         $this->connectDB($host, $user, $password, $db);
         $query = "SELECT `id`,`name`,`zone_id`,`address`,`lng`,`lat`,`enabled` FROM `branch` WHERE id > $last_branch_id";
         $branch_list = $this->getResultByQuery( $query );
