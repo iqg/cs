@@ -552,6 +552,7 @@ class UserController extends Controller
                 'url'    => '/vendorcoupon/vendorcouponlist',
                 'data'   => array(
                     'userId'         => $userId,
+                    'getAll'         => 1,
                     'needPagination' => 1,
                     'pageLimit'      => $iDisplayLength,
                     'pageNum'        => $iDisplayStart / $iDisplayLength + 1,
