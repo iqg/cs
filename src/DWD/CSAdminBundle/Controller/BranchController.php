@@ -172,7 +172,7 @@ class BranchController extends Controller
         if( empty( $accountInfo ) ){
            $accountInfo['username']  = '该门店不存在帐号';
            $accountInfo['mobile']    = '该门店不存在手机号';
-           $accountInfo['id']        = -1;   //user的id字段，， contacter_mobile
+           $accountInfo['id']        = -1;   //user的id字段，， branch的contacter_mobile
         }
         $accountInfo['brand_admin_bind_mobile'] = empty($accountInfo['brand_admin_bind_mobile'])?'该门店不存在手机号':$accountInfo['brand_admin_bind_mobile'];
         $accountInfo['mobile'] = empty($accountInfo['mobile'])?'该门店不存在手机号':$accountInfo['mobile'];
@@ -189,7 +189,7 @@ class BranchController extends Controller
         }
          
         $redeemTypes                 =  self::_getRedeemTypes( $branchInfo['redeem_type'] );
-        $branchInfo['redeemTypes']   =  implode( ", ", $redeemTypes[0]); //self::_getRedeemTypes( $branchInfo['redeem_type'] );
+        $branchInfo['redeemTypes']   =  implode( ", ", $redeemTypes[0]);
         $branchInfo['redeemTypeIds'] =  $redeemTypes[1];
         $orderListTypes              =  $this->get('dwd.util')->getOrderTableInfo( 0 );
         $redeemTels                  =  array();
@@ -253,13 +253,12 @@ class BranchController extends Controller
                 'key'    => 'orderlist',
             )
         );
-    
         $data              = $dataHttp->MutliCall($data);
         $orderList         = array(
                                 'list'         => array(),
                                 'total'        => $data['orderlist']['data']['totalCnt'], 
                              );
-        
+
         $campaignBranchIds = array();
         $ordersInfo        = array();
          
@@ -298,6 +297,9 @@ class BranchController extends Controller
                   break;
                 case 'status':
                   $tdValue       = $this->get('dwd.util')->getOrderStatusLabel($orderInfo['status']);
+                  break;
+                case 'type':
+                  $tdValue       = $this->get('dwd.util')->getOrderTypeLabel($orderInfo['type']);
                   break;
                 default:
                   break;
@@ -394,9 +396,6 @@ class BranchController extends Controller
                                 "iTotalDisplayRecords" => $orderList['total'],
                            );
         exit(json_encode( $res ));
-        //return $this->render('DWDCSAdminBundle:Dashboard:show.html.twig', array(
-         //   'product'      => $product,
-      //  ));
     }
  
     /**
@@ -498,7 +497,8 @@ class BranchController extends Controller
                                         'redeem_time'    => $redeemTime,
                                         'redeem_type'    => $redeemType,
                                         'tel'            => $tel,
-                                    ), 
+                                        'contacter_mobile'=> $bindMobile,
+                                    ),
                                     'method' => 'post',
                                     'key'    => 'update',
                                 ),
@@ -511,22 +511,12 @@ class BranchController extends Controller
                                     'method' => 'post',
                                     'key'    => 'addredeemtels',
                                 ),
-                                array(
-                                    'url'    => '/user/update',
-                                    'data'   => array(
-                                        'userId'                 => $userId,
-//                                        'brand_admin_bind_mobile'=> $bindMobile,
-                                        'mobile'=> $bindMobile,
-                                    ),
-                                    'method' => 'post',
-                                    'key'    => 'updatebindmobile',
-                                ),
                             );
 
         $data            = $dataHttp->MutliCall( $data );
         $res             = false;
 
-        if( $data['update']['errno'] == 0 && $data['update']['data'] == true && $data['updatebindmobile']['data'] == true  ){
+        if( $data['update']['errno'] == 0 && $data['update']['data'] == true ){
           $res           = true;
         }
 
