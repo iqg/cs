@@ -202,7 +202,7 @@ class OrderController extends Controller
 
         $data                 = $dataHttp->MutliCall($data);
         $orderinfo            = $data['orderinfo']['data'];
-        $paymentinfo          = $data['paymentinfo']['data'];
+        $paymentinfos         = $data['paymentinfo']['data'];
 
         $data                 = array( 
                                     array(
@@ -227,12 +227,12 @@ class OrderController extends Controller
         $userinfo             = $data['userinfo']['data'];
         $salerinfo            = $data['salerinfo']['data'];
 
-        $payInfo              = '无';
-        if( isset( $paymentinfo['amount'] ) ){
-
-            $payInfo          = $paymentinfo['amount'] . '元(' . $this->get('dwd.util')->getPaymentTypeLabel( $paymentinfo['payment_method'] ) . ")";
+        $payInfo              = '';
+        if( !empty( $paymentinfos ) ){
+           foreach($paymentinfos as $paymentinfo){
+            $payInfo      .= $paymentinfo['amount'] . '元(' . $this->get('dwd.util')->getPaymentTypeLabel( $paymentinfo['payment_method'] ) . ")";
+           }
         }
-
 
         $str               = '<table class="table table-striped table-bordered"><tr></tr>';
         $str              .= "<tr><td>订单id</td><td>" . $orderinfo['id'] . "</td></tr>";
@@ -287,7 +287,6 @@ class OrderController extends Controller
                                         'key'   => 'refund',
                                     ),
                                 );
-
         $data                 = $dataHttp->MutliCall($data);
 
         $res                  = array();

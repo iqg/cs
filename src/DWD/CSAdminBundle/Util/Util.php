@@ -37,9 +37,13 @@ class Util
    {
         $typeLabel          =  array(
                                  1    => '往下拍',
-                                 2    => '往下拍',
+                                 2    => '预售',
                                  3    => '倒计时',
-                                 4    => '活动赠送',
+                                 4    => '回头客',
+                                 5    => '品牌购买限制',
+                                 6    => '睡前摇',
+                                 7    => '市场活动奖励',
+                                 8    => '扫一扫活动',
                                );
         return  isset( $typeLabel[$typeId] ) ? $typeLabel[$typeId] : '';
    }
@@ -58,6 +62,9 @@ class Util
                                  9    => '支付超时',
                                  10   => '未知',
                                  11   => '申请退款中',
+                                 12   => '订单失败',
+                                 13   => '优惠券错误',
+                                 14   => '已作废',
                                );
         return isset( $statusLabel[$statusId] ) ? $statusLabel[$statusId] : $statusId;
    }
@@ -209,12 +216,14 @@ class Util
                                                              '门店',
                                                              '兑换码',
                                                              '状态',
+                                                             '订单类型',
                                                           ),
                                            'field'     => array(
                                                              'itemName',
                                                              'branchName',
                                                              'redeemNumber',
                                                              'status',
+                                                             'type'
                                                           ),
                                            'operation' => array(
                                                             '验证',
@@ -231,11 +240,13 @@ class Util
                                                              '商品',
                                                              '门店',
                                                              '退款时间',
+                                                             '订单类型',
                                                            ),
                                             'field'     => array(
                                                              'itemName',
                                                              'branchName',
                                                              'refundTime',
+                                                             'type'
                                                            ),
                                             'operation' => array(
                                                             '纠错',
@@ -250,11 +261,13 @@ class Util
                                                              '商品',
                                                              '门店',
                                                              '过期时间',
+                                                             '订单类型',
                                                            ),
                                             'field'     => array(
                                                              'itemName',
                                                              'branchName',
                                                              'expiredTime',
+                                                             'type'
                                                            ),
                                             'operation' => array(
                                                             '退款',
@@ -270,11 +283,13 @@ class Util
                                                              '商品',
                                                              '门店',
                                                              '领用时间',
+                                                             '订单类型',
                                                            ),
                                             'field'     => array(
                                                              'itemName',
                                                              'branchName',
                                                              'redeemTime',
+                                                             'type'
                                                            ),
                                             'operation' => array(
                                                             '纠错',
@@ -289,11 +304,13 @@ class Util
                                                              '商品',
                                                              '门店',
                                                              '状态',
+                                                             '订单类型',
                                                            ),
                                            'field'      => array(
                                                              'itemName',
                                                              'branchName',
                                                              'status',
+                                                             'type'
                                                            ),
                                             'operation' => array(
                                                             '详情',
@@ -371,6 +388,7 @@ class Util
                                   23       => '其他',
                                   24       => '查看记录',
                                   25       => '要求退款',
+                                  26       => '修改信息',
                                );
         return isset( $tagLabel[$tagId] ) ?  $tagLabel[$tagId] : '' ;
    }
