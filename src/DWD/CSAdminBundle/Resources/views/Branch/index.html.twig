@@ -69,7 +69,7 @@
                                 {% for thInfo in typeLabel['head'] %}
                                     <th>{{ thInfo }}</th>
                                 {% endfor %}
-                                <th>操作</th>
+                                <th style="width: 180px;">操作</th>
                             </tr>
                             </thead>
                             <tbody>
@@ -451,6 +451,8 @@
         if( '该门店不存在手机号' != branchinfo.contacter_mobile && null != branchinfo.contacter_mobile ){
             infoAccountNameHtml += "&nbsp;&nbsp;&nbsp;<a id='resetPwd-btn' href='#'>[重置密码]</a>&nbsp;&nbsp;&nbsp<a id='resetPinPwd-btn' href='#'>[重置店码]</a> (重置密码前,确认联系人电话)";
             mobile+= branchinfo.contacter_mobile;
+        }else{
+            infoAccountNameHtml += "&nbsp;&nbsp;&nbsp;<a id='resetPwd-btn1' style='color:#555555' href='#'>[重置密码]</a>&nbsp;&nbsp;&nbsp<a id='resetPinPwd-btn1' style='color:#555555' href='#'>[重置店码]</a> (重置密码前,确认联系人电话)";
         }
         $("#info-branchAccount").html( infoAccountNameHtml );
         $("#mobile").html( mobile );
@@ -661,18 +663,18 @@
         });
         //修改用户信息
         $("#modifyBranch-submit-btn").click(function(e){
- 
-            if( $(this).hasClass("disable") ){
-                alert('请勿重复操作');
-                return ;
-            }
-            $(this).addClass("disable");
 
             var address        = $("#modify-address").val();
             var tel            = $("#modify-tel").val();
-            var bindMobile     = $("#modify-bindmobile").val(); //重置密码和店码的手机号
             var redeemTels     = $("#redeem-tels").val();
             var redeemTime     = $("#modify-redeemTime").val();
+            var bindMobile     = $("#modify-bindmobile").val(); //重置密码和店码的手机号
+
+            var mobileReg = /^(((13[0-9]{1})|(15[0-9]{1})|(18[0-9]{1})|(170))+\d{8})$/;
+            if(!mobileReg.test(bindMobile)){
+                alert('绑定手机号请输入正确的格式!');
+                return false;
+            }
 
             var webRedeem      = $("#is_web_redeem")[0].checked;
             var mobileRedeem   = $("#is_mobile_redeem")[0].checked;
@@ -704,7 +706,7 @@
                 data.secretRedeem = 1;
                 redeemTypes      += redeemTypes == '' ? '密码验证' : ',密码验证';
             }
-            
+
             $.ajax({
                 type:'post',      
                 url:'/branch/update',    

@@ -86,7 +86,7 @@
                                 {% for thInfo in typeLabel['head'] %}
                                     <th>{{ thInfo }}</th>
                                 {% endfor %}
-                                <th>操作</th>
+                                <th style="width: 200px;">操作</th>
                             </tr>
                             </thead>
                             <tbody>
@@ -1138,7 +1138,7 @@
             $.ajax({
                 type:'post',
                 url:'/order/refund',
-                data:{orderId: refundOrderId, feedbackId: feedbackId, makeup: offlined},
+                data:{orderId: refundOrderId, feedbackId: feedbackId, makeup: offlined}, //是否补偿用户,是根据活动是否下线
                 dataType:'json',
                 success:function(data){
                     if( data.result == true ){

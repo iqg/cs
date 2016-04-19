@@ -182,7 +182,7 @@ class UserController extends Controller
                                       'key'    => 'orderlist',
                                   )
                                );
-    
+
         $data              = $dataHttp->MutliCall($data);
         $orderList         = array(
                                'list'         => array(),
@@ -225,6 +225,9 @@ class UserController extends Controller
                 case 'status':
                   $tdValue       = $this->get('dwd.util')->getOrderStatusLabel($orderInfo['status']);
                   break;
+                case 'type':
+                  $tdValue       = $this->get('dwd.util')->getOrderTypeLabel($orderInfo['type']);
+                  break;
                 default:
                   break;
               }
@@ -249,9 +252,8 @@ class UserController extends Controller
             $campaignBranch    = $data['detail']['data'];
 
            $tdValues[]           = $this->_getOperation( $tableInfo['operation'], $orderInfo['id'], $campaignBranch['enabled'] );
-           $orderList['list'][]  = $tdValues; 
+           $orderList['list'][]  = $tdValues;
         }
-
         return $orderList;
     }
 
