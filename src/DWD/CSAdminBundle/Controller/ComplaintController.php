@@ -108,6 +108,7 @@ class ComplaintController extends Controller
         $platform             = $this->getRequest()->get('platform');
         $labelType            = $this->getRequest()->get('labelType');
 
+
         if( !empty( $tags ) ){
             $tags             = explode( ',', $tags );
             foreach ($tags as $key => $value) {
@@ -153,7 +154,7 @@ class ComplaintController extends Controller
                                     )
                                 );
             $data            =  $dataHttp->MutliCall($data); 
-            $branchInfo      =  $data['branchinfo']['data'];
+            $branchInfo      =  $data['branchinfo']['data'][0];
             $complaint->setSalerId( $branchInfo['saler_id'] );
             $complaint->setZoneId( $branchInfo['zone_id'] );
         }
