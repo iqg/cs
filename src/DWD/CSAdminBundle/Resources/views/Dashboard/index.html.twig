@@ -30,7 +30,7 @@
                         <div class="col-md-1"></div>
                         <div class="col-md-8"> 
                             <input type="searchBranch" id="searchBranchBox" value="" name="search" class="form-control hide searchBox" placeholder="请输入商户名称,拼音缩写,验证码" required>
-                            <input type="searchUser" id="searchUserBox" value="" name="search" class="form-control searchBox hide" placeholder="请输入用户手机号,验证码(兑换码),用户id,订单id" required>
+                            <input type="searchUser" id="searchUserBox" value="" name="search" class="form-control searchBox hide" placeholder="请输入用户手机号,验证码(兑换码),用户id,用户昵称,订单id" required>
                         </div>
                         <div class="col-md-3">
                             <button id="processBtn" class="btn hide btn-primary">处理</button>
@@ -129,7 +129,8 @@
 	var    city     = 0;
 	var    branchId = 0;
 	var    saler    = 0;
-    var  searchType = '';
+    var    searchType = '';
+    var    inputValue = '';
     $(document).ready(function() {
 		$(".complaint-type").click(function (e) { 
             if( $(this).hasClass("btn-default") ){
@@ -214,6 +215,7 @@
 	                select: function(e, ui) {
 				     id         = ui.item.id;
                      searchType = ui.item.type;
+                    inputValue　= ui.item.inputValue;
                      searchKey  = $(this).val();
 				    }
 		}).bind( "keydown", function( event ) {
@@ -227,6 +229,7 @@
 	                select: function(e, ui) {
 				      id         = ui.item.id;
                       searchType = ui.item.type;
+                      inputValue = ui.item.inputValue;
                       searchKey  = $(this).val();
 				    } 
 		}).bind( "keydown", function( event ) {
@@ -262,14 +265,14 @@
 		   }
            switch(type){
 			case 'user':  
-			  location.href='/user?userId=' + id + '&type=' + type + '&source=' + source + '&searchType=' + searchType + '&searchKey=' + searchKey;
+			  location.href='/user?userId=' + id + '&type=' + type + '&source=' + source + '&searchType=' + searchType + '&inputValue=' + inputValue;
 			  break; 
 			case 'branch': 
-			  location.href='/branch?branchId=' + id + '&type=' + type + '&source=' + source + '&searchType=' + searchType + '&searchKey=' + searchKey;
+			  location.href='/branch?branchId=' + id + '&type=' + type + '&source=' + source + '&searchType=' + searchType + '&inputValue=' + inputValue;
 			  break;
 		   } 
 		});
-        // 通用函数。
+        // 通用函数
         var processingfn = function(){
             if( type == '' ){
                 alert('请选择投诉类型');
@@ -282,10 +285,10 @@
             }
             switch(type){
                 case 'user':
-                    location.href='/user?userId=' + id + '&type=' + type + '&source=' + source + '&searchType=' + searchType + '&searchKey=' + searchKey;
+                    location.href='/user?userId=' + id + '&type=' + type + '&source=' + source + '&searchType=' + searchType + '&searchKey=' + searchKey+ '&inputValue=' + inputValue;
                     break;
                 case 'branch':
-                    location.href='/branch?branchId=' + id + '&type=' + type + '&source=' + source + '&searchType=' + searchType + '&searchKey=' + searchKey;
+                    location.href='/branch?branchId=' + id + '&type=' + type + '&source=' + source + '&searchType=' + searchType + '&searchKey=' + searchKey+ '&inputValue=' + inputValue;
                     break;
             }
         };

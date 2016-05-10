@@ -23,6 +23,7 @@ class CampaignBranchController extends Controller
     {  
         $dataHttp          = $this->get('dwd.data.http');
         $id                = $this->getRequest()->get('campaignBranchId');
+
         $data              = array(
                                  array(
                                      'url'    => '/campaignbranch/detail',
@@ -78,6 +79,9 @@ class CampaignBranchController extends Controller
         $str              .= "<tr><td>周几营业</td><td>" . $campaignBranch['week'] . "</td></tr>";
         $str              .= "<tr><td>特别提示</td><td>" . $campaignBranch['tips'] . "</td></tr>";
         $str              .= "<tr><td>状态</td><td>" . $this->get('dwd.util')->getEnabledLabel( $campaignBranch['enabled'] ) . "</td></tr>";
+        $str              .= "<tr><td>砍价幅度</td><td>" . $campaignBranch['bargain_range']  . "</td></tr>";
+        $str              .= "<tr><td>当前价格</td><td>" . $campaignBranch['current_price']  . "</td></tr>";
+        $str              .= "<tr><td>是否需要预约</td><td>" .$this->get('dwd.util')->getBookTypeLabel( $campaignBranch['need_book'] )  . "</td></tr>";
         $str              .= "</table>";
 
         $res               = array(
