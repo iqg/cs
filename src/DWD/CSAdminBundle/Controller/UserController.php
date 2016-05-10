@@ -25,7 +25,7 @@ class UserController extends Controller
         $type            = $this->getRequest()->get('type');
         $source          = $this->getRequest()->get('source');
         $searchType      = $this->getRequest()->get('searchType');
-        $searchKey       = $this->getRequest()->get('searchKey');
+        $searchKey       = $this->getRequest()->get('inputValue');
         $dataHttp        = $this->get('dwd.data.http');
 
         if( false == is_numeric( $userId ) ){
@@ -146,6 +146,9 @@ class UserController extends Controller
              case '退款':
                     $opStr  .= "&nbsp;&nbsp;&nbsp;<a href='#' class='order-refund-btn' data-rel='$orderId' data-campaign-branch-enabled-rel='$offlineEnabled'>[退款]</a>";
                     break;
+             case '取消':
+                  $opStr    .= "&nbsp;&nbsp;&nbsp;<a href='#' class='order-cancel-btn' data-rel='$orderId' data-campaign-branch-enabled-rel='$offlineEnabled'>[取消]</a>";
+                  break;
              case '纠错':
                     $opStr  .= "&nbsp;&nbsp;&nbsp;<a href='#' class='order-correct-btn' data-rel='$orderId' data-campaign-branch-enabled-rel='$offlineEnabled'>[纠错]</a>";
                     break;
@@ -161,7 +164,7 @@ class UserController extends Controller
         return $opStr;
     }
 
-    //获取订单列表
+    //获取订单列表,根据类型来判读
     private function _getOrderList( $userId, $orderType, $limitStart, $pageLimit )
     {
         $dataHttp            = $this->get('dwd.data.http');
@@ -196,9 +199,9 @@ class UserController extends Controller
             $ordersInfo[]        = $orderInfo;
         }
 
-        $tableInfo               =  $this->get('dwd.util')->getOrderTableInfo( $orderTypeId );
-
         foreach( $ordersInfo as $key => $orderInfo ){
+
+        $tableInfo               =  $this->get('dwd.util')->getOrderTableInfo( $orderTypeId,$orderInfo['type']);
            $tdValues             = array();
            foreach ($tableInfo['field'] as $field) 
            {  
@@ -226,7 +229,13 @@ class UserController extends Controller
                   $tdValue       = $this->get('dwd.util')->getOrderStatusLabel($orderInfo['status']);
                   break;
                 case 'type':
-                  $tdValue       = $this->get('dwd.util')->getOrderTypeLabel($orderInfo['type']);
+                  $tdValue       = $this->get('dwd.util')->getOrderTypeLabel($orderInfo['type']); //订单类型
+                  break;
+                case 'feedback':
+                  $tdValue       = $orderInfo['feedback'];
+                  break;
+                case 'note':
+                  $tdValue       = $orderInfo['note'];
                   break;
                 default:
                   break;
@@ -250,14 +259,13 @@ class UserController extends Controller
 
             $data              = $dataHttp->MutliCall( $data );
             $campaignBranch    = $data['detail']['data'];
-
            $tdValues[]           = $this->_getOperation( $tableInfo['operation'], $orderInfo['id'], $campaignBranch['enabled'] );
            $orderList['list'][]  = $tdValues;
         }
         return $orderList;
     }
 
-    //获取订单信息
+    //获取订单信息,作为未领用的状态
     private function _getOrderInfo( $redeemNumber, $userId )
     { 
         $dataHttp        = $this->get('dwd.data.http');
@@ -291,6 +299,8 @@ class UserController extends Controller
                     $orderInfo['branch_name'],
                     $orderInfo['redeem_number'],
                     $this->get('dwd.util')->getOrderStatusLabel($orderInfo['status']),
+                    $this->get('dwd.util')->getOrderTypeLabel($orderInfo['type']),
+                    $orderInfo['redeem_time'],
                     $this->_getOperation( $operation, $orderInfo['id'] ),
                 );
                 $orderList['total'] += 1;
