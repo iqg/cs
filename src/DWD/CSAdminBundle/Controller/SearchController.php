@@ -180,6 +180,14 @@ class SearchController extends Controller
                 'key'    => 'redeem',
             ),
             array(
+                'url'    => '/order/orderInfo',
+                'data'   => array(
+                    'orderId'      => $q,
+                ),
+                'method' => 'get',
+                'key'    => 'orderid',
+            ),
+            array(
                 'url'    => '/user/userInfo',
                 'data'   => array(
                     'username'      => $q,
@@ -224,6 +232,16 @@ class SearchController extends Controller
                              );
                 $arrayResult[] = $userInfo;
             }
+        }
+        //用户订单搜索
+        if( false == empty( $data['orderid']['data'] ) && $data['orderid']['errno'] == 0 ){
+                $userInfo      = array(
+                    'id'       => $data['orderid']['data']['user_id'],
+                    'type'     => 'orderid',
+                    'label'    => '用户订单搜索: ' . $data['orderid']['data']['user_id'],
+                    'inputValue'=> $q,
+                );
+                $arrayResult[] = $userInfo;
         }
 
         if( false == empty( $data['username']['data'] ) && $data['username']['errno'] == 0 ){

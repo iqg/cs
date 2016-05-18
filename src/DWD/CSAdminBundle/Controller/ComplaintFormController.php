@@ -55,6 +55,44 @@ class ComplaintFormController extends Controller
 
     /**
      *
+     * @Route("/ordercancel",name="dwd_csadmin_complaintform_ordercancel")
+     */
+    public function ordercancel()
+    {
+        $userId          = $this->getRequest()->get('userId');
+        $branchId        = $this->getRequest()->get('branchId', 0);
+        $mobile          = $this->getRequest()->get('mobile', '');
+        $dataHttp        = $this->get('dwd.data.http');
+
+        $data            = array(
+            array(
+                'url'    => '/user/userInfo',
+                'data'   => array(
+                    'userId'         => $userId,
+                ),
+                'method' => 'get',
+                'key'    => 'user',
+            ),
+        );
+
+        $data            = $dataHttp->MutliCall($data);
+
+        if( empty( $data['user']['data'] ) ){
+            return $this->render('DWDCSAdminBundle:Dashboard:index.html.twig', array(
+                'errMsg'    => '用户不存在'
+            ));
+        }
+
+        return $this->render('DWDCSAdminBundle:ComplaintForm:ordercancel.html.twig', array(
+            'userId'         => $userId,
+            'branchId'       => $branchId,
+            'mobile'         => $mobile,
+            'referer'        => isset( $_SERVER['HTTP_REFERER'] ) ? $_SERVER['HTTP_REFERER'] : '/',
+        ));
+    }
+
+    /**
+     *
      * @Route("/redeem",name="dwd_csadmin_complaintform_redeem")
      */
     public function redeem()
