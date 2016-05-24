@@ -49,7 +49,8 @@ class SearchController extends Controller
             $branchInfo           = array();
             $branchInfo['id']     = $record->getBranchId();
             $branchInfo['type']   = 'branch';
-            $branchInfo['label']  = $record->getName(); 
+            $branchInfo['label']  = $record->getName();
+            $branchInfo['inputValue']  = $q;
             $arrayResult[]        = $branchInfo;
             $resultHash[$record->getBranchId()] = True;
         }
@@ -109,6 +110,7 @@ class SearchController extends Controller
                                 'id'       => $redeemRow['id'],
                                 'type'     => 'redeemNumber',
                                 'label'    => '兑换码搜索: ' . $redeemRow['name'],
+                                'inputValue'=> $q,
                              );
             $arrayResult[] = $branchInfo;
             }
@@ -120,6 +122,7 @@ class SearchController extends Controller
                                 'id'       => $data['branchId']['data']['id'],
                                 'type'     => 'branchId',
                                 'label'    => '门店id搜索: ' . $data['branchId']['data']['name'],
+                                'inputValue'=> $q,
                              );
             $arrayResult[] = $branchInfo;
         }
@@ -131,7 +134,8 @@ class SearchController extends Controller
             $branchInfo           = array();
             $branchInfo['id']     = $record->getBranchId();
             $branchInfo['type']   = 'branch';
-            $branchInfo['label']  = '门店模糊搜索: ' . $record->getName(); 
+            $branchInfo['label']  = '门店模糊搜索: ' . $record->getName();
+            $branchInfo['inputValue']  = $q;
             $arrayResult[]        = $branchInfo;
             $resultHash[$record->getBranchId()] = True;
         }
@@ -143,7 +147,7 @@ class SearchController extends Controller
 
 
     /**
-     * 搜索用户
+     * 搜索用户投诉相关的信息
      * @Route("/autocomplete-user/search", name="dwd_csadmin_autocomplete_user_search")
      */
     public function autocompleteUserSearchAction(Request $request)
@@ -175,6 +179,22 @@ class SearchController extends Controller
                 'method' => 'get',
                 'key'    => 'redeem',
             ),
+            array(
+                'url'    => '/order/orderInfo',
+                'data'   => array(
+                    'orderId'      => $q,
+                ),
+                'method' => 'get',
+                'key'    => 'orderid',
+            ),
+            array(
+                'url'    => '/user/userInfo',
+                'data'   => array(
+                    'username'      => $q,
+                ),
+                'method' => 'get',
+                'key'    => 'username',
+            ),
         );
 
         $data              = $dataHttp->MutliCall( $data );
@@ -185,6 +205,7 @@ class SearchController extends Controller
                                 'id'       => $data['userId']['data']['id'],
                                 'type'     => 'userId',
                                 'label'    => '用户id搜索: ' . $data['userId']['data']['username'],
+                                'inputValue'=> $q,
                              );
             $arrayResult[] = $userInfo;
         }
@@ -195,25 +216,44 @@ class SearchController extends Controller
                                 'id'       => $data['mobile']['data']['id'],
                                 'type'     => 'mobile',
                                 'label'    => '手机号码搜索: ' . $data['mobile']['data']['username'],
+                                'inputValue'=> $q,
                              );
             $arrayResult[] = $userInfo;
         }
 
         if( false == empty( $data['redeem']['data'] ) && $data['userId']['errno'] == 0 ){
             foreach( $data['redeem']['data'] as $redeemNum){
-//            $userInfo      = array(
-//                                'id'       => $data['redeem']['data']['id'],
-//                                'type'     => 'redeemNumber',
-//                                'label'    => '兑换码搜索: ' . $data['redeem']['data']['username'],
-//                             );
+
                 $userInfo      = array(
                                 'id'       => $redeemNum['id'],
                                 'type'     => 'redeemNumber',
                                 'label'    => '兑换码搜索: ' . $redeemNum['username'],
+                                'inputValue'=> $q,
                              );
                 $arrayResult[] = $userInfo;
             }
+        }
+        //用户订单搜索
+        if( false == empty( $data['orderid']['data'] ) && $data['orderid']['errno'] == 0 ){
+                $userInfo      = array(
+                    'id'       => $data['orderid']['data']['user_id'],
+                    'type'     => 'orderid',
+                    'label'    => '用户订单搜索: ' . $data['orderid']['data']['user_id'],
+                    'inputValue'=> $q,
+                );
+                $arrayResult[] = $userInfo;
+        }
 
+        if( false == empty( $data['username']['data'] ) && $data['username']['errno'] == 0 ){
+            foreach( $data['username']['data']['list'] as $user){
+                $userInfo      = array(
+                    'id'       => $user['id'],
+                    'type'     => 'username',
+                    'label'    => '用户昵称搜索: ' . $user['username'],
+                    'inputValue'=> $q,
+                );
+                $arrayResult[] = $userInfo;
+            }
         }
 
         $response                 = new Response();
@@ -259,6 +299,7 @@ class SearchController extends Controller
                                 'id'       => $data['userId']['data']['id'],
                                 'type'     => 'user',
                                 'label'    => '用户id搜索: ' . $data['userId']['data']['username'],
+                                'inputValue'=> $q,
                              );
             $arrayResult[] = $userInfo;
         }
@@ -269,6 +310,7 @@ class SearchController extends Controller
                                 'id'       => $data['mobile']['data']['id'],
                                 'type'     => 'user',
                                 'label'    => '手机号码搜索: ' . $data['mobile']['data']['username'],
+                                'inputValue'=> $q,
                              );
             $arrayResult[] = $userInfo;
         }
@@ -292,7 +334,8 @@ class SearchController extends Controller
             $branchInfo           = array();
             $branchInfo['id']     = $record->getBranchId();
             $branchInfo['type']   = 'branch';
-            $branchInfo['label']  = '门店模糊搜索: ' . $record->getName(); 
+            $branchInfo['label']  = '门店模糊搜索: ' . $record->getName();
+            $branchInfo['inputValue']  = $q;
             $arrayResult[]        = $branchInfo;
             $resultHash[$record->getBranchId()] = True;
         }

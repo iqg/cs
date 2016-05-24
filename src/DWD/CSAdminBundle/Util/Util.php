@@ -205,7 +205,7 @@ class Util
         return $typeLabel[$typeId];
    }
 
-   public function getOrderTableInfo( $typeId )
+   public function getOrderTableInfo( $typeId ,$orderType = null)
    {
       $tableInfo            =  array(
                                  2    => array(
@@ -217,17 +217,19 @@ class Util
                                                              '兑换码',
                                                              '状态',
                                                              '订单类型',
+                                                             '过期时间',
                                                           ),
                                            'field'     => array(
                                                              'itemName',
                                                              'branchName',
                                                              'redeemNumber',
                                                              'status',
-                                                             'type'
+                                                             'type',
+                                                             'expiredTime',
                                                           ),
                                            'operation' => array(
                                                             '验证',
-                                                            '退款',
+                                                            $orderType ==6 ?'取消':'退款',
                                                             '纠错',
                                                             '日志',
                                                             '详情',
@@ -241,12 +243,16 @@ class Util
                                                              '门店',
                                                              '退款时间',
                                                              '订单类型',
+                                                             '原因',
+                                                             '补充说明',
                                                            ),
                                             'field'     => array(
                                                              'itemName',
                                                              'branchName',
                                                              'refundTime',
-                                                             'type'
+                                                             'type',
+                                                             'feedback',
+                                                             'note',
                                                            ),
                                             'operation' => array(
                                                             '纠错',
@@ -270,7 +276,7 @@ class Util
                                                              'type'
                                                            ),
                                             'operation' => array(
-                                                            '退款',
+                                                            $orderType ==6 ?'':'退款', //如果是睡前摇，则没有退款按钮
                                                             '纠错',
                                                             '日志',
                                                             '详情',
@@ -389,6 +395,7 @@ class Util
                                   24       => '查看记录',
                                   25       => '要求退款',
                                   26       => '修改信息',
+                                  27       => '商户原因取消订单',
                                );
         return isset( $tagLabel[$tagId] ) ?  $tagLabel[$tagId] : '' ;
    }
@@ -476,5 +483,9 @@ class Util
         );
         return isset( $reasonLabel[$reasonId] ) ?  $reasonLabel[$reasonId] : '' ;
     }
-
+    //campaign_branch是否需要预约．
+    public function getBookTypeLabel( $enabled )
+    {
+        return intval( $enabled ) == 0 ? '不需要预约' : '需要预约';
+    }
 }
