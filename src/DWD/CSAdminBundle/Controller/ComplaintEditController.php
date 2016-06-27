@@ -271,13 +271,25 @@ class ComplaintEditController extends Controller
      
     private function _editResetPwd( $complaint )
     { 
-        return $this->render('DWDCSAdminBundle:ComplaintEdit:resetpwd.html.twig', array( 
+        return $this->render('DWDCSAdminBundle:ComplaintEdit:resetpwd.html.twig', array(
             'tags'            => $complaint['tags'],
             'method'          => $complaint['method'],
             'mobile'          => $complaint['mobile'],
             'status'          => $complaint['status'],
             'note'            => $complaint['note'],
             'complaintId'     => $complaint['_id'],  
+        ));
+    }
+
+    private function _editOrderCancel( $complaint )
+    {
+        return $this->render('DWDCSAdminBundle:ComplaintEdit:ordercancel.html.twig', array(
+            'tags'            => $complaint['tags'],
+            'method'          => $complaint['method'],
+            'mobile'          => $complaint['mobile'],
+            'status'          => $complaint['status'],
+            'note'            => $complaint['note'],
+            'complaintId'     => $complaint['_id'],
         ));
     }
 
@@ -351,6 +363,9 @@ class ComplaintEditController extends Controller
            case 'resetPwd':
               return self::_editResetPwd( $complaint );
               break;
+            case 'orderCancel':
+                return self::_editOrderCancel( $complaint );
+                break;
            case 'orderRefund':
               return self::_editOrderRefund( $complaint );
               break;

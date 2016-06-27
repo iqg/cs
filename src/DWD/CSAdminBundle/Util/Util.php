@@ -395,6 +395,7 @@ class Util
                                   24       => '查看记录',
                                   25       => '要求退款',
                                   26       => '修改信息',
+                                  27       => '商户原因取消订单',
                                );
         return isset( $tagLabel[$tagId] ) ?  $tagLabel[$tagId] : '' ;
    }

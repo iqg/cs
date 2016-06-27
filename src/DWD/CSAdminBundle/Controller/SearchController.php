@@ -180,13 +180,21 @@ class SearchController extends Controller
                 'key'    => 'redeem',
             ),
             array(
-                'url'    => '/user/userInfo',
+                'url'    => '/order/orderInfo',
                 'data'   => array(
-                    'username'      => $q,
+                    'orderId'      => $q,
                 ),
                 'method' => 'get',
-                'key'    => 'username',
+                'key'    => 'orderid',
             ),
+//            array(
+//                'url'    => '/user/userInfo',
+//                'data'   => array(
+//                    'username'      => $q,
+//                ),
+//                'method' => 'get',
+//                'key'    => 'username',
+//            ),
         );
 
         $data              = $dataHttp->MutliCall( $data );
@@ -225,18 +233,28 @@ class SearchController extends Controller
                 $arrayResult[] = $userInfo;
             }
         }
-
-        if( false == empty( $data['username']['data'] ) && $data['username']['errno'] == 0 ){
-            foreach( $data['username']['data']['list'] as $user){
+        //用户订单搜索
+        if( false == empty( $data['orderid']['data'] ) && $data['orderid']['errno'] == 0 ){
                 $userInfo      = array(
-                    'id'       => $user['id'],
-                    'type'     => 'username',
-                    'label'    => '用户昵称搜索: ' . $user['username'],
+                    'id'       => $data['orderid']['data']['user_id'],
+                    'type'     => 'orderid',
+                    'label'    => '用户订单搜索: ' . $data['orderid']['data']['user_id'],
                     'inputValue'=> $q,
                 );
                 $arrayResult[] = $userInfo;
-            }
         }
+
+//        if( false == empty( $data['username']['data'] ) && $data['username']['errno'] == 0 ){
+//            foreach( $data['username']['data']['list'] as $user){
+//                $userInfo      = array(
+//                    'id'       => $user['id'],
+//                    'type'     => 'username',
+//                    'label'    => '用户昵称搜索: ' . $user['username'],
+//                    'inputValue'=> $q,
+//                );
+//                $arrayResult[] = $userInfo;
+//            }
+//        }
 
         $response                 = new Response();
         $response->setContent(json_encode($arrayResult));

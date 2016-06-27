@@ -312,4 +312,54 @@ class OrderController extends Controller
         $response->setContent( json_encode( $res ) );
         return $response;
     }
+
+    /**
+     * 睡前摇订单取消，并补偿50金币
+     * @Route("/order/dropShakeOrder",name="dwd_csadmin_order_cancel")
+     * @param $productOrder
+     *
+     */
+    public function dropShakeOrderAction()
+    {
+        $dataHttp             = $this->get('dwd.data.http');
+
+        $orderId              = $this->getRequest()->get('orderId');
+
+        $params               = array(
+            'order_id'      => $orderId,
+        );
+
+        $data                 = array(
+            array(
+                'host'  => $this->container->getParameter('iqg_host'),
+                'url'   => '/api/order/cancelShakeOrder',
+                'data'  => $params,
+                'method'=> 'post',
+                'key'   => 'cancel',
+            ),
+        );
+        $result               = $dataHttp->MutliCall($data);
+
+        $res                  = [];
+        $res['result']        = false;
+        if( $result['cancel']['code'] == 200 ){
+            $res['result']    = true;
+        }
+
+        $logRecord            = array(
+            'route'    => $this->getRequest()->get('_route'),
+            'res'      => $res['result'],
+            'adminId'  => $this->getUser()->getId(),
+            'ext'      => array(
+                'orderId'        => $orderId,
+                'rtnResult'      => json_encode($result),
+            ),
+        );
+
+        $this->get('dwd.oplogger')->addCommonLog( $logRecord );
+
+        $response          = new Response();
+        $response->setContent( json_encode( $res ) );
+        return $response;
+    }
 }
