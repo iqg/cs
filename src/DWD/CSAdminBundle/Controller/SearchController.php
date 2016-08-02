@@ -187,14 +187,14 @@ class SearchController extends Controller
                 'method' => 'get',
                 'key'    => 'orderid',
             ),
-            array(
-                'url'    => '/user/userInfo',
-                'data'   => array(
-                    'username'      => $q,
-                ),
-                'method' => 'get',
-                'key'    => 'username',
-            ),
+//            array(
+//                'url'    => '/user/userInfo',
+//                'data'   => array(
+//                    'username'      => $q,
+//                ),
+//                'method' => 'get',
+//                'key'    => 'username',
+//            ),
         );
 
         $data              = $dataHttp->MutliCall( $data );
@@ -244,17 +244,17 @@ class SearchController extends Controller
                 $arrayResult[] = $userInfo;
         }
 
-        if( false == empty( $data['username']['data'] ) && $data['username']['errno'] == 0 ){
-            foreach( $data['username']['data']['list'] as $user){
-                $userInfo      = array(
-                    'id'       => $user['id'],
-                    'type'     => 'username',
-                    'label'    => '用户昵称搜索: ' . $user['username'],
-                    'inputValue'=> $q,
-                );
-                $arrayResult[] = $userInfo;
-            }
-        }
+//        if( false == empty( $data['username']['data'] ) && $data['username']['errno'] == 0 ){
+//            foreach( $data['username']['data']['list'] as $user){
+//                $userInfo      = array(
+//                    'id'       => $user['id'],
+//                    'type'     => 'username',
+//                    'label'    => '用户昵称搜索: ' . $user['username'],
+//                    'inputValue'=> $q,
+//                );
+//                $arrayResult[] = $userInfo;
+//            }
+//        }
 
         $response                 = new Response();
         $response->setContent(json_encode($arrayResult));
