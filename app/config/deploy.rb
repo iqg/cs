@@ -12,7 +12,7 @@ set :repository,  "git@github.com:iqg/cs.git"
 set :scm,         :git
 set :branch,      "master"
 
-server '10.0.0.10', :app, :web, :primary => true
+#server '10.0.0.10', :app, :web, :primary => true
 #set :deploy_to,   "/var/www/cs.iqianggou.lab"
 
 set :linked_dirs, ""
@@ -41,7 +41,7 @@ set :use_composer, true
 set :update_vendors, true
 
 
-set :stages,        %w(dev staging)
+set :stages,        %w(dev staging online aliyun gitlab)
 set :default_stage, "dev"
 set :stage_dir,     "app/config/deploy_stage"
 require 'capistrano/ext/multistage'
